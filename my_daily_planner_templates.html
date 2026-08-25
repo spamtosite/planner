@@ -458,22 +458,39 @@ async function driveApi(path,options={}){
 }
 
 async function driveFindOrCreateFile(){
-  const listRes=await driveApi('/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)');
+  const listRes=await driveApi('/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime,createdTime)');
   const listJson=await listRes.json();
-  const found=(listJson.files||[]).find(f=>f.name===DRIVE_FILE_NAME);
-  if(found){
-    __driveFileId=found.id;
-    __driveKnownModTime=found.modifiedTime;
+  const matches=(listJson.files||[]).filter(f=>f.name===DRIVE_FILE_NAME);
+  if(matches.length===0){
+    const createRes=await driveApi('/drive/v3/files?fields=id,modifiedTime',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:DRIVE_FILE_NAME,parents:['appDataFolder']})
+    });
+    const createJson=await createRes.json();
+    __driveFileId=createJson.id;
+    __driveKnownModTime=createJson.modifiedTime;
     return;
   }
-  const createRes=await driveApi('/drive/v3/files?fields=id,modifiedTime',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:DRIVE_FILE_NAME,parents:['appDataFolder']})
-  });
-  const createJson=await createRes.json();
-  __driveFileId=createJson.id;
-  __driveKnownModTime=createJson.modifiedTime;
+  matches.sort((a,b)=>new Date(a.createdTime)-new Date(b.createdTime));
+  const primary=matches[0];
+  __driveFileId=primary.id;
+  __driveKnownModTime=primary.modifiedTime;
+  if(matches.length>1){
+    console.warn('Обнаружено несколько файлов синхронизации, объединяю данные:',matches.length);
+    for(let i=1;i<matches.length;i++){
+      const dup=matches[i];
+      try{
+        const contentRes=await driveApi(`/drive/v3/files/${dup.id}?alt=media`);
+        const text=await contentRes.text();
+        if(text && text.trim()){
+          const dupData=JSON.parse(text);
+          data=driveMergeData(data,dupData);
+        }
+      }catch(e){console.error('Ошибка чтения дублирующего файла',dup.id,e)}
+    }
+    localStorage.setItem(KEY,JSON.stringify(data));
+  }
 }
 
 function driveMergeArraysById(localArr,remoteArr){
