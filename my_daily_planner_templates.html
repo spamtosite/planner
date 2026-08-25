@@ -1065,6 +1065,7 @@ function renderDay(){
     bindTasks();
     bindClients(d);
     fixupActualSizes(d);
+    enableTaskDrag();
     const dtb=$('dayTodayBtn');
     if(dtb)dtb.onclick=()=>$('navToday').click();
   }
