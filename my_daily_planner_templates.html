@@ -246,7 +246,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 @keyframes focusDoneShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .focuscard.done-shake{animation:focusDoneShake .5s ease}
 
-@media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:18px}.nav button:nth-child(1):before{content:"☀️"}.nav button:nth-child(2):before{content:"📅"}.sidebottom{display:none}.top{padding:0 12px}.viewtabs{display:none}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
+@media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:18px}.nav button:nth-child(1):before{content:"☀️"}.nav button:nth-child(2):before{content:"📅"}.sidebottom{display:none}.top{padding:0 12px}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
 @media(max-width:680px){
   .quickadd{flex-direction:column}
   .quickadd input{padding:12px 14px;font-size:15px;border-radius:10px}
@@ -288,6 +288,20 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .mobilesectionarrow{color:#6b7280;font-size:18px}
   .mobilebacklink{display:none}
   .app.mobile-showing-detail .mobilebacklink{display:inline-flex}
+}
+@media(max-width:800px){
+  .top{flex-wrap:wrap;height:auto;min-height:70px;row-gap:8px}
+  .viewtabs{order:5;width:100%;margin:0 0 4px}
+  .viewtabs button{flex:1;text-align:center}
+
+  .mobiledaylist{display:flex;flex-direction:column;gap:6px}
+  .mobiledayrow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);min-width:0;cursor:pointer}
+  .mobiledayrow.done{opacity:.6}
+  .mobiledayrow.done .mobiledaytitle{text-decoration:line-through}
+  .mobiledaytime{flex:0 0 auto;font-weight:700;font-size:12.5px;color:var(--accent);white-space:nowrap;min-width:44px}
+  .mobiledaytitle{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:600}
+  .mobiledaycheck{flex:0 0 auto;width:18px;height:18px;border:2px solid #9aa1a9;border-radius:50%;background:#fff}
+  .mobiledaycheck.on{border-color:var(--green);background:var(--green)}
 }
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
@@ -1098,10 +1112,15 @@ function renderDay(){
   const oldFill=$('dayProgressFill');
   const oldWidthPx=oldFill?oldFill.getBoundingClientRect().width:null;
   const built=buildDayHtml(d);
+if(isMobileLayout()){
+  $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${buildMobileDayListHtml(d)}`;
+  bindMobileDayList(d);
+} else {
   $('content').innerHTML=built.html;
   bindTasks();
   bindClients(d);
   fixupActualSizes(d);
+}
   const newFill=$('dayProgressFill');
   if(newFill && oldWidthPx!==null){
     newFill.style.transition='none';
@@ -1207,7 +1226,77 @@ function renderMonth(){
   $('content').innerHTML=h+'</div>';
   document.querySelectorAll('.mcell').forEach(x=>x.onclick=()=>{state.date=parse(x.dataset.date);state.view='day';setTabs();render()});
 }
+function isMobileLayout(){return window.matchMedia('(max-width:800px)').matches}
 
+function buildMobileDayListHtml(d){
+  const ts=tasksFor(d).slice().sort((a,b)=>{
+    const at=a.time?timeMin(a.time):9999,bt=b.time?timeMin(b.time):9999;
+    return at-bt;
+  });
+  if(!ts.length)return '<div class="notime"><div class="notimelabel">На этот день пока нет задач</div></div>';
+  return '<div class="mobiledaylist">'+ts.map(t=>{
+    const timeStr=t.time?esc(t.time):'—';
+    return `<div class="mobiledayrow ${t.done?'done':''}" data-id="${t.id}">
+      <div class="mobiledaycheck ${t.done?'on':''}" data-check="${t.id}"></div>
+      <div class="mobiledaytime">${timeStr}</div>
+      <div class="mobiledaytitle" title="${esc(t.title)}">${esc(t.title)}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+function bindMobileDayList(d){
+  document.querySelectorAll('.mobiledayrow').forEach(row=>{
+    const id=row.dataset.id;
+    row.addEventListener('click',e=>{
+      if(e.target.closest('[data-check]'))return;
+      openModal(id);
+    });
+  });
+  document.querySelectorAll('[data-check]').forEach(box=>{
+    box.addEventListener('click',e=>{
+      e.stopPropagation();
+      const id=box.dataset.check;
+      const t=data.tasks.find(x=>x.id===id);
+      if(!t)return;
+      t.done=!t.done;save();
+      const row=box.closest('.mobiledayrow');
+      row.classList.toggle('done',t.done);
+      box.classList.toggle('on',t.done);
+      if(t.done){celebrateSubtask(box,true);playTick()}
+    });
+  });
+}
+
+let swipeStartX=null,swipeStartY=null,swipeActive=false;
+const SWIPE_THRESHOLD=60,SWIPE_MAX_VERTICAL=70;
+
+function attachSwipeNav(){
+  const content=$('content');
+  if(!content||content.__swipeBound)return;
+  content.__swipeBound=true;
+  content.addEventListener('touchstart',e=>{
+    if(!isMobileLayout()||state.view!=='day')return;
+    if(e.touches.length!==1)return;
+    swipeStartX=e.touches[0].clientX;
+    swipeStartY=e.touches[0].clientY;
+    swipeActive=true;
+  },{passive:true});
+  content.addEventListener('touchend',e=>{
+    if(!swipeActive)return;
+    swipeActive=false;
+    if(swipeStartX===null)return;
+    const endX=e.changedTouches[0].clientX;
+    const endY=e.changedTouches[0].clientY;
+    const dx=endX-swipeStartX,dy=endY-swipeStartY;
+    swipeStartX=null;swipeStartY=null;
+    if(Math.abs(dy)>SWIPE_MAX_VERTICAL)return;
+    if(Math.abs(dx)<SWIPE_THRESHOLD)return;
+    const nd=new Date(state.date);
+    nd.setDate(nd.getDate()+(dx<0?1:-1));
+    state.date=nd;
+    render();
+  },{passive:true});
+}
 function render(){state.view==='day'?renderDay():state.view==='week'?renderWeek():renderMonth();renderSidebarPending()}
 
 function renderSidebarPending(){
@@ -1854,4 +1943,6 @@ window.addEventListener('resize',()=>{
     if(state.view==='day')renderDay();
   }
 });
+attachSwipeNav();
+window.addEventListener('resize',()=>{if(state.view==='day')render()});
 </script></body></html>
