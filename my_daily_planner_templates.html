@@ -271,6 +271,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .sidebar .brand{display:none}
   .sidebar .nav{display:none}
   .sidebar .sidebottom{display:none}
+  .sidebar .backupbar{display:none}
+  .sidebar .sidebarpending{display:none}
+  .sidebar .backupbar.mobile-settings-open{display:flex;position:fixed;bottom:70px;left:14px;right:14px;z-index:10;background:#1f2937;padding:10px;border-radius:10px}
   .main{position:absolute;top:0;left:0;width:100%;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(100%)}
   .app.mobile-showing-sections .sidebar{transform:translateX(0)}
   .app.mobile-showing-sections .main{transform:translateX(100%)}
@@ -1003,7 +1006,8 @@ let __mobileScreen='sections';
 function mobileNavList(){
   return [
     {id:'today',icon:'☀️',label:'Сегодня'},
-    {id:'calendar',icon:'📅',label:'Календарь'}
+    {id:'calendar',icon:'📅',label:'Календарь'},
+    {id:'settings',icon:'⚙️',label:'Настройки'}
   ];
 }
 
@@ -1045,11 +1049,24 @@ function renderMobileShell(){
     const wrap=document.createElement('div');
     wrap.className='mobilesectionswrap';
     wrap.innerHTML=buildMobileSectionsHtml();
-    sidebar.appendChild(wrap);
+    const pendingWidget=sidebar.querySelector('.sidebarpending');
+    if(pendingWidget){
+      sidebar.insertBefore(wrap,pendingWidget);
+    }else{
+      sidebar.insertBefore(wrap,sidebar.firstChild);
+    }
     wrap.querySelectorAll('.mobilesectionitem').forEach(btn=>{
-      btn.addEventListener('click',()=>openMobileSection(btn.dataset.section));
+      btn.addEventListener('click',()=>{
+        if(btn.dataset.section==='settings'){openMobileSettings();return}
+        openMobileSection(btn.dataset.section);
+      });
     });
   }
+}
+
+function openMobileSettings(){
+  const backupBar=document.querySelector('.backupbar');
+  if(backupBar)backupBar.classList.toggle('mobile-settings-open');
 }
 
 function initMobileSwipeBack(){
