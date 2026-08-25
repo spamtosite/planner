@@ -84,4 +84,1936 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .vbtn.bump{transform:scale(1.4) rotate(-8deg)}
 .subnoteicon{width:15px;height:15px;border-radius:4px;background:#f3f4f6;color:#9ca3af;font-size:9px;display:grid;place-items:center;flex:0 0 auto;margin-left:2px}
 .subnoteicon.has{background:#ede9fe;color:#7c3aed}
-.add
+.addsub{color:var(--accent);font-size:10.5px;margin-left:24px;margin-top:4px;pointer-events:auto;text-align:left}
+.subaddform{display:flex;gap:5px;margin:5px 0 0 24px;pointer-events:auto}
+.subaddform input{flex:1;border:1px solid #d9dde2;border-radius:6px;padding:4px 7px;font-size:11.5px;min-width:0}
+.subaddform button{background:var(--accent);color:#fff;border-radius:6px;padding:4px 8px;font-size:11px;white-space:nowrap;flex:0 0 auto}
+.task{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;background:#fff;border:1px solid #dfe3e8;border-radius:8px;margin:2px 0;box-shadow:0 2px 7px #0000000a;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease}
+.task.done{opacity:.68}.task.done .tasktitle{text-decoration:line-through}
+.task.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
+
+.progresswrap{position:relative;padding:14px 18px 14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .4s ease,border-color .4s ease}
+.progresswrap.complete{border-color:#16a34a;box-shadow:0 0 0 3px #16a34a2b,0 10px 30px #16a34a26;padding-right:52px}
+.progressbar{position:relative;flex:1;min-width:100px;height:12px;background:#eef0f2;border-radius:8px;overflow:hidden}
+.progressfill{position:relative;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e,#4ade80,#22c55e,#16a34a);background-size:200% 100%;border-radius:8px;transition:width 1.1s cubic-bezier(.22,.9,.3,1);animation:progressShimmer 3s linear infinite}
+@keyframes progressShimmer{0%{background-position:0% 0}100%{background-position:200% 0}}
+.progressfill.complete{animation:progressShimmer 1.2s linear infinite,progressGlow 1.6s ease-in-out infinite}
+@keyframes progressGlow{0%,100%{box-shadow:0 0 6px 1px #22c55e88}50%{box-shadow:0 0 16px 4px #22c55ecc}}
+.progresslabel{font-size:12.5px;color:var(--muted);white-space:nowrap;font-weight:600;transition:color .3s ease}
+.progresslabel.complete{color:#16a34a;font-weight:700}
+.day-complete-badge{position:absolute;right:16px;top:50%;transform:translateY(-50%) scale(0);font-size:20px;transition:transform .5s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.day-complete-badge.show{transform:translateY(-50%) scale(1)}
+.tasknotes{margin-top:4px;display:grid;gap:5px}
+.tasknoteitem{display:grid;gap:1px}
+.tasknotehead{font-size:10.5px;color:#1f2328;font-weight:700;white-space:normal;word-break:break-word;line-height:1.3}
+.tasknotebody{font-size:10.5px;color:var(--muted);white-space:normal;word-break:break-word;line-height:1.35}
+
+.clientswrap{position:relative;padding:16px 18px;margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .4s ease,border-color .4s ease}
+.clientswrap.complete{border-color:#f59e0b;box-shadow:0 0 0 3px #f59e0b2b,0 10px 30px #f59e0b26}
+.clientshead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.clientstitle{font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px}
+.clientscount{font-size:12px;color:var(--muted);font-weight:600;margin-left:auto}
+.clientscount.complete{color:#f59e0b}
+.clientsgrid{display:flex;flex-wrap:wrap;gap:8px}
+.clientchip{display:flex;align-items:center;gap:7px;padding:8px 12px;border-radius:12px;background:#f8f9fb;border:1.5px solid var(--line);cursor:pointer;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .3s ease,border-color .3s ease,box-shadow .3s ease;position:relative;user-select:none}
+.clientchip:hover{border-color:#c7cdd6}
+.clientchip .cbox{width:18px;height:18px;border-radius:6px;border:2px solid #9aa1a9;display:grid;place-items:center;flex:0 0 auto;font-size:11px;color:#fff;transition:transform .3s cubic-bezier(.34,1.56,.64,1),background .3s ease,border-color .3s ease}
+.clientchip.on{background:#ecfdf3;border-color:#16a34a;box-shadow:0 2px 10px #16a34a22}
+.clientchip.on .cbox{background:#16a34a;border-color:#16a34a}
+.clientchip.bump{animation:clientBump .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes clientBump{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}70%{transform:scale(.96) rotate(1deg)}100%{transform:scale(1)}}
+.clientname{font-size:12.5px;font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clientremove{width:16px;height:16px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease,background .2s ease}
+.clientchip:hover .clientremove{opacity:1}
+.clientremove:hover{background:#fecaca;color:#991b1b}
+.clientaddchip{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:transparent;border:1.5px dashed #c7cdd6;color:var(--accent);font-size:12.5px;font-weight:600;transition:background .2s ease,border-color .2s ease}
+.clientaddchip:hover{background:#eef4ff;border-color:var(--accent)}
+.clientaddform{display:flex;align-items:center;gap:6px}
+.clientaddform input{border:1.5px solid var(--accent);border-radius:10px;padding:7px 10px;font-size:12.5px;width:150px}
+.clientaddform button{background:var(--accent);color:#fff;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600}
+
+.monthgrid{display:grid;grid-template-columns:repeat(7,1fr);overflow:hidden;box-shadow:none}
+.dow{padding:10px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line)}
+.mcell{min-height:120px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px;cursor:pointer}
+.mcell:hover{background:#fafbfc}.mcell.other{color:#b6bbc1}
+.mcell.today .mnum{background:var(--accent);color:#fff;border-radius:50%;width:25px;height:25px;display:grid;place-items:center}
+.mdot{margin-top:6px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdot.done{text-decoration:line-through;color:#7b8086}
+.weekgrid{display:grid;grid-template-columns:58px repeat(7,minmax(130px,1fr));overflow:auto;box-shadow:none}
+.whead{padding:10px;text-align:center;border-bottom:1px solid var(--line);font-weight:700;background:#fff}
+.wtime{border-right:1px solid var(--line);border-bottom:1px solid var(--line);color:#8a9199;text-align:right;padding:7px;font-size:11px}
+.wslot{min-height:70px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px;cursor:pointer}
+.wtask{font-size:11px;padding:5px;border-radius:6px;background:#eef4ff;border-left:3px solid var(--accent);margin:2px}
+.wtask.done{opacity:.6;text-decoration:line-through}
+.overlay{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;padding:20px;z-index:10}
+.modal{background:#fff;width:min(650px,100%);max-height:90vh;overflow:auto;border-radius:14px;box-shadow:0 25px 70px #0004;padding:20px}
+.modal h2{margin:0 0 16px}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:5px}.field.full{grid-column:1/-1}
+.field label{font-size:12px;color:var(--muted);font-weight:600}
+.field input,.field textarea,.field select{width:100%;border:1px solid #d9dde2;border-radius:8px;padding:9px;background:#fff}
+.field textarea{min-height:70px;resize:vertical}
+.modalfoot{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.danger{color:var(--danger)}.modalbuttons{display:flex;gap:8px}.hidden{display:none!important}
+.toast{position:fixed;bottom:18px;right:18px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;display:none;z-index:20}
+
+.recur{display:flex;gap:6px;flex-wrap:wrap}
+.daypill{padding:7px 11px;border:1.5px solid #d9dde2;border-radius:8px;color:#5b6270;font-size:13px;font-weight:600;transition:background .2s ease,border-color .2s ease,color .2s ease,transform .15s ease}
+.daypill:hover{border-color:#b8bfc9}
+.daypill.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.recurquick{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.recurquickbtn{padding:5px 10px;border-radius:7px;background:#f1f3f5;color:#4b5563;font-size:11.5px;font-weight:600;transition:background .2s ease}
+.recurquickbtn:hover{background:#e2e6ea}
+.recurweeksrow{display:flex;align-items:center;gap:10px;margin-top:4px}
+.recurweeksrow select{max-width:160px}
+.recurpreview{font-size:11.5px;color:var(--muted);margin-top:6px}
+.modalhint{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}
+.objectrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.tplbar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
+.tplchip{padding:5px 11px;border-radius:16px;background:#ede9fe;color:#6d28d9;font-size:11.5px;font-weight:700;border:1.5px solid #ddd6fe;transition:background .2s ease,transform .15s ease}
+.tplchip:hover{background:#ddd6fe;transform:translateY(-1px)}
+.tplmanage{padding:5px 10px;border-radius:16px;background:#f1f3f5;color:#4b5563;font-size:11px;font-weight:600}
+.tplmanage:hover{background:#e2e6ea}
+.tplhint{font-size:10.5px;color:var(--muted);margin-top:4px}
+
+.tplmodal{background:#fff;width:min(560px,100%);max-height:85vh;overflow:auto;border-radius:14px;box-shadow:0 25px 70px #0004;padding:20px}
+.tpllist{display:grid;gap:8px;margin-bottom:16px}
+.tplitem{display:flex;justify-content:space-between;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;gap:10px}
+.tplitemname{font-weight:700;font-size:13px;color:#6d28d9}
+.tplitemtitle{font-size:12px;color:var(--muted);margin-top:2px}
+.tplitemsubs{font-size:11px;color:#9ca3af;margin-top:3px}
+.tplitemdel{color:var(--danger);font-size:11px;font-weight:600;white-space:nowrap}
+.tplempty{color:var(--muted);font-size:12px;text-align:center;padding:14px}
+
+.subnotepop{position:fixed;z-index:200;background:#fff;border-radius:14px;box-shadow:0 20px 55px rgba(0,0,0,.22);border:1px solid var(--line);padding:14px;width:290px}
+.subnotepop textarea{width:100%;min-height:70px;border:1px solid #d9dde2;border-radius:8px;padding:8px;font-size:12.5px;resize:vertical}
+.subnoteheader{font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.subnotefoot{display:flex;justify-content:flex-end;gap:8px;margin-top:10px}
+.subnotefoot button{padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600}
+.subnoteskip{background:#f1f3f5;color:#4b5563}
+.subnotesave{background:#7c3aed;color:#fff}
+.subnotebackdrop{position:fixed;inset:0;background:transparent;z-index:199}
+
+.focusoverlay{position:fixed;inset:0;background:rgba(20,20,25,.35);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;z-index:100}
+.focusoverlay.active{display:flex}
+.focuscard{position:relative;width:min(380px,92vw);background:linear-gradient(160deg,rgba(40,40,46,.92),rgba(24,24,28,.96));border-radius:32px;padding:34px 30px 30px;box-shadow:0 30px 90px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#fff;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif}
+.focustopbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.focuslabel{font-size:13px;color:rgba(255,255,255,.5);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.focusxbtn{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);display:grid;place-items:center;font-size:14px;color:rgba(255,255,255,.8);transition:background .2s ease}
+.focusxbtn:hover{background:rgba(255,255,255,.18)}
+.focustaskname{font-size:19px;font-weight:700;margin:2px 0 26px;line-height:1.3;word-break:break-word}
+.focusring-wrap{position:relative;width:240px;height:240px;margin:0 auto 26px}
+.focusring-wrap svg{transform:rotate(-90deg)}
+.focusring-track{fill:none;stroke:rgba(255,255,255,.08);stroke-width:14}
+.focusring-progress{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset .3s linear;filter:drop-shadow(0 0 10px currentColor)}
+.focusring-progress.work{color:#0a84ff;stroke:url(#gradWork)}
+.focusring-progress.break{color:#30d158;stroke:url(#gradBreak)}
+.focusring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.focustime{font-size:52px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-1px;transition:transform .15s ease}
+.focustime.tick{transform:scale(1.04)}
+.focusphase{font-size:12.5px;color:rgba(255,255,255,.5);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.focusring-wrap.pulsing .focusring-progress{animation:ringBreathe 2.4s ease-in-out infinite}
+@keyframes ringBreathe{0%,100%{filter:drop-shadow(0 0 8px currentColor)}50%{filter:drop-shadow(0 0 18px currentColor)}}
+.focuspresetrow{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.focuspresetchip{padding:8px 14px;border-radius:20px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.06);transition:background .2s ease,transform .15s ease}
+.focuspresetchip:hover{background:rgba(255,255,255,.15)}
+.focuspresetchip.active{background:#0a84ff;color:#fff}
+.focuspresetchip.custom{background:rgba(255,255,255,.06);border-style:dashed;border-color:rgba(255,255,255,.25)}
+.focuscustomrow{display:none;align-items:center;justify-content:center;gap:8px;margin:-6px 0 18px}
+.focuscustomrow.show{display:flex}
+.focuscustomrow input{width:70px;text-align:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 6px;color:#fff;font-size:15px;font-weight:600}
+.focuscustomrow span{font-size:13px;color:rgba(255,255,255,.6)}
+.focuscustomrow button{background:#0a84ff;color:#fff;padding:8px 14px;border-radius:10px;font-size:13px;font-weight:600}
+.focuscontrolsrow{display:flex;gap:10px;justify-content:center;align-items:center;margin-bottom:6px}
+.focusmainbtn{width:64px;height:64px;border-radius:50%;background:#0a84ff;display:grid;place-items:center;font-size:22px;color:#fff;box-shadow:0 8px 24px rgba(10,132,255,.45);transition:transform .15s ease,background .2s ease}
+.focusmainbtn:active{transform:scale(.92)}
+.focusmainbtn.running{background:#ff9f0a;box-shadow:0 8px 24px rgba(255,159,10,.45)}
+.focussidebtn{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.08);display:grid;place-items:center;font-size:16px;color:rgba(255,255,255,.85);transition:background .2s ease,transform .15s ease}
+.focussidebtn:hover{background:rgba(255,255,255,.15)}
+.focussidebtn:active{transform:scale(.9)}
+.focusstatsrow{display:flex;justify-content:center;gap:22px;margin-top:20px;padding-top:18px;border-top:1px solid rgba(255,255,255,.08)}
+.focusstat{display:flex;flex-direction:column;align-items:center;gap:2px}
+.focusstatval{font-size:20px;font-weight:700}
+.focusstatlbl{font-size:10.5px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.05em}
+.focustogglebtn{position:fixed;right:22px;bottom:22px;width:58px;height:58px;border-radius:50%;background:linear-gradient(160deg,#0a84ff,#0060df);display:grid;place-items:center;font-size:22px;color:#fff;box-shadow:0 10px 28px rgba(10,132,255,.4);z-index:9;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.focustogglebtn:hover{transform:scale(1.08)}
+.focustogglebtn.hidden-btn{display:none}
+.focus-mini-progress{position:absolute;inset:-4px;border-radius:50%}
+.focus-mini-progress svg{transform:rotate(-90deg);width:100%;height:100%}
+.focus-mini-track{fill:none;stroke:rgba(255,255,255,.25);stroke-width:3}
+.focus-mini-fill{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .3s linear}
+@keyframes focusDoneShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.focuscard.done-shake{animation:focusDoneShake .5s ease}
+
+@media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:18px}.nav button:nth-child(1):before{content:"☀️"}.nav button:nth-child(2):before{content:"📅"}.sidebottom{display:none}.top{padding:0 12px}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
+@media(max-width:680px){
+  .quickadd{flex-direction:column}
+  .quickadd input{padding:12px 14px;font-size:15px;border-radius:10px}
+  .quickadd button{width:100%;padding:12px;border-radius:10px;font-size:15px}
+  .top{flex-wrap:wrap;height:auto;padding:10px 12px;gap:8px}
+  .title{font-size:17px}
+  .primary,.secondary,.iconbtn{padding:10px 12px;min-height:40px}
+  .mobiletimedlist{display:grid;gap:8px;margin-bottom:14px}
+  .mobiletimedlist .task{margin:0}
+  .task{padding:12px}
+  .tasktitle{font-size:14px;white-space:normal}
+  .taskmeta{white-space:normal}
+  .check{width:22px;height:22px}
+  .clientchip{padding:10px 14px}
+  .field input,.field textarea,.field select{padding:11px;font-size:15px}
+  .modal{padding:16px}
+  .daypill{padding:9px 13px;font-size:14px}
+}
+@media(max-width:800px){
+  .app{position:relative;overflow:hidden}
+  .sidebar{position:absolute;top:0;left:0;width:100%!important;height:100%;z-index:5;background:#111827;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(0);display:flex;flex-direction:column;padding:0;overflow-y:auto}
+  .sidebar .brand{display:none}
+  .sidebar .nav{display:none}
+  .sidebar .sidebottom{display:block;margin-top:0;flex:0 0 auto;padding:14px}
+  .sidebar .backupbar{display:none}
+  .sidebar .backupbar.mobile-settings-open{display:flex;flex:0 0 auto;position:static;background:transparent;padding:10px 14px 0}
+  .sidebar .sidebarpending{display:flex;flex:0 0 auto;padding:14px;overflow-y:visible;max-height:none}
+  .main{position:absolute;top:0;left:0;width:100%;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(100%)}
+  .app.mobile-showing-sections .sidebar{transform:translateX(0)}
+  .app.mobile-showing-sections .main{transform:translateX(100%)}
+  .app.mobile-showing-detail .sidebar{transform:translateX(-100%)}
+  .app.mobile-showing-detail .main{transform:translateX(0)}
+  .mobilesectionswrap{padding:18px 14px;flex:0 0 auto}
+  .mobilesectionsbrand{font-size:20px;font-weight:700;color:#fff;padding:10px 6px 20px}
+  .mobilesectionitem{display:flex;align-items:center;gap:12px;width:100%;padding:14px 12px;border-radius:10px;color:#fff;font-size:16px;text-align:left;margin-bottom:4px}
+  .mobilesectionitem:active{background:#263142}
+  .mobilesectionicon{font-size:20px;flex:0 0 auto}
+  .mobilesectionlabel{flex:1}
+  .mobilesectionarrow{color:#6b7280;font-size:18px}
+  .mobilebacklink{display:none}
+  .app.mobile-showing-detail .mobilebacklink{display:inline-flex}
+}
+@media(max-width:800px){
+  .top{flex-wrap:wrap;height:auto;min-height:70px;row-gap:8px}
+  .viewtabs{order:5;width:100%;margin:0 0 4px}
+  .viewtabs button{flex:1;text-align:center}
+
+  .mobiledaylist{display:flex;flex-direction:column;gap:6px}
+  .mobiledayrow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);min-width:0;cursor:pointer}
+  .mobiledayrow.done{opacity:.6}
+  .mobiledayrow.done .mobiledaytitle{text-decoration:line-through}
+  .mobiledaytime{flex:0 0 auto;font-weight:700;font-size:12.5px;color:var(--accent);white-space:nowrap;min-width:44px}
+  .mobiledaytitle{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:600}
+  .mobiledaycheck{flex:0 0 auto;width:18px;height:18px;border:2px solid #9aa1a9;border-radius:50%;background:#fff}
+  .mobiledaycheck.on{border-color:var(--green);background:var(--green)}
+}
+@media(max-width:800px){
+  .mobileweeklist{display:flex;flex-direction:column;gap:8px}
+  .mobileweekday{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
+  .mobileweekday.today{border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
+  .mobileweekdayhead{display:flex;align-items:baseline;gap:8px;padding:8px 12px;background:#f8f9fb;border-bottom:1px solid var(--line);cursor:pointer}
+.mobileweekdayhead .wdfulldate{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mobileweekday.today .mobileweekdayhead .wdfulldate{color:var(--accent)}
+  .mobileweekdaytasks{display:flex;flex-direction:column}
+  .mobileweektask{display:flex;align-items:center;gap:8px;padding:7px 12px;border-top:1px solid var(--line);min-width:0;cursor:pointer}
+  .mobileweektask:first-child{border-top:0}
+  .mobileweektask.done{opacity:.55}
+  .mobileweektask.done .wtitle{text-decoration:line-through}
+  .mobileweektask .wtime{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--accent);min-width:40px;white-space:nowrap}
+  .mobileweektask .wtitle{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600}
+  .mobileweekempty{padding:8px 12px;font-size:11.5px;color:var(--muted)}
+}
+@media(max-width:800px){
+  .monthpicker{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;touch-action:pan-y}
+  .monthpickeryear{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:16px;font-size:20px;font-weight:700;user-select:none}
+  .monthpickeryear .ypbtn{padding:6px 10px;font-size:20px;color:var(--muted);cursor:pointer}
+  .monthpickergrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .monthpickercell{padding:16px 6px;text-align:center;border-radius:10px;background:#f8f9fb;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease,transform .15s ease}
+  .monthpickercell:active{transform:scale(.96)}
+  .monthpickercell.current{background:var(--accent);color:#fff}
+}
+</style></head>
+<body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
+<div class="backupbar">
+  <button class="backupbtn" id="exportBtn">⬇ Экспорт</button>
+  <button class="backupbtn" id="importBtn">⬆ Импорт</button>
+</div>
+<input type="file" id="importFileInput" accept="application/json" style="display:none">
+<div class="sidebottom">
+  <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
+  <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
+</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button><button class="primary" id="addBtn">+ Задача</button></header>
+<div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><button class="primary" id="quickAddBtn">Добавить</button></div>
+<div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
+<div class="tplbar" id="quickTplBar"></div>
+<section class="content" id="content"></section></main></div>
+
+<button class="focustogglebtn hidden-btn" id="focusToggleBtn"><span id="focusToggleIcon">🎯</span><div class="focus-mini-progress" id="focusMiniProgress" style="display:none"><svg viewBox="0 0 58 58"><circle class="focus-mini-track" cx="29" cy="29" r="26"/><circle class="focus-mini-fill" id="focusMiniFill" cx="29" cy="29" r="26"/></svg></div></button>
+
+<div class="focusoverlay" id="focusOverlay">
+  <div class="focuscard" id="focusCard">
+    <div class="focustopbar"><span class="focuslabel">Режим фокуса</span><button class="focusxbtn" id="focusMinimize">✕</button></div>
+    <div class="focustaskname" id="focusTaskName">Выберите задачу</div>
+    <div class="focusring-wrap" id="focusRingWrap">
+      <svg width="240" height="240" viewBox="0 0 240 240">
+        <defs><linearGradient id="gradWork" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#5ac8fa"/><stop offset="100%" stop-color="#0a84ff"/></linearGradient><linearGradient id="gradBreak" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#66e896"/><stop offset="100%" stop-color="#30d158"/></linearGradient></defs>
+        <circle class="focusring-track" cx="120" cy="120" r="105"/><circle class="focusring-progress work" id="focusRingProgress" cx="120" cy="120" r="105"/>
+      </svg>
+      <div class="focusring-center"><div class="focustime" id="focusTimeDisplay">25:00</div><div class="focusphase" id="focusPhaseLabel">Фокус</div></div>
+    </div>
+    <div class="focuspresetrow" id="focusPresetRow"><button class="focuspresetchip" data-min="15">15 мин</button><button class="focuspresetchip active" data-min="25">25 мин</button><button class="focuspresetchip" data-min="45">45 мин</button><button class="focuspresetchip" data-min="60">60 мин</button><button class="focuspresetchip custom" id="focusCustomChip">✏️ Своё</button></div>
+    <div class="focuscustomrow" id="focusCustomRow"><input type="number" id="focusCustomInput" min="1" max="480" placeholder="30"><span>минут</span><button id="focusCustomApply">Задать</button></div>
+    <div class="focuscontrolsrow"><button class="focussidebtn" id="focusResetBtn" title="Сброс">↺</button><button class="focusmainbtn" id="focusMainBtn">▶</button><button class="focussidebtn" id="focusSkipBtn" title="Пропустить">⏭</button></div>
+    <div class="focusstatsrow"><div class="focusstat"><div class="focusstatval" id="focusStatSessions">0</div><div class="focusstatlbl">Сессий</div></div><div class="focusstat"><div class="focusstatval" id="focusStatMinutes">0</div><div class="focusstatlbl">Минут</div></div></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal"><h2 id="modalTitle">Новая задача</h2><div class="formgrid">
+  <div class="field full"><label>Название</label><input id="fTitle"></div>
+  <div class="field full objectrow">
+    <div><label style="font-size:12px;color:var(--muted);font-weight:600">Объект (ЖК)</label><input id="fObject" placeholder="Например: ЖК Флора"></div>
+    <div><label style="font-size:12px;color:var(--muted);font-weight:600">Менеджер продаж</label><input id="fManager" placeholder="Имя, телефон"></div>
+  </div>
+  <div class="field"><label>Дата</label><input id="fDate" type="date"></div>
+  <div class="field"><label>Время начала</label><input id="fTime" type="time"></div>
+  <div class="field full"><label>Время окончания (включительно)</label><input id="fEndTime" type="time"></div>
+  <div class="field full"><label>Заметка / результат</label><textarea id="fNote"></textarea></div>
+  <div class="field full" id="recurField">
+    <label>Повторить — создаёт НЕЗАВИСИМЫЕ копии на выбранные дни</label>
+    <div class="recur" id="recurDays">
+      <button type="button" class="daypill" data-d="1">Пн</button>
+      <button type="button" class="daypill" data-d="2">Вт</button>
+      <button type="button" class="daypill" data-d="3">Ср</button>
+      <button type="button" class="daypill" data-d="4">Чт</button>
+      <button type="button" class="daypill" data-d="5">Пт</button>
+      <button type="button" class="daypill" data-d="6">Сб</button>
+      <button type="button" class="daypill" data-d="0">Вс</button>
+    </div>
+    <div class="recurquick">
+      <button type="button" class="recurquickbtn" id="recurWorkdaysBtn">Рабочие дни (Пн–Пт)</button>
+      <button type="button" class="recurquickbtn" id="recurWeekendBtn">Выходные (Сб–Вс)</button>
+      <button type="button" class="recurquickbtn" id="recurAllBtn">Все дни</button>
+      <button type="button" class="recurquickbtn" id="recurClearBtn">Сбросить</button>
+    </div>
+    <div class="recurweeksrow">
+      <label style="font-size:12px;color:var(--muted);font-weight:600">Сколько недель создавать</label>
+      <select id="fWeeks">
+        <option value="1">1 неделя</option><option value="2">2 недели</option><option value="4" selected>4 недели</option><option value="8">8 недель</option><option value="12">12 недель</option>
+      </select>
+    </div>
+    <div class="recurpreview" id="recurPreview"></div>
+  </div>
+  <div class="field full"><label>Подзадачи — по одной на строку</label><textarea id="fSubtasks" placeholder="Подготовить данные
+Проверить результат"></textarea></div>
+</div><div class="modalfoot"><button class="danger hidden" id="deleteBtn">Удалить</button>
+<button class="danger hidden" id="deleteSeriesBtn">Удалить всю серию</button><div class="modalbuttons"><button class="secondary" id="cancelBtn">Отмена</button><button class="primary" id="saveBtn">Сохранить</button></div></div><div class="modalhint">Esc или «Отмена» — закрыть без сохранения</div></div></div>
+
+<div class="overlay" id="tplOverlay"><div class="tplmodal">
+  <h2 style="margin:0 0 16px">Шаблоны быстрого ввода</h2>
+  <div class="tpllist" id="tplList"></div>
+  <div class="formgrid">
+    <div class="field"><label>Код-триггер (например «ВП»)</label><input id="tCode" placeholder="ВП" maxlength="10"></div>
+    <div class="field"><label>Название шаблона</label><input id="tName" placeholder="Видеопоказ"></div>
+    <div class="field full"><label>Подзадачи — по одной на строку</label><textarea id="tSubs" placeholder="Подтвердить с клиентом видеопоказ
+Договориться с ОП
+Провести ВП"></textarea></div>
+  </div>
+  <div class="modalfoot"><div></div><div class="modalbuttons"><button class="secondary" id="tplCloseBtn">Закрыть</button><button class="primary" id="tplSaveBtn">Сохранить шаблон</button></div></div>
+</div></div>
+
+<div class="toast" id="toast"></div>
+<script>
+const KEY='daily_planner_templates_v1';
+let data=JSON.parse(localStorage.getItem(KEY)||'{"tasks":[],"clients":[],"clientChecks":{},"templates":[]}');
+data.tasks=data.tasks||[];
+data.clients=data.clients||[];
+data.clientChecks=data.clientChecks||{};
+data.templates=data.templates||[
+  {code:'ВП',name:'Видеопоказ',subtasks:['Подтвердить с клиентом видеопоказ','Договориться с ОП','Провести ВП']}
+];
+let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear()};
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{let[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
+const ruM=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const ruD=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const ruDFull=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const DAY_START=7*60,DAY_END=22*60;
+const ROWH=44,MIN_BLOCK=ROWH;
+const STEP=15;
+const MIN_BLOCK_WIDTH=160;
+const TITLE_ROW_CHROME=18+6+28+6+20+6+16;
+const SUB_ROW_CHROME=19*2+3+6+16+10+18;
+const COL_GAP=8;
+let __widthOverrides={};
+let __lastKnownPct=null;
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  driveScheduleUpload();
+}
+const DRIVE_CLIENT_ID='268067507722-g93sh1jcgmd68s5t0jjmh1a1ur90364o.apps.googleusercontent.com';
+const DRIVE_SCOPES='https://www.googleapis.com/auth/drive.appdata';
+const DRIVE_FILE_NAME='daily_planner_data.json';
+let __driveToken=null;
+let __driveFileId=null;
+let __driveKnownModTime=null;
+let __driveSyncTimer=null;
+let __drivePollTimer=null;
+let __driveSyncing=false;
+let __driveConnected=false;
+
+function driveSetStatus(text){
+  const el=document.getElementById('driveStatus');
+  if(el)el.textContent=text;
+}
+
+function driveInit(){
+  if(!window.google || !window.google.accounts){
+    setTimeout(driveInit,300);
+    return;
+  }
+  const savedToken=sessionStorage.getItem('drive_token');
+  if(savedToken){
+    __driveToken=savedToken;
+    __driveConnected=true;
+    driveAfterConnect();
+  }
+}
+
+function driveConnect(){
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:DRIVE_CLIENT_ID,
+    scope:DRIVE_SCOPES,
+    callback:(resp)=>{
+      if(resp.error){driveSetStatus('Ошибка подключения');return}
+      __driveToken=resp.access_token;
+      __driveConnected=true;
+      sessionStorage.setItem('drive_token',__driveToken);
+      driveAfterConnect();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function driveAfterConnect(){
+  const btn=document.getElementById('driveConnectBtn');
+  if(btn)btn.textContent='☁️ Google Drive подключён';
+  driveSetStatus('Синхронизация…');
+  driveFindOrCreateFile().then(()=>{
+    driveDownloadAndMerge().then(()=>{
+      driveSetStatus('Синхронизировано');
+      driveStartPolling();
+    });
+  }).catch(err=>{
+    console.error(err);
+    driveSetStatus('Ошибка сети');
+  });
+}
+
+async function driveApi(path,options={}){
+  const res=await fetch('https://www.googleapis.com'+path,{
+    ...options,
+    headers:{...(options.headers||{}),'Authorization':'Bearer '+__driveToken}
+  });
+  if(res.status===401){
+    __driveConnected=false;
+    sessionStorage.removeItem('drive_token');
+    driveSetStatus('Нужна повторная авторизация');
+    throw new Error('unauthorized');
+  }
+  return res;
+}
+
+async function driveFindOrCreateFile(){
+  const listRes=await driveApi('/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime,createdTime)');
+  const listJson=await listRes.json();
+  const matches=(listJson.files||[]).filter(f=>f.name===DRIVE_FILE_NAME);
+  if(matches.length===0){
+    const createRes=await driveApi('/drive/v3/files?fields=id,modifiedTime',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:DRIVE_FILE_NAME,parents:['appDataFolder']})
+    });
+    const createJson=await createRes.json();
+    __driveFileId=createJson.id;
+    __driveKnownModTime=createJson.modifiedTime;
+    return;
+  }
+  matches.sort((a,b)=>new Date(a.createdTime)-new Date(b.createdTime));
+  const primary=matches[0];
+  __driveFileId=primary.id;
+  __driveKnownModTime=primary.modifiedTime;
+  if(matches.length>1){
+    console.warn('Обнаружено несколько файлов синхронизации, объединяю данные:',matches.length);
+    for(let i=1;i<matches.length;i++){
+      const dup=matches[i];
+      try{
+        const contentRes=await driveApi(`/drive/v3/files/${dup.id}?alt=media`);
+        const text=await contentRes.text();
+        if(text && text.trim()){
+          const dupData=JSON.parse(text);
+          data=driveMergeData(data,dupData);
+        }
+      }catch(e){console.error('Ошибка чтения дублирующего файла',dup.id,e)}
+    }
+    localStorage.setItem(KEY,JSON.stringify(data));
+  }
+}
+
+function driveMergeArraysById(localArr,remoteArr){
+  localArr=Array.isArray(localArr)?localArr:[];
+  remoteArr=Array.isArray(remoteArr)?remoteArr:[];
+  const remoteIds=new Set(remoteArr.map(x=>x.id));
+  const localOnly=localArr.filter(x=>x && x.id && !remoteIds.has(x.id));
+  return remoteArr.concat(localOnly);
+}
+
+function driveMergeClientChecks(localChecks,remoteChecks){
+  localChecks=localChecks||{};
+  remoteChecks=remoteChecks||{};
+  const merged={};
+  const allDates=new Set([...Object.keys(localChecks),...Object.keys(remoteChecks)]);
+  allDates.forEach(date=>{
+    merged[date]=Object.assign({},remoteChecks[date]||{},localChecks[date]||{});
+  });
+  return merged;
+}
+
+function driveMergeData(localData,remoteData){
+  return {
+    tasks:driveMergeArraysById(localData.tasks,remoteData.tasks),
+    clients:driveMergeArraysById(localData.clients,remoteData.clients),
+    templates:driveMergeArraysById(localData.templates,remoteData.templates),
+    clientChecks:driveMergeClientChecks(localData.clientChecks,remoteData.clientChecks)
+  };
+}
+
+async function driveDownloadAndMerge(){
+  if(!__driveFileId)return;
+  const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+  const meta=await metaRes.json();
+  const remoteModTime=meta.modifiedTime;
+  const contentRes=await driveApi(`/drive/v3/files/${__driveFileId}?alt=media`);
+  let remoteData={tasks:[],clients:[],clientChecks:{},templates:[]};
+  try{
+    const text=await contentRes.text();
+    if(text && text.trim())remoteData=JSON.parse(text);
+  }catch(e){}
+  data=driveMergeData(data,remoteData);
+  data.tasks=data.tasks||[];data.clients=data.clients||[];
+  data.clientChecks=data.clientChecks||{};data.templates=data.templates||[];
+  __driveKnownModTime=remoteModTime;
+  localStorage.setItem(KEY,JSON.stringify(data));
+  delete window.__realHeights;
+  render();
+}
+
+async function driveUpload(){
+  if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  __driveSyncing=true;
+  driveSetStatus('Сохранение…');
+  try{
+    const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+    const meta=await metaRes.json();
+    if(__driveKnownModTime && meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
+      await driveDownloadAndMerge();
+    }
+    const body=JSON.stringify(data);
+    const uploadRes=await driveApi(`/upload/drive/v3/files/${__driveFileId}?uploadType=media&fields=modifiedTime`,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body
+    });
+    const uploadJson=await uploadRes.json();
+    __driveKnownModTime=uploadJson.modifiedTime;
+    driveSetStatus('Сохранено');
+  }catch(e){
+    console.error(e);
+    driveSetStatus('Ошибка сети');
+  }finally{
+    __driveSyncing=false;
+  }
+}
+
+function driveScheduleUpload(){
+  if(!__driveConnected)return;
+  clearTimeout(__driveSyncTimer);
+  __driveSyncTimer=setTimeout(driveUpload,2500);
+}
+
+function driveStartPolling(){
+  clearInterval(__drivePollTimer);
+  __drivePollTimer=setInterval(()=>{
+    if(document.visibilityState==='visible')driveCheckForUpdates();
+  },25000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible' && __driveConnected)driveCheckForUpdates();
+  });
+}
+
+async function driveCheckForUpdates(){
+  if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  try{
+    const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+    const meta=await metaRes.json();
+    if(meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
+      await driveDownloadAndMerge();
+      driveSetStatus('Синхронизировано');
+    }
+  }catch(e){}
+}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s=''){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function fmt(d){return `${d.getDate()} ${ruM[d.getMonth()]} ${d.getFullYear()}`}
+function fmtFullDate(d){
+  return `${ruDFull[d.getDay()]}, ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`;
+}
+function timeMin(s){let[h,m]=(s||'0:0').split(':').map(Number);return h*60+m}
+function tasksFor(d){return data.tasks.filter(t=>t.date===iso(d)).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'))}
+function toast(x){$('toast').textContent=x;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1800)}
+function timeLabel(t){return t.time?(t.endTime?`${t.time}–${t.endTime}`:t.time):''}
+function subDone(s){return s.status==='success'||s.status==='failed'}
+
+function celebrateSubtask(anchorEl, success){
+  const rect=anchorEl.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+  const colors=success?['#22c55e','#16a34a','#4ade80','#86efac']:['#94a3b8','#64748b'];
+  const count=success?7:4;
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.style.cssText='position:fixed;pointer-events:none;z-index:9999;border-radius:50%';
+    const angle=(Math.PI*2*i/count)+Math.random()*0.5;
+    const dist=18+Math.random()*22;
+    const dx=Math.cos(angle)*dist, dy=Math.sin(angle)*dist-8;
+    const size=3+Math.random()*3;
+    el.style.width=size+'px';el.style.height=size+'px';
+    el.style.left=cx+'px';el.style.top=cy+'px';
+    el.style.background=colors[Math.floor(Math.random()*colors.length)];
+    el.style.transition='transform .5s ease-out, opacity .5s ease-out';
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>{el.style.transform=`translate(${dx}px,${dy}px) scale(0)`;el.style.opacity='0'});
+    setTimeout(()=>el.remove(),520);
+  }
+}
+function celebrateTask(taskEl){
+  const rect=taskEl.getBoundingClientRect();
+  const cx=rect.left+rect.width/2, cy=rect.top+Math.min(rect.height/2,60);
+  taskEl.classList.remove('celebrate');void taskEl.offsetWidth;taskEl.classList.add('celebrate');
+  setTimeout(()=>taskEl.classList.remove('celebrate'),600);
+  const ring=document.createElement('div');
+  ring.style.cssText=`position:fixed;pointer-events:none;z-index:9998;border:3px solid #16a34a;border-radius:50%;width:40px;height:40px;left:${cx-20}px;top:${cy-20}px;transition:transform .6s ease-out,opacity .6s ease-out`;
+  document.body.appendChild(ring);
+  requestAnimationFrame(()=>{ring.style.transform='scale(2.4)';ring.style.opacity='0'});
+  setTimeout(()=>ring.remove(),650);
+  const shapes=['🎉','✨','⭐','🎊','💪','🔥'];const colors=['#22c55e','#16a34a','#f59e0b','#3b82f6','#ec4899','#8b5cf6'];
+  for(let i=0;i<22;i++){
+    const el=document.createElement('div');el.style.cssText='position:fixed;pointer-events:none;z-index:9999';
+    const useEmoji=Math.random()<0.35;
+    const angle=Math.random()*Math.PI*2;const dist=60+Math.random()*140;
+    const dx=Math.cos(angle)*dist;const dy=Math.sin(angle)*dist*0.7-40-Math.random()*60;const rot=(Math.random()*360-180);
+    el.style.left=cx+'px';el.style.top=cy+'px';
+    el.style.transition=`transform ${0.7+Math.random()*0.5}s cubic-bezier(.2,.8,.4,1), opacity ${0.7+Math.random()*0.5}s ease-out`;
+    if(useEmoji){el.textContent=shapes[Math.floor(Math.random()*shapes.length)];el.style.fontSize=(12+Math.random()*10)+'px'}
+    else{el.style.width=(5+Math.random()*5)+'px';el.style.height=(5+Math.random()*5)+'px';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.borderRadius=Math.random()<0.5?'50%':'2px'}
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>{el.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;el.style.opacity='0'});
+    setTimeout(()=>el.remove(),1300);
+  }
+  showBanner(['Задача выполнена! 🎉','Отличная работа! 💪','Так держать! 🔥','Ещё одна в копилку! ✨','Красота! 🎊'],'#16a34a,#22c55e');
+  playChime();
+}
+function celebrateDayComplete(wrapEl){
+  wrapEl.classList.add('complete');
+  const badge=wrapEl.querySelector('.day-complete-badge');
+  if(badge){badge.classList.remove('show');void badge.offsetWidth;badge.classList.add('show')}
+  const rect=wrapEl.getBoundingClientRect();
+  const shapes=['🎉','🏆','⭐','✨','🔥','🎊','💯'];const colors=['#16a34a','#f59e0b','#3b82f6','#ec4899','#8b5cf6','#22c55e'];
+  for(let i=0;i<36;i++){
+    const el=document.createElement('div');el.style.cssText='position:fixed;pointer-events:none;z-index:9999';
+    const startX=rect.left+Math.random()*rect.width;const startY=rect.top+rect.height/2;
+    const useEmoji=Math.random()<0.4;const dx=(Math.random()-0.5)*260;const dy=-(80+Math.random()*160);const rot=(Math.random()*720-360);
+    el.style.left=startX+'px';el.style.top=startY+'px';
+    el.style.transition=`transform ${0.9+Math.random()*0.6}s cubic-bezier(.15,.8,.3,1), opacity ${0.9+Math.random()*0.6}s ease-out`;
+    if(useEmoji){el.textContent=shapes[Math.floor(Math.random()*shapes.length)];el.style.fontSize=(14+Math.random()*12)+'px'}
+    else{el.style.width=(6+Math.random()*6)+'px';el.style.height=(6+Math.random()*6)+'px';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.borderRadius=Math.random()<0.5?'50%':'2px'}
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>{el.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;el.style.opacity='0'});
+    setTimeout(()=>el.remove(),1600);
+  }
+  showBanner(['🏆 День выполнен на 100%!'],'#f59e0b,#f97316',true);
+  playChime();
+}
+function celebrateAllClients(wrapEl){
+  wrapEl.classList.add('complete');
+  const rect=wrapEl.getBoundingClientRect();
+  const shapes=['🤝','💼','⭐','✨','🎯','💯','🚀'];const colors=['#f59e0b','#3b82f6','#16a34a','#8b5cf6'];
+  for(let i=0;i<30;i++){
+    const el=document.createElement('div');el.style.cssText='position:fixed;pointer-events:none;z-index:9999';
+    const startX=rect.left+Math.random()*rect.width;const startY=rect.top+rect.height/2;
+    const useEmoji=Math.random()<0.45;const dx=(Math.random()-0.5)*240;const dy=-(70+Math.random()*140);const rot=(Math.random()*720-360);
+    el.style.left=startX+'px';el.style.top=startY+'px';
+    el.style.transition=`transform ${0.85+Math.random()*0.5}s cubic-bezier(.15,.8,.3,1), opacity ${0.85+Math.random()*0.5}s ease-out`;
+    if(useEmoji){el.textContent=shapes[Math.floor(Math.random()*shapes.length)];el.style.fontSize=(14+Math.random()*10)+'px'}
+    else{el.style.width=(6+Math.random()*5)+'px';el.style.height=(6+Math.random()*5)+'px';el.style.background=colors[Math.floor(Math.random()*colors.length)];el.style.borderRadius=Math.random()<0.5?'50%':'2px'}
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>{el.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;el.style.opacity='0'});
+    setTimeout(()=>el.remove(),1500);
+  }
+  setTimeout(()=>wrapEl.classList.remove('complete'),2600);
+  showBanner(['🤝 Все ключевые клиенты обработаны!','💼 Отличная работа с клиентами!'],'#f59e0b,#fb923c',true);
+  playChime();
+}
+function showBanner(phrases,gradient,big){
+  const banner=document.createElement('div');
+  const size=big?'14px 26px':'12px 22px';const fontSize=big?'16px':'14px';const fontWeight=big?'800':'700';
+  banner.style.cssText=`position:fixed;top:26px;left:50%;transform:translateX(-50%) translateY(-20px) scale(.94);background:linear-gradient(135deg,${gradient});color:#fff;padding:${size};border-radius:16px;font-weight:${fontWeight};font-size:${fontSize};box-shadow:0 16px 40px rgba(0,0,0,.25);z-index:10000;opacity:0;transition:opacity .35s ease,transform .35s cubic-bezier(.34,1.56,.64,1)`;
+  banner.textContent=phrases[Math.floor(Math.random()*phrases.length)];
+  document.body.appendChild(banner);
+  requestAnimationFrame(()=>{banner.style.opacity='1';banner.style.transform='translateX(-50%) translateY(0) scale(1)'});
+  setTimeout(()=>{banner.style.opacity='0';banner.style.transform='translateX(-50%) translateY(-20px) scale(.94)';setTimeout(()=>banner.remove(),350)},big?2200:1400);
+}
+let __audioCtx=null;
+function playChime(){
+  try{__audioCtx=__audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    [523.25,659.25,783.99].forEach((freq,i)=>{
+      const osc=__audioCtx.createOscillator();const gain=__audioCtx.createGain();
+      osc.connect(gain);gain.connect(__audioCtx.destination);osc.frequency.value=freq;osc.type='sine';
+      const start=__audioCtx.currentTime+i*0.08;
+      gain.gain.setValueAtTime(0.001,start);gain.gain.exponentialRampToValueAtTime(0.18,start+0.02);gain.gain.exponentialRampToValueAtTime(0.001,start+0.35);
+      osc.start(start);osc.stop(start+0.4);
+    });
+  }catch(e){}
+}
+function playTick(){
+  try{__audioCtx=__audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const osc=__audioCtx.createOscillator();const gain=__audioCtx.createGain();
+    osc.connect(gain);gain.connect(__audioCtx.destination);osc.frequency.value=900;osc.type='sine';
+    const start=__audioCtx.currentTime;
+    gain.gain.setValueAtTime(0.001,start);gain.gain.exponentialRampToValueAtTime(0.09,start+0.015);gain.gain.exponentialRampToValueAtTime(0.001,start+0.12);
+    osc.start(start);osc.stop(start+0.15);
+  }catch(e){}
+}
+function playFocusEndChime(){
+  try{__audioCtx=__audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    [659.25,783.99,987.77,1174.66].forEach((freq,i)=>{
+      const osc=__audioCtx.createOscillator();const gain=__audioCtx.createGain();
+      osc.connect(gain);gain.connect(__audioCtx.destination);osc.frequency.value=freq;osc.type='sine';
+      const start=__audioCtx.currentTime+i*0.11;
+      gain.gain.setValueAtTime(0.001,start);gain.gain.exponentialRampToValueAtTime(0.16,start+0.02);gain.gain.exponentialRampToValueAtTime(0.001,start+0.4);
+      osc.start(start);osc.stop(start+0.45);
+    });
+  }catch(e){}
+}
+let __measureCanvas=null;
+function textWidth(text,font){if(!__measureCanvas)__measureCanvas=document.createElement('canvas');const ctx=__measureCanvas.getContext('2d');ctx.font=font;return ctx.measureText(text).width}
+function naturalTaskWidth(t){
+  if(__widthOverrides[t.id])return __widthOverrides[t.id];
+  const titleW=textWidth(t.title,'600 13px system-ui, sans-serif')+TITLE_ROW_CHROME;
+  let maxSubW=0;(t.subtasks||[]).forEach(s=>{const w=textWidth(s.title,'11px system-ui, sans-serif')+SUB_ROW_CHROME;if(w>maxSubW)maxSubW=w});
+  const timeLabelW=timeLabel(t)?textWidth(timeLabel(t),'700 10.5px system-ui, sans-serif')+16:0;
+  const objW=t.object?textWidth(t.object,'600 10.5px system-ui, sans-serif')+16:0;
+  let maxNoteW=0;
+  (t.note?t.note.split('\n').filter(Boolean):[]).forEach(line=>{
+    const m=line.match(/^(\[.+?\])\s*(.*)$/);
+    const headW=m?textWidth(m[1],'700 10.5px system-ui, sans-serif')+100:0;
+    const bodyW=m?textWidth(m[2]||'','10.5px system-ui, sans-serif')+100:textWidth(line,'10.5px system-ui, sans-serif')+100;
+    maxNoteW=Math.max(maxNoteW,headW,bodyW);
+  });
+  const contentW=Math.max(titleW, maxSubW, timeLabelW, objW, maxNoteW);
+  return Math.max(MIN_BLOCK_WIDTH, Math.ceil(contentW));
+}
+function subHtml(t){
+  return (t.subtasks||[]).map((s,i)=>`<div class="sub" data-si="${i}">
+    <div class="subverdict">
+      <button class="vbtn success ${s.status==='success'?'active':''}" data-si="${i}" data-verdict="success" title="Успешно">✓</button>
+      <button class="vbtn failed ${s.status==='failed'?'active':''}" data-si="${i}" data-verdict="failed" title="Отрицательный исход">✕</button>
+    </div>
+    <span class="subtext ${s.status||''}" title="${esc(s.title)}">${esc(s.title)}</span>
+    <span class="subnoteicon ${s.resultNote?'has':''}" title="${s.resultNote?esc(s.resultNote):'Нет заметки'}">📝</span>
+  </div>`).join('');
+}
+function taskInnerHtml(t){
+  const isAdding=state.addingSubtaskFor===t.id;
+  return `<div class="taskrow">
+    <button class="check ${t.done?'on':''}">${t.done?'✓':''}</button>
+    <div class="taskbody">
+      ${timeLabel(t)?`<div class="taskmeta" style="color:var(--accent);font-weight:700">${esc(timeLabel(t))}</div>`:''}
+      <div class="tasktitle" title="${esc(t.title)}">${esc(t.title)}</div>
+      ${t.object?`<div class="taskobj" title="${esc(t.object)}${t.manager?' · '+esc(t.manager):''}">🏢 ${esc(t.object)}${t.manager?' · '+esc(t.manager):''}</div>`:''}
+      ${t.note?`<div class="tasknotes">${t.note.split('\n').filter(Boolean).map(line=>{const m=line.match(/^(\[.+?\])\s*(.*)$/);return m?`<div class="tasknoteitem"><div class="tasknotehead">${esc(m[1])}</div>${m[2]?`<div class="tasknotebody">${esc(m[2])}</div>`:''}</div>`:`<div class="tasknoteitem"><div class="tasknotebody">${esc(line)}</div></div>`}).join('')}</div>`:''}
+    </div>
+    <button class="focusbtn" data-action="focus">🎯</button>
+    <div class="taskactions"><button data-action="edit">✎</button></div>
+  </div>
+  ${(t.subtasks||[]).length?`<div class="subtasks">${subHtml(t)}</div>`:''}
+  ${isAdding?`<div class="subaddform"><input type="text" class="subaddinput" placeholder="Название подзадачи" autofocus><button class="subaddok">Добавить</button></div>`:`<button class="addsub">+ подзадача</button>`}`;
+}
+function taskHtmlPlain(t){return `<div class="task ${t.done?'done':''}" data-id="${t.id}">${taskInnerHtml(t)}</div>`}
+function estimateContentHeight(t){
+  let h=34;
+  if(t.object)h+=15;
+  if(t.note){
+    const noteLines=t.note.split('\n').filter(Boolean);
+    h+=6;
+    noteLines.forEach(line=>{const m=line.match(/^(\[.+?\])\s*(.*)$/);h+=m&&m[2]?28:15});
+  }
+  h+=(t.subtasks||[]).length*20;
+  h+=(state.addingSubtaskFor===t.id)?30:18;
+  h+=14;
+  return h;
+}
+function effectiveEnd(t){const start=timeMin(t.time);if(!t.endTime)return start;return timeMin(t.endTime)+STEP}
+
+function layoutColumns(items){
+  const withRange=items.map(t=>({t,start:timeMin(t.time),end:t.endTime?effectiveEnd(t):timeMin(t.time)+30,w:naturalTaskWidth(t)})).sort((a,b)=>a.start-b.start||a.end-b.end);
+  const clusters=[];let current=[];let currentEnd=-1;
+  withRange.forEach(item=>{if(current.length===0||item.start<currentEnd){current.push(item);currentEnd=Math.max(currentEnd,item.end)}else{clusters.push(current);current=[item];currentEnd=item.end}});
+  if(current.length)clusters.push(current);
+  const result=[];
+  clusters.forEach(cluster=>{
+    const clusterCols=[];
+    cluster.forEach(item=>{let placed=false;for(let i=0;i<clusterCols.length;i++){const col=clusterCols[i];const last=col[col.length-1];if(item.start>=last.end){col.push(item);item._col=i;placed=true;break}}if(!placed){clusterCols.push([item]);item._col=clusterCols.length-1}});
+    const colWidths=clusterCols.map(col=>Math.max(...col.map(it=>it.w)));const colLeftOffset=[];let acc=0;
+    colWidths.forEach((w,i)=>{colLeftOffset[i]=acc;acc+=w+COL_GAP});
+    cluster.forEach(item=>result.push({...item,col:item._col,leftOffset:colLeftOffset[item._col]}));
+  });
+  return result;
+}
+
+function clientsChecksForDay(d){const key=iso(d);data.clientChecks[key]=data.clientChecks[key]||{};return data.clientChecks[key]}
+
+function buildClientsHtml(d){
+  const checks=clientsChecksForDay(d);
+  const total=data.clients.length;
+  const doneCount=data.clients.filter(c=>checks[c.id]).length;
+  const allDone=total>0 && doneCount===total;
+  const chips=data.clients.map(c=>{
+    const on=!!checks[c.id];
+    return `<div class="clientchip ${on?'on':''}" data-client-id="${c.id}">
+      <div class="cbox">${on?'✓':''}</div>
+      <span class="clientname" title="${esc(c.name)}">${esc(c.name)}</span>
+      <button class="clientremove" data-remove-client="${c.id}" title="Удалить">✕</button>
+    </div>`;
+  }).join('');
+  const addBlock=state.addingClient
+    ? `<div class="clientaddform"><input type="text" id="clientAddInput" placeholder="Имя клиента" autofocus><button id="clientAddOk">Добавить</button></div>`
+    : `<button class="clientaddchip" id="clientAddChip">+ Клиент</button>`;
+  return `<div class="clientswrap ${allDone?'complete':''}" id="clientsWrap">
+    <div class="clientshead"><span class="clientstitle">🤝 Ключевые клиенты</span><span class="clientscount ${allDone?'complete':''}">${total?`${doneCount}/${total}`:'нет клиентов'}</span></div>
+    <div class="clientsgrid">${chips}${addBlock}</div>
+  </div>`;
+}
+
+let __lastAllClientsDone=false;
+
+function bindClients(d){
+  const wrap=$('clientsWrap');
+  if(!wrap)return;
+  wrap.querySelectorAll('.clientchip').forEach(chip=>{
+    chip.addEventListener('click',e=>{
+      if(e.target.closest('.clientremove'))return;
+      const cid=chip.dataset.clientId;
+      const checks=clientsChecksForDay(d);
+      const willBeOn=!checks[cid];
+      checks[cid]=willBeOn;save();
+      chip.classList.toggle('on',willBeOn);
+      chip.querySelector('.cbox').textContent=willBeOn?'✓':'';
+      chip.classList.remove('bump');void chip.offsetWidth;chip.classList.add('bump');
+      if(willBeOn){celebrateSubtask(chip.querySelector('.cbox'), true);playTick()}
+      const total=data.clients.length;const doneCount=data.clients.filter(c=>checks[c.id]).length;const allDone=total>0 && doneCount===total;
+      wrap.querySelector('.clientscount').textContent=total?`${doneCount}/${total}`:'нет клиентов';
+      wrap.querySelector('.clientscount').classList.toggle('complete',allDone);
+      if(allDone && !__lastAllClientsDone)setTimeout(()=>celebrateAllClients(wrap),150);
+      __lastAllClientsDone=allDone;
+    });
+  });
+  wrap.querySelectorAll('[data-remove-client]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const cid=btn.dataset.removeClient;
+      data.clients=data.clients.filter(c=>c.id!==cid);
+      Object.values(data.clientChecks).forEach(dayChecks=>{delete dayChecks[cid]});
+      save();renderClientsBlock(d);
+    });
+  });
+  const addChip=$('clientAddChip');
+  if(addChip)addChip.onclick=()=>{state.addingClient=true;renderClientsBlock(d)};
+  const addInput=$('clientAddInput');const addOk=$('clientAddOk');
+  if(addInput){
+    const commit=()=>{
+      const v=addInput.value.trim();
+      if(v){data.clients.push({id:uid(),name:v});save();toast(`Клиент «${v}» добавлен`)}
+      state.addingClient=false;renderClientsBlock(d);
+    };
+    addOk.onclick=commit;
+    addInput.onkeydown=e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){state.addingClient=false;renderClientsBlock(d)}};
+    addInput.onblur=()=>setTimeout(()=>{if(state.addingClient)commit()},150);
+  }
+}
+function renderClientsBlock(d){
+  const wrap=$('clientsWrap');if(!wrap)return;
+  wrap.outerHTML=buildClientsHtml(d);
+  bindClients(d);
+  const freshInput=$('clientAddInput');if(freshInput)freshInput.focus();
+}
+
+function buildDayHtml(d){
+  const ts=tasksFor(d);
+  const done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
+  const isComplete=ts.length>0 && pct===100;
+  const noTime=ts.filter(t=>!t.time);
+  const timed=ts.filter(t=>t.time);
+  const visible=new Set();
+  for(let m=DAY_START;m<=DAY_END;m+=60)visible.add(m);
+  timed.forEach(t=>{let start=timeMin(t.time),end=t.endTime?effectiveEnd(t):start;let from=Math.floor(start/STEP)*STEP,to=Math.ceil(end/STEP)*STEP;for(let m=from;m<=to;m+=STEP)visible.add(m)});
+  const baseMinutes=[...visible].sort((a,b)=>a-b);
+  const laidOut=layoutColumns(timed);
+  let maxRight=0;laidOut.forEach(item=>{maxRight=Math.max(maxRight,item.leftOffset+item.w)});
+  const extraByMinute={};
+  laidOut.forEach(item=>{if(!item.t.endTime){const contentHeight=estimateContentHeight(item.t);const need=Math.max(0,contentHeight-MIN_BLOCK);extraByMinute[item.start]=Math.max(extraByMinute[item.start]||0,need)}});
+  const rowTop={};let acc=0;
+  baseMinutes.forEach(m=>{rowTop[m]=acc;let h=ROWH;if(extraByMinute[m])h+=extraByMinute[m];acc+=h});
+  const totalHeight=acc;
+  function baseYFor(minute){
+    if(rowTop[minute]!==undefined)return rowTop[minute];
+    let keys=baseMinutes;
+    for(let i=0;i<keys.length-1;i++){if(minute>keys[i]&&minute<keys[i+1]){const segStart=keys[i],segEnd=keys[i+1];const segTop=rowTop[segStart];let segH=ROWH;if(extraByMinute[segStart])segH+=extraByMinute[segStart];const frac=(minute-segStart)/(segEnd-segStart);return segTop+frac*segH}}
+    const lastKey=keys[keys.length-1];let lastH=ROWH;if(extraByMinute[lastKey])lastH+=extraByMinute[lastKey];if(minute>lastKey)return rowTop[lastKey]+lastH;return rowTop[lastKey]||0;
+  }
+  let gridHtml='';
+  baseMinutes.forEach(m=>{const label=`${pad(Math.floor(m/60))}:${pad(m%60)}`;let extra=extraByMinute[m]||0;let h=ROWH+extra;gridHtml+=`<div class="gridrow" style="height:${h}px"><div class="time">${label}</div><div class="slotbg" data-minute="${m}"></div></div>`});
+  let blocksHtml='';
+  laidOut.forEach(item=>{
+    const t=item.t;const top=baseYFor(item.start);let height;
+    if(t.endTime){const bottom=baseYFor(item.end);height=Math.max(bottom-top,MIN_BLOCK)}else{const contentHeight=estimateContentHeight(t);height=Math.max(contentHeight,MIN_BLOCK)}
+    blocksHtml+=`<div class="taskblock ${t.done?'done':''}" data-id="${t.id}" style="top:${top}px;height:${height}px;left:${item.leftOffset+4}px;width:${item.w}px">${taskInnerHtml(t)}</div>`;
+  });
+  let progress=`<div class="progresswrap ${isComplete?'complete':''}" id="dayProgressWrap">
+    <div class="progresslabel ${isComplete?'complete':''}">${ts.length?`Выполнено ${done}/${ts.length}`:'На этот день пока нет задач'}</div>
+    <div class="progressbar"><div class="progressfill ${isComplete?'complete':''}" id="dayProgressFill" style="width:${pct}%"></div></div>
+    <div class="progresslabel ${isComplete?'complete':''}">${pct}%</div>
+    <div class="day-complete-badge ${isComplete?'show':''}">🏆</div>
+  </div>`;
+  let clientsHtml=buildClientsHtml(d);
+  let noTimeHtml=noTime.length?`<div class="notime"><div class="notimelabel">Без времени</div>${noTime.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
+  return {html:`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>
+    ${progress}${clientsHtml}${noTimeHtml}
+    <div class="timeline" style="height:${totalHeight}px">
+      <div class="gridlines" style="min-width:${maxRight+83}px">${gridHtml}</div>
+      <div class="taskslayer" style="width:${maxRight+8}px">${blocksHtml}</div>
+    </div>`, isComplete, pct};
+}
+
+let __lastDayComplete=false;
+function isMobileLayout(){return window.matchMedia('(max-width:800px)').matches}
+
+function renderDay(){
+  const d=state.date;
+  $('pageTitle').textContent=fmt(d);
+  const oldFill=$('dayProgressFill');
+  const oldWidthPx=oldFill?oldFill.getBoundingClientRect().width:null;
+  const built=buildDayHtml(d);
+  if(isMobileLayout()){
+    $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${buildMobileDayListHtml(d)}`;
+    bindMobileDayList(d);
+  } else {
+    $('content').innerHTML=built.html;
+    bindTasks();
+    bindClients(d);
+    fixupActualSizes(d);
+  }
+  const newFill=$('dayProgressFill');
+  if(newFill && oldWidthPx!==null){
+    newFill.style.transition='none';
+    newFill.style.width=oldWidthPx+'px';
+    void newFill.offsetWidth;
+    newFill.style.transition='';
+    requestAnimationFrame(()=>{newFill.style.width=built.pct+'%'});
+  }
+  document.querySelectorAll('.slotbg').forEach(s=>{s.addEventListener('click',()=>{const m=Number(s.dataset.minute);openModal(null,iso(d),`${pad(Math.floor(m/60))}:${pad(m%60)}`)})});
+  const activeInput=document.querySelector('.subaddinput');
+  if(activeInput)activeInput.focus();
+  const checks=clientsChecksForDay(d);
+  const total=data.clients.length;
+  const doneCount=data.clients.filter(c=>checks[c.id]).length;
+  __lastAllClientsDone=total>0 && doneCount===total;
+  if(built.isComplete && built.pct!==__lastKnownPct && !__lastDayComplete){
+    const wrap=$('dayProgressWrap');
+    if(wrap)setTimeout(()=>celebrateDayComplete(wrap),150);
+  }
+  __lastDayComplete=built.isComplete;
+  __lastKnownPct=built.pct;
+}
+
+function fixupActualSizes(d){
+  const blocks=[...document.querySelectorAll('.taskblock')];
+  if(!blocks.length)return;
+  let changed=false;
+  blocks.forEach(el=>{
+    const id=el.dataset.id;const t=data.tasks.find(x=>x.id===id);if(!t)return;
+    const currentWidth=parseFloat(el.style.width);let neededWidth=currentWidth;
+    el.querySelectorAll('.subtext,.tasktitle,.taskmeta,.taskobj').forEach(node=>{if(node.scrollWidth>node.clientWidth+1){const overflowPx=node.scrollWidth-node.clientWidth;neededWidth=Math.max(neededWidth,currentWidth+overflowPx+4)}});
+    el.querySelectorAll('.tasknotehead,.tasknotebody').forEach(node=>{
+      const cs=getComputedStyle(node);
+      const w=textWidth(node.textContent,`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`);
+      const pad=28;
+      if(w+pad>neededWidth)neededWidth=w+pad;
+    });
+    if(neededWidth>currentWidth+1){__widthOverrides[id]=Math.ceil(neededWidth);changed=true}
+  });
+  if(changed){
+    const built=buildDayHtml(d);
+    content.innerHTML=built.html;
+    bindTasks();bindClients(d);
+    enableTaskDrag();
+  }
+  fixupActualHeightsOnly(d);
+  fixupActualHeightsOnly(d);
+  document.querySelectorAll('.slotbg').forEach(s=>{s.addEventListener('click',()=>{const m=Number(s.dataset.minute);openModal(null,iso(d),`${pad(Math.floor(m/60))}:${pad(m%60)}`)})});
+}
+
+function fixupActualHeightsOnly(d){
+  const blocks=[...document.querySelectorAll('.taskblock')];
+  if(!blocks.length)return;
+  let needsRelayout=false;const realHeights={};
+  blocks.forEach(el=>{const id=el.dataset.id;const t=data.tasks.find(x=>x.id===id);if(!t||t.endTime)return;const natural=el.scrollHeight;const current=parseFloat(el.style.height);if(natural>current+1){realHeights[id]=natural;needsRelayout=true}});
+  if(!needsRelayout)return;
+  window.__realHeights=window.__realHeights||{};Object.assign(window.__realHeights,realHeights);
+  applyRealHeights(d);
+}
+
+function applyRealHeights(d){
+  const ts=tasksFor(d);const timed=ts.filter(t=>t.time);const laidOut=layoutColumns(timed);const realHeights=window.__realHeights||{};
+  const visible=new Set();for(let m=DAY_START;m<=DAY_END;m+=60)visible.add(m);
+  timed.forEach(t=>{let start=timeMin(t.time),end=t.endTime?effectiveEnd(t):start;let from=Math.floor(start/STEP)*STEP,to=Math.ceil(end/STEP)*STEP;for(let m=from;m<=to;m+=STEP)visible.add(m)});
+  const baseMinutes=[...visible].sort((a,b)=>a-b);
+  const extraByMinute={};
+  laidOut.forEach(item=>{if(item.t.endTime)return;const h=realHeights[item.t.id]||estimateContentHeight(item.t);const need=Math.max(0,h-MIN_BLOCK);extraByMinute[item.start]=Math.max(extraByMinute[item.start]||0,need)});
+  const rowTop={};let acc=0;
+  baseMinutes.forEach(m=>{rowTop[m]=acc;let h=ROWH;if(extraByMinute[m])h+=extraByMinute[m];acc+=h});
+  const totalHeight=acc;
+  function baseYFor(minute){
+    if(rowTop[minute]!==undefined)return rowTop[minute];
+    let keys=baseMinutes;
+    for(let i=0;i<keys.length-1;i++){if(minute>keys[i]&&minute<keys[i+1]){const segStart=keys[i],segEnd=keys[i+1];const segTop=rowTop[segStart];let segH=ROWH;if(extraByMinute[segStart])segH+=extraByMinute[segStart];const frac=(minute-segStart)/(segEnd-segStart);return segTop+frac*segH}}
+    const lastKey=keys[keys.length-1];let lastH=ROWH;if(extraByMinute[lastKey])lastH+=extraByMinute[lastKey];if(minute>lastKey)return rowTop[lastKey]+lastH;return rowTop[lastKey]||0;
+  }
+  document.querySelector('.timeline').style.height=totalHeight+'px';
+  document.querySelectorAll('.gridrow').forEach((row,idx)=>{const m=baseMinutes[idx];let extra=extraByMinute[m]||0;row.style.height=(ROWH+extra)+'px'});
+  laidOut.forEach(item=>{
+    const t=item.t;const el=document.querySelector(`.taskblock[data-id="${t.id}"]`);if(!el)return;
+    const top=baseYFor(item.start);let height;
+    if(t.endTime){const bottom=baseYFor(item.end);height=Math.max(bottom-top,MIN_BLOCK)}else{height=Math.max(realHeights[t.id]||estimateContentHeight(t),MIN_BLOCK)}
+    el.style.top=top+'px';el.style.height=height+'px';
+  });
+}
+
+function renderWeek(){
+  const st=mondayOf(state.date);
+  const ds=[];for(let i=0;i<7;i++){const dd=new Date(st);dd.setDate(st.getDate()+i);ds.push(dd)}
+  $('pageTitle').textContent=`Неделя ${ds[0].getDate()}–${ds[6].getDate()}`;
+
+  if(isMobileLayout()){
+    $('content').innerHTML=buildMobileWeekListHtml();
+    bindMobileWeekList();
+    return;
+  }
+
+  let h='<div class="weekgrid"><div class="whead"></div>'+ds.map(dd=>`<div class="whead">${ruD[dd.getDay()]}<br>${dd.getDate()}</div>`).join('');
+  for(let hr=7;hr<=21;hr++){h+=`<div class="wtime">${pad(hr)}:00</div>`;for(let dd of ds){let a=tasksFor(dd).filter(t=>timeMin(t.time)===hr*60);h+=`<div class="wslot" data-date="${iso(dd)}" data-hour="${hr}">${a.map(t=>`<div class="wtask ${t.done?'done':''}" data-id="${t.id}">${esc(timeLabel(t))} ${esc(t.title)}</div>`).join('')}</div>`}}
+  $('content').innerHTML=h+'</div>';
+  document.querySelectorAll('.wslot').forEach(x=>x.onclick=e=>{let t=e.target.closest('.wtask');t?openModal(t.dataset.id):openModal(null,x.dataset.date,pad(+x.dataset.hour)+':00')});
+}
+
+function renderMonth(){
+  let d=state.date,y=d.getFullYear(),m=d.getMonth(),f=new Date(y,m,1),st=new Date(f);st.setDate(1-(f.getDay()+6)%7);
+  let h='<div class="monthgrid">'+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<div class="dow">${x}</div>`).join('');
+  for(let i=0;i<42;i++){let x=new Date(st);x.setDate(st.getDate()+i);let a=tasksFor(x);h+=`<div class="mcell ${x.getMonth()!=m?'other':''} ${iso(x)==iso(new Date())?'today':''}" data-date="${iso(x)}"><div class="mnum">${x.getDate()}</div>${a.slice(0,4).map(t=>`<div class="mdot ${t.done?'done':''}">${timeLabel(t)?esc(timeLabel(t))+' ':''}${esc(t.title)}</div>`).join('')}</div>`}
+  $('pageTitle').textContent=`${['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m]} ${y}`;
+  $('content').innerHTML=h+'</div>';
+  document.querySelectorAll('.mcell').forEach(x=>x.onclick=()=>{state.date=parse(x.dataset.date);state.view='day';setTabs();render()});
+}
+
+function buildMobileDayListHtml(d){
+  const ts=tasksFor(d).slice().sort((a,b)=>{
+    const at=a.time?timeMin(a.time):9999,bt=b.time?timeMin(b.time):9999;
+    return at-bt;
+  });
+  if(!ts.length)return '<div class="notime"><div class="notimelabel">На этот день пока нет задач</div></div>';
+  return '<div class="mobiledaylist">'+ts.map(t=>{
+    const timeStr=t.time?esc(t.time):'—';
+    return `<div class="mobiledayrow ${t.done?'done':''}" data-id="${t.id}">
+      <div class="mobiledaycheck ${t.done?'on':''}" data-check="${t.id}"></div>
+      <div class="mobiledaytime">${timeStr}</div>
+      <div class="mobiledaytitle" title="${esc(t.title)}">${esc(t.title)}</div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+function bindMobileDayList(d){
+  document.querySelectorAll('.mobiledayrow').forEach(row=>{
+    const id=row.dataset.id;
+    row.addEventListener('click',e=>{
+      if(e.target.closest('[data-check]'))return;
+      openModal(id);
+    });
+  });
+  document.querySelectorAll('[data-check]').forEach(box=>{
+    box.addEventListener('click',e=>{
+      e.stopPropagation();
+      const id=box.dataset.check;
+      const t=data.tasks.find(x=>x.id===id);
+      if(!t)return;
+      t.done=!t.done;save();
+      const row=box.closest('.mobiledayrow');
+      row.classList.toggle('done',t.done);
+      box.classList.toggle('on',t.done);
+      if(t.done){celebrateSubtask(box,true);playTick()}
+    });
+  });
+}
+
+let swipeStartX=null,swipeStartY=null,swipeActive=false;
+const SWIPE_THRESHOLD=60,SWIPE_MAX_VERTICAL=70;
+
+function attachSwipeNav(){
+  const content=$('content');
+  if(!content||content.__swipeBound)return;
+  content.__swipeBound=true;
+  content.addEventListener('touchstart',e=>{
+    if(!isMobileLayout())return;
+    if(state.view!=='day'&&state.view!=='week')return;
+    if(e.touches.length!==1)return;
+    swipeStartX=e.touches[0].clientX;
+    swipeStartY=e.touches[0].clientY;
+    swipeActive=true;
+  },{passive:true});
+  content.addEventListener('touchend',e=>{
+    if(!swipeActive)return;
+    swipeActive=false;
+    if(swipeStartX===null)return;
+    const endX=e.changedTouches[0].clientX;
+    const endY=e.changedTouches[0].clientY;
+    const dx=endX-swipeStartX,dy=endY-swipeStartY;
+    swipeStartX=null;swipeStartY=null;
+    if(Math.abs(dy)>SWIPE_MAX_VERTICAL)return;
+    if(Math.abs(dx)<SWIPE_THRESHOLD)return;
+    const nd=new Date(state.date);
+    const step=state.view==='week'?7:1;
+    nd.setDate(nd.getDate()+(dx<0?step:-step));
+    state.date=nd;
+    render();
+  },{passive:true});
+}
+function mondayOf(d){const x=new Date(d);x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+
+function buildMobileWeekListHtml(){
+  const start=mondayOf(state.date);
+  const todayIso=iso(new Date());
+  let html='<div class="mobileweeklist">';
+  for(let i=0;i<7;i++){
+    const dd=new Date(start);dd.setDate(start.getDate()+i);
+    const dIso=iso(dd);
+    const isToday=dIso===todayIso;
+    const ts=tasksFor(dd).slice().sort((a,b)=>{
+      const at=a.time?timeMin(a.time):9999,bt=b.time?timeMin(b.time):9999;
+      return at-bt;
+    });
+    const tasksHtml=ts.length
+      ? ts.map(t=>`<div class="mobileweektask ${t.done?'done':''}" data-id="${t.id}">
+           <div class="wtime">${t.time?esc(t.time):'—'}</div>
+           <div class="wtitle" title="${esc(t.title)}">${esc(t.title)}</div>
+         </div>`).join('')
+      : `<div class="mobileweekempty">Нет задач</div>`;
+    html+=`<div class="mobileweekday ${isToday?'today':''}" data-date="${dIso}">
+      <div class="mobileweekdayhead" data-date="${dIso}">
+        <span class="wdfulldate">${fmtFullDate(dd)}</span>
+      </div>
+      <div class="mobileweekdaytasks">${tasksHtml}</div>
+    </div>`;
+  }
+  html+='</div>';
+  return html;
+}
+
+function bindMobileWeekList(){
+  document.querySelectorAll('.mobileweektask').forEach(row=>{
+    row.addEventListener('click',e=>{
+      e.stopPropagation();
+      openModal(row.dataset.id);
+    });
+  });
+  document.querySelectorAll('.mobileweekdayhead').forEach(head=>{
+    head.addEventListener('click',()=>{
+      state.date=parse(head.dataset.date);
+      state.view='day';
+      setTabs();
+      render();
+    });
+  });
+}
+const ruMShort=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+function buildMonthPickerHtml(){
+  const y=state.pickerYear;
+  const curY=state.date.getFullYear(),curM=state.date.getMonth();
+  const cells=ruMShort.map((label,idx)=>{
+    const isCurrent=(y===curY&&idx===curM);
+    return `<div class="monthpickercell ${isCurrent?'current':''}" data-month="${idx}">${label}</div>`;
+  }).join('');
+  return `<div class="monthpicker" id="monthPicker">
+    <div class="monthpickeryear">
+      <span class="ypbtn" id="pickerYearPrev">‹</span>
+      <span id="pickerYearLabel">${y}</span>
+      <span class="ypbtn" id="pickerYearNext">›</span>
+    </div>
+    <div class="monthpickergrid">${cells}</div>
+  </div>`;
+}
+
+let pickerSwipeStartX=null,pickerSwipeActive=false;
+const PICKER_SWIPE_THRESHOLD=50;
+
+function bindMonthPicker(){
+  const picker=$('monthPicker');
+  if(!picker)return;
+  $('pickerYearPrev').onclick=()=>{state.pickerYear--;renderMonthPicker()};
+  $('pickerYearNext').onclick=()=>{state.pickerYear++;renderMonthPicker()};
+  document.querySelectorAll('.monthpickercell').forEach(cell=>{
+    cell.addEventListener('click',()=>{
+      const m=Number(cell.dataset.month);
+      state.date=new Date(state.pickerYear,m,1);
+      state.view='week';
+      setTabs();
+      render();
+    });
+  });
+  picker.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1)return;
+    pickerSwipeStartX=e.touches[0].clientX;
+    pickerSwipeActive=true;
+  },{passive:true});
+  picker.addEventListener('touchend',e=>{
+    if(!pickerSwipeActive)return;
+    pickerSwipeActive=false;
+    if(pickerSwipeStartX===null)return;
+    const dx=e.changedTouches[0].clientX-pickerSwipeStartX;
+    pickerSwipeStartX=null;
+    if(Math.abs(dx)<PICKER_SWIPE_THRESHOLD)return;
+    state.pickerYear+=(dx<0?1:-1);
+    renderMonthPicker();
+  },{passive:true});
+}
+
+function renderMonthPicker(){
+  $('pageTitle').textContent='Выбор месяца';
+  $('content').innerHTML=buildMonthPickerHtml();
+  bindMonthPicker();
+}
+
+let __mobileScreen='sections';
+
+function mobileNavList(){
+  return [
+    {id:'today',icon:'☀️',label:'Сегодня'},
+    {id:'calendar',icon:'📅',label:'Календарь'},
+    {id:'settings',icon:'⚙️',label:'Настройки'}
+  ];
+}
+
+function buildMobileSectionsHtml(){
+  const items=mobileNavList();
+  return `<div class="mobilesections">
+    <div class="mobilesectionsbrand">Мой ежедневник</div>
+    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionicon">${it.icon}</span><span class="mobilesectionlabel">${it.label}</span><span class="mobilesectionarrow">›</span></button>`).join('')}
+  </div>`;
+}
+
+function openMobileSection(sectionId){
+  if(sectionId==='today'){state.date=new Date();state.view='day'}
+  else if(sectionId==='calendar'){state.view='month'}
+  setTabs();
+  __mobileScreen='detail';
+  renderMobileShell();
+  render();
+}
+
+function backToMobileSections(){
+  __mobileScreen='sections';
+  renderMobileShell();
+}
+
+function renderMobileShell(){
+  if(!isMobileLayout())return;
+  const appEl=document.querySelector('.app');
+  if(!appEl)return;
+  if(__mobileScreen==='sections'){
+    appEl.classList.add('mobile-showing-sections');
+    appEl.classList.remove('mobile-showing-detail');
+  }else{
+    appEl.classList.add('mobile-showing-detail');
+    appEl.classList.remove('mobile-showing-sections');
+  }
+  const sidebar=document.querySelector('.sidebar');
+  if(sidebar && !sidebar.querySelector('.mobilesectionswrap')){
+    const wrap=document.createElement('div');
+    wrap.className='mobilesectionswrap';
+    wrap.innerHTML=buildMobileSectionsHtml();
+    const pendingWidget=sidebar.querySelector('.sidebarpending');
+    if(pendingWidget){
+      sidebar.insertBefore(wrap,pendingWidget);
+    }else{
+      sidebar.insertBefore(wrap,sidebar.firstChild);
+    }
+    wrap.querySelectorAll('.mobilesectionitem').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        if(btn.dataset.section==='settings'){openMobileSettings();return}
+        openMobileSection(btn.dataset.section);
+      });
+    });
+  }
+}
+
+function openMobileSettings(){
+  const backupBar=document.querySelector('.backupbar');
+  if(backupBar)backupBar.classList.toggle('mobile-settings-open');
+}
+
+function render(){
+  renderMobileShell();
+  if(state.view==='day')renderDay();
+  else if(state.view==='week')renderWeek();
+  else if(isMobileLayout())renderMonthPicker();
+  else renderMonth();
+  renderSidebarPending();
+}
+
+function renderSidebarPending(){
+  const wrap=$('sidebarPending');
+  if(!wrap)return;
+  const today=tasksFor(new Date()).filter(t=>!t.done);
+  if(!today.length){
+    wrap.innerHTML=`<div class="sidebarpending-title">Сегодня</div><div class="sidebarpending-empty">Нет незавершённых задач</div>`;
+    return;
+  }
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const items=today.map(t=>{
+    const deadline=t.endTime?timeMin(t.endTime):t.time?timeMin(t.time):null;
+    const overdue=deadline!==null && nowMin>deadline;
+    const startMin=t.time?timeMin(t.time):null;
+    const minutesUntilStart=startMin!==null?(startMin-nowMin):null;
+    const upcomingSoon=!overdue && minutesUntilStart!==null && minutesUntilStart>=0 && minutesUntilStart<=60;
+    const upcomingFar=!overdue && !upcomingSoon && startMin!==null;
+    const statusClass=overdue?'overdue':upcomingSoon?'upcoming-soon':upcomingFar?'upcoming-far':'';
+        const flareSvg=overdue?`<div class="overdueflare"><svg viewBox="0 0 60 60"><defs><linearGradient id="flareCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="45%" stop-color="#fff" stop-opacity=".95"/><stop offset="50%" stop-color="#fecaca" stop-opacity="1"/><stop offset="55%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="flareWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0"/><stop offset="40%" stop-color="#f87171" stop-opacity=".55"/><stop offset="50%" stop-color="#fca5a5" stop-opacity=".85"/><stop offset="60%" stop-color="#f87171" stop-opacity=".55"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs><path d="M30,2 C33,18 33,42 30,58 C27,42 27,18 30,2 Z" fill="url(#flareWing)" opacity=".7"/><path d="M30,10 C31.6,20 31.6,40 30,50 C28.4,40 28.4,20 30,10 Z" fill="url(#flareCore)"/></svg></div>`:'';
+    return `<div class="sidebarpending-item ${statusClass}" data-id="${t.id}">
+      ${flareSvg}
+      ${timeLabel(t)?`<span class="sidebarpending-time">${esc(timeLabel(t).split('–')[0].split('-')[0])}</span>`:''}
+      <span class="sidebarpending-name" title="${esc(t.title)}">${esc(t.title)}</span>
+    </div>`;
+  }).join('');
+  wrap.innerHTML=`<div class="sidebarpending-title">Сегодня · ${today.length}</div>${items}`;
+  wrap.querySelectorAll('.sidebarpending-item').forEach(el=>{
+    el.onclick=()=>{
+      state.date=new Date();
+      state.view='day';
+      setTabs();
+      render();
+      openModal(el.dataset.id);
+    };
+  });
+}
+function setTabs(){document.querySelectorAll('.viewtabs button').forEach(x=>x.classList.toggle('sel',x.dataset.view===state.view))}
+function recomputeDone(t){if((t.subtasks||[]).length)t.done=t.subtasks.every(s=>subDone(s))}
+
+/* ================== ВСПЛЫВАЮЩЕЕ ОКНО РЕЗУЛЬТАТА ПОДЗАДАЧИ ================== */
+function openSubtaskNotePopup(anchorEl, t, si){
+  document.querySelectorAll('.subnotepop,.subnotebackdrop').forEach(e=>e.remove());
+  const sub=t.subtasks[si];
+  const rect=anchorEl.getBoundingClientRect();
+  const backdrop=document.createElement('div');
+  backdrop.className='subnotebackdrop';
+  document.body.appendChild(backdrop);
+  const pop=document.createElement('div');
+  pop.className='subnotepop';
+  let top=rect.bottom+8, left=rect.left-260;
+  if(left<10)left=10;
+  if(top+180>window.innerHeight) top=rect.top-190;
+  pop.style.top=top+'px';pop.style.left=left+'px';
+  pop.innerHTML=`<div class="subnoteheader">📝 Результат: «${esc(sub.title)}»</div>
+    <textarea id="subnoteinput" placeholder="Например: дозвонился до Ивана, показ перенесён на среду">${esc(sub.resultNote||'')}</textarea>
+    <div class="subnotefoot"><button class="subnoteskip" id="subnoteskipbtn">Без заметки</button><button class="subnotesave" id="subnotesavebtn">Сохранить</button></div>`;
+  document.body.appendChild(pop);
+  const input=$('subnoteinput');
+  input.focus();input.select();
+  const close=()=>{pop.remove();backdrop.remove()};
+  backdrop.onclick=close;
+  $('subnoteskipbtn').onclick=close;
+  $('subnotesavebtn').onclick=()=>{
+    const v=input.value.trim();
+    sub.resultNote=v;
+    const prefix=`[${sub.title}]`;
+    const lines=(t.note||'').split('\n').filter(line=>line.trim() && !line.startsWith(prefix+' ') && line!==prefix);
+    if(v){
+      lines.push(`${prefix} ${v}`);
+    }
+    t.note=lines.join('\n');
+    save();
+    close();
+    delete window.__realHeights;
+    render();
+  };
+  input.onkeydown=e=>{if(e.key==='Escape')close();if(e.key==='Enter'&&e.ctrlKey)$('subnotesavebtn').click()};
+}
+/* ================== /ВСПЛЫВАЮЩЕЕ ОКНО ================== */
+
+function bindTasks(){
+  document.querySelectorAll('.task,.taskblock').forEach(el=>{
+    let t=data.tasks.find(x=>x.id===el.dataset.id);if(!t)return;
+    el.querySelector('.check').onclick=e=>{
+      e.stopPropagation();const willBeDone=!t.done;t.done=willBeDone;save();
+      if(willBeDone)celebrateTask(el);
+      renderSidebarPending();
+      __widthOverrides={};delete window.__realHeights;
+      setTimeout(()=>render(),willBeDone?520:0);
+    };
+    el.querySelector('.tasktitle').onclick=()=>openModal(t.id);
+    el.querySelector('[data-action="edit"]')?.addEventListener('click',()=>openModal(t.id));
+    el.querySelector('[data-action="focus"]')?.addEventListener('click',()=>openFocusFor(t.id));
+    el.querySelector('.addsub')?.addEventListener('click',(e)=>{e.stopPropagation();state.addingSubtaskFor=t.id;delete window.__realHeights;render()});
+    const subForm=el.querySelector('.subaddform');
+    if(subForm){
+      const input=subForm.querySelector('.subaddinput');const okBtn=subForm.querySelector('.subaddok');
+      const commit=()=>{
+        const v=input.value.trim();
+        if(v){t.subtasks=t.subtasks||[];t.subtasks.push({title:v,status:'pending'});recomputeDone(t);save();delete __widthOverrides[t.id]}
+        state.addingSubtaskFor=null;delete window.__realHeights;render();
+      };
+      okBtn.onclick=(e)=>{e.stopPropagation();commit()};
+      input.onclick=e=>e.stopPropagation();
+      input.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();commit()}if(e.key==='Escape'){state.addingSubtaskFor=null;delete window.__realHeights;render()}};
+      input.onblur=()=>{setTimeout(()=>{if(state.addingSubtaskFor===t.id)commit()},150)};
+    }
+    el.querySelectorAll('.subnoteicon').forEach((icon,idx)=>{
+      icon.addEventListener('click',e=>{
+        e.stopPropagation();
+        openSubtaskNotePopup(icon, t, idx);
+      });
+    });
+    el.querySelectorAll('.vbtn').forEach(btn=>{
+      btn.onclick=e=>{
+        e.stopPropagation();
+        const si=+btn.dataset.si;
+        const verdict=btn.dataset.verdict;
+        const sub=t.subtasks[si];
+        const wasSet=sub.status===verdict;
+        sub.status=wasSet?'pending':verdict;
+
+        const subRow=btn.closest('.sub');
+        const successBtn=subRow?subRow.querySelector('.vbtn.success'):null;
+        const failedBtn=subRow?subRow.querySelector('.vbtn.failed'):null;
+        const subtextEl=subRow?subRow.querySelector('.subtext'):null;
+
+        if(successBtn)successBtn.classList.toggle('active', sub.status==='success');
+        if(failedBtn)failedBtn.classList.toggle('active', sub.status==='failed');
+        if(subtextEl){
+          subtextEl.classList.remove('success','failed');
+          if(sub.status==='success')subtextEl.classList.add('success');
+          if(sub.status==='failed')subtextEl.classList.add('failed');
+        }
+
+        if(!wasSet){
+          btn.classList.add('bump');setTimeout(()=>btn.classList.remove('bump'),260);
+          if(subRow){subRow.classList.remove('glow-success','glow-failed');void subRow.offsetWidth;subRow.classList.add(verdict==='success'?'glow-success':'glow-failed')}
+          celebrateSubtask(btn,verdict==='success');playTick();
+          setTimeout(()=>openSubtaskNotePopup(subRow.querySelector('.subnoteicon'), t, si), 260);
+        }
+
+        const wasTaskDone=t.done;
+        recomputeDone(t);save();
+
+        if(!wasTaskDone&&t.done){
+          setTimeout(()=>{const freshEl=document.querySelector(`[data-id="${t.id}"]`);if(freshEl)celebrateTask(freshEl);__widthOverrides={};delete window.__realHeights;setTimeout(()=>render(),520)},900);
+        }else{
+          const taskEl=btn.closest('.task,.taskblock');
+          if(taskEl && taskEl.classList.contains('taskblock')){
+            requestAnimationFrame(()=>{
+              const naturalH=taskEl.scrollHeight;
+              const currentH=parseFloat(taskEl.style.height);
+              if(Math.abs(naturalH-currentH)>1){
+                window.__realHeights=window.__realHeights||{};
+                window.__realHeights[t.id]=naturalH;
+                applyRealHeights(state.date);
+              }
+            });
+          }
+        }
+      };
+    });
+  });
+}
+
+/* ================== ШАБЛОНЫ ================== */
+function enableTaskDrag(){
+  const layer=document.querySelector('.taskslayer');
+  if(!layer)return;
+  document.querySelectorAll('.taskblock').forEach(el=>{
+    const id=el.dataset.id;
+    const t=data.tasks.find(x=>x.id===id);
+    if(!t||!t.time)return;
+    el.addEventListener('mousedown',e=>{
+      if(e.target.closest('.check,.vbtn,.subnoteicon,.addsub,.subaddform,[data-action],.focusbtn'))return;
+      e.preventDefault();
+      const startY=e.clientY;
+      const startTop=parseFloat(el.style.top);
+      const rowh=ROWH;
+      const minutesPerPx=60/rowh;
+      const origStartMin=timeMin(t.time);
+      const origEndMin=t.endTime?timeMin(t.endTime):null;
+      const duration=origEndMin!==null?(origEndMin-origStartMin):null;
+      let dragging=false;
+      let ghost=null;
+      const onMove=me=>{
+        const dy=me.clientY-startY;
+        if(!dragging&&Math.abs(dy)>4){
+          dragging=true;
+          el.classList.add('dragging');
+          ghost=document.createElement('div');
+          ghost.className='taskdragghost';
+          ghost.style.height=el.style.height;
+          layer.appendChild(ghost);
+        }
+        if(!dragging)return;
+        let rawMinutes=origStartMin+dy*minutesPerPx;
+        let snapped=Math.round(rawMinutes/STEP)*STEP;
+        snapped=Math.max(DAY_START,Math.min(DAY_END,snapped));
+        const deltaMin=snapped-origStartMin;
+        const newTop=startTop+deltaMin/60*rowh;
+        el.style.top=newTop+'px';
+        if(ghost)ghost.style.top=newTop+'px';
+        el.dataset.pendingMin=snapped;
+      };
+      const onUp=()=>{
+        document.removeEventListener('mousemove',onMove);
+        document.removeEventListener('mouseup',onUp);
+        if(!dragging){return}
+        el.classList.remove('dragging');
+        if(ghost)ghost.remove();
+        const snapped=+el.dataset.pendingMin;
+        delete el.dataset.pendingMin;
+        const newStartMin=snapped;
+        t.time=`${pad(Math.floor(newStartMin/60))}:${pad(newStartMin%60)}`;
+        if(duration!==null){
+          const newEndMin=newStartMin+duration;
+          t.endTime=`${pad(Math.floor(newEndMin/60))}:${pad(newEndMin%60)}`;
+        }
+        delete __widthOverrides[t.id];
+        delete window.__realHeights;
+        save();
+        render();
+      };
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+    });
+  });
+}
+function renderQuickTplBar(){
+  const bar=$('quickTplBar');
+  bar.innerHTML=data.templates.map(tp=>`<button type="button" class="tplchip" data-code="${esc(tp.code)}">${esc(tp.code)} — ${esc(tp.name)}</button>`).join('')
+    +`<button type="button" class="tplmanage" id="tplManageBtn">⚙ Управлять шаблонами</button>`;
+  bar.querySelectorAll('.tplchip').forEach(chip=>{
+    chip.onclick=()=>{
+      const code=chip.dataset.code;
+      const current=$('quickInput').value;
+      if(!current.trim().toUpperCase().startsWith(code.toUpperCase())){
+        $('quickInput').value=code+' '+current;
+      }
+      $('quickInput').focus();
+    };
+  });
+  $('tplManageBtn').onclick=openTplModal;
+}
+function findTemplateInText(raw){
+  const trimmed=raw.trimStart();
+  for(const tp of data.templates){
+    const re=new RegExp('^'+tp.code.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?=[\\s]|$)','i');
+    if(re.test(trimmed)) return tp;
+  }
+  return null;
+}
+function openTplModal(){renderTplList();$('tplOverlay').style.display='flex'}
+function closeTplModal(){$('tplOverlay').style.display='none'}
+function renderTplList(){
+  const list=$('tplList');
+  if(!data.templates.length){list.innerHTML='<div class="tplempty">Шаблонов пока нет</div>';return}
+  list.innerHTML=data.templates.map((tp,i)=>`<div class="tplitem">
+    <div>
+      <div class="tplitemname">${esc(tp.code)} — ${esc(tp.name)}</div>
+      <div class="tplitemsubs">${(tp.subtasks||[]).map(esc).join(' · ')||'без подзадач'}</div>
+    </div>
+    <button class="tplitemdel" data-i="${i}">Удалить</button>
+  </div>`).join('');
+  list.querySelectorAll('.tplitemdel').forEach(btn=>{
+    btn.onclick=()=>{
+      data.templates.splice(+btn.dataset.i,1);
+      save();renderTplList();renderQuickTplBar();
+    };
+  });
+}
+$('tplCloseBtn').onclick=closeTplModal;
+$('tplOverlay').onclick=e=>{if(e.target===$('tplOverlay'))closeTplModal()};
+$('tplSaveBtn').onclick=()=>{
+  const code=$('tCode').value.trim();
+  const name=$('tName').value.trim();
+  if(!code||!name){toast('Заполните код и название шаблона');return}
+  const subs=$('tSubs').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  data.templates.push({code,name,subtasks:subs});
+  save();
+  $('tCode').value='';$('tName').value='';$('tSubs').value='';
+  renderTplList();renderQuickTplBar();
+  toast(`Шаблон «${code}» сохранён`);
+};
+/* ================== /ШАБЛОНЫ ================== */
+
+/* ================== ПОВТОР ЗАДАЧИ ПО ДНЯМ НЕДЕЛИ ================== */
+function updateRecurUI(){
+  document.querySelectorAll('.daypill').forEach(p=>{p.classList.toggle('on', state.recurDays.includes(+p.dataset.d))});
+  updateRecurPreview();
+}
+function updateRecurPreview(){
+  const preview=$('recurPreview');
+  if(!state.recurDays.length){preview.textContent='Без повтора — задача будет создана только на выбранную дату выше.';return}
+  const weeks=+$('fWeeks').value;
+  const names=state.recurDays.slice().sort((a,b)=>{const oa=a===0?7:a,ob=b===0?7:b;return oa-ob}).map(d=>ruD[d]);
+  preview.textContent=`Будут созданы копии на: ${names.join(', ')} — в течение ${weeks} ${weeks===1?'недели':'недель'}.`;
+}
+document.querySelectorAll('.daypill').forEach(p=>{
+  p.onclick=()=>{const d=+p.dataset.d;if(state.recurDays.includes(d))state.recurDays=state.recurDays.filter(x=>x!==d);else state.recurDays.push(d);updateRecurUI()};
+});
+$('recurWorkdaysBtn').onclick=()=>{state.recurDays=[1,2,3,4,5];updateRecurUI()};
+$('recurWeekendBtn').onclick=()=>{state.recurDays=[6,0];updateRecurUI()};
+$('recurAllBtn').onclick=()=>{state.recurDays=[1,2,3,4,5,6,0];updateRecurUI()};
+$('recurClearBtn').onclick=()=>{state.recurDays=[];updateRecurUI()};
+$('fWeeks').onchange=updateRecurPreview;
+
+function createRecurringCopies(baseTask, days, weeks, seriesId){
+  const startDate=parse(baseTask.date);
+  const endDate=new Date(startDate);
+  endDate.setDate(startDate.getDate()+weeks*7);
+  let count=0;
+  for(let x=new Date(startDate); x<endDate; x.setDate(x.getDate()+1)){
+    if(iso(x)===baseTask.date)continue;
+    if(days.includes(x.getDay())){
+      data.tasks.push({
+        id:uid(),title:baseTask.title,date:iso(x),time:baseTask.time,endTime:baseTask.endTime,
+        note:baseTask.note,object:baseTask.object,manager:baseTask.manager,done:false,
+        subtasks:(baseTask.subtasks||[]).map(s=>({title:s.title,status:'pending'})),
+        focusSessions:0,focusMinutes:0,seriesId
+      });
+      count++;
+    }
+  }
+  return count;
+}
+/* ================== /ПОВТОР ================== */
+
+function openModal(id=null,date=iso(state.date),time='09:00'){
+  state.editing=id;$('modalTitle').textContent=id?'Редактировать задачу':'Новая задача';$('deleteBtn').classList.toggle('hidden',!id);
+  let t=id?data.tasks.find(x=>x.id===id):null;
+  $('deleteSeriesBtn').classList.toggle('hidden', !(t&&t.seriesId));
+  $('fTitle').value=t?.title||'';$('fDate').value=t?.date||date;$('fTime').value=t?.time||time;$('fEndTime').value=t?.endTime||'';$('fNote').value=t?.note||'';
+  $('fObject').value=t?.object||'';$('fManager').value=t?.manager||'';
+  $('fSubtasks').value=(t?.subtasks||[]).map(s=>s.title).join('\n');
+  $('fWeeks').value='4';
+  state.recurDays=[];
+  updateRecurUI();
+  $('recurField').classList.toggle('hidden', !!id);
+  $('overlay').style.display='flex';setTimeout(()=>$('fTitle').focus(),50);
+}
+function closeModal(){$('overlay').style.display='none'}
+function saveModal(){
+  let title=$('fTitle').value.trim(),date=$('fDate').value,time=$('fTime').value,endTime=$('fEndTime').value;
+  if(!title||!date)return toast('Введите название и дату');
+  if(endTime&&time&&endTime<time)return toast('Время окончания не может быть раньше начала');
+  let subs=$('fSubtasks').value.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>({title:x,status:'pending'}));
+  let note=$('fNote').value.trim();
+  let object=$('fObject').value.trim();
+  let manager=$('fManager').value.trim();
+
+  if(state.editing){
+    delete __widthOverrides[state.editing];
+    Object.assign(data.tasks.find(x=>x.id===state.editing),{title,date,time,endTime,note,object,manager,subtasks:subs});
+    delete window.__realHeights;save();closeModal();render();
+    return;
+  }
+
+      const baseTask={title,date,time,endTime,note,object,manager,subtasks:subs};
+    if(state.recurDays.length){
+      const weeks=+fWeeks.value;
+      const seriesId=uid();
+      const count=createRecurringCopies(baseTask, state.recurDays, weeks, seriesId);
+      if(count>0){
+        data.tasks.push({id:uid(),...baseTask,done:false,focusSessions:0,focusMinutes:0,seriesId});
+        toast(`Создано ${count+1} задач(и) на выбранные дни`);
+      }else{
+        toast(`Не удалось создать повторения — проверьте выбранные дни`);
+      }
+       }else{
+      data.tasks.push({id:uid(),...baseTask,done:false,focusSessions:0,focusMinutes:0});
+    }
+  delete window.__realHeights;save();closeModal();render();
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if($('overlay').style.display==='flex')closeModal();
+    if($('tplOverlay').style.display==='flex')closeTplModal();
+  }
+});
+
+const focus={taskId:null,totalSec:25*60,remainingSec:25*60,running:false,timer:null,phase:'work'};
+const RING_R=105, RING_C=2*Math.PI*RING_R;
+$('focusRingProgress').style.strokeDasharray=RING_C;
+$('focusMiniFill').style.strokeDasharray=2*Math.PI*26;
+function focusTaskObj(){return data.tasks.find(x=>x.id===focus.taskId)}
+function openFocusFor(id){
+  focus.taskId=id;const t=focusTaskObj();
+  $('focusTaskName').textContent=t?t.title:'Свободный фокус';
+  setFocusDuration(25,true);updateFocusStats();
+  $('focusOverlay').classList.add('active');$('focusToggleBtn').classList.add('hidden-btn');
+  renderFocusRing();
+}
+function minimizeFocus(){
+  $('focusOverlay').classList.remove('active');
+  if(focus.running||focus.remainingSec<focus.totalSec){$('focusToggleBtn').classList.remove('hidden-btn');$('focusMiniProgress').style.display='block';updateMiniRing()}
+}
+$('focusMinimize').onclick=minimizeFocus;
+$('focusToggleBtn').onclick=()=>{$('focusOverlay').classList.add('active');$('focusToggleBtn').classList.add('hidden-btn')};
+function setFocusDuration(minutes,resetPhase){
+  stopFocusTimer();focus.totalSec=minutes*60;focus.remainingSec=minutes*60;if(resetPhase)focus.phase='work';
+  updateFocusDisplay();renderFocusRing();$('focusMainBtn').textContent='▶';$('focusMainBtn').classList.remove('running');
+}
+document.querySelectorAll('.focuspresetchip[data-min]').forEach(chip=>{
+  chip.onclick=()=>{document.querySelectorAll('.focuspresetchip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');$('focusCustomRow').classList.remove('show');setFocusDuration(+chip.dataset.min,true)};
+});
+$('focusCustomChip').onclick=()=>{document.querySelectorAll('.focuspresetchip').forEach(c=>c.classList.remove('active'));$('focusCustomChip').classList.add('active');$('focusCustomRow').classList.add('show');$('focusCustomInput').focus()};
+$('focusCustomApply').onclick=applyCustomDuration;
+$('focusCustomInput').onkeydown=e=>{if(e.key==='Enter')applyCustomDuration()};
+function applyCustomDuration(){const v=Math.round(+$('focusCustomInput').value);if(!v||v<1){toast('Введите число минут больше 0');return}const clamped=Math.min(480,v);setFocusDuration(clamped,true);toast(`Установлено: ${clamped} мин`)}
+function updateFocusDisplay(){
+  const m=Math.floor(focus.remainingSec/60),s=focus.remainingSec%60;const el=$('focusTimeDisplay');
+  el.textContent=`${pad(m)}:${pad(s)}`;el.classList.add('tick');setTimeout(()=>el.classList.remove('tick'),150);
+  $('focusPhaseLabel').textContent=focus.phase==='work'?'Фокус':'Перерыв';
+}
+function renderFocusRing(){
+  const frac=1-(focus.remainingSec/focus.totalSec);const offset=RING_C*(1-frac);const ring=$('focusRingProgress');
+  ring.style.strokeDashoffset=offset;ring.classList.toggle('break',focus.phase==='break');ring.classList.toggle('work',focus.phase==='work');
+  $('focusRingWrap').classList.toggle('pulsing',focus.running);updateMiniRing();
+}
+function updateMiniRing(){const c=2*Math.PI*26;const frac=1-(focus.remainingSec/focus.totalSec);$('focusMiniFill').style.strokeDashoffset=c*(1-frac);$('focusMiniProgress').style.display=(focus.running||focus.remainingSec<focus.totalSec)?'block':'none'}
+function updateFocusStats(){const t=focusTaskObj();$('focusStatSessions').textContent=t?(t.focusSessions||0):0;$('focusStatMinutes').textContent=t?(t.focusMinutes||0):0}
+function stopFocusTimer(){clearInterval(focus.timer);focus.timer=null;focus.running=false}
+$('focusMainBtn').onclick=()=>{
+  if(focus.running){stopFocusTimer();$('focusMainBtn').textContent='▶';$('focusMainBtn').classList.remove('running');$('focusRingWrap').classList.remove('pulsing')}
+  else{
+    focus.running=true;$('focusMainBtn').textContent='❚❚';$('focusMainBtn').classList.add('running');$('focusRingWrap').classList.add('pulsing');
+    focus.timer=setInterval(()=>{focus.remainingSec--;updateFocusDisplay();renderFocusRing();if(focus.remainingSec<=0)onFocusPhaseEnd()},1000);
+  }
+};
+$('focusResetBtn').onclick=()=>{const activeChip=document.querySelector('.focuspresetchip.active');const minutes=activeChip&&activeChip.dataset.min?+activeChip.dataset.min:Math.round(focus.totalSec/60);setFocusDuration(minutes,false)};
+$('focusSkipBtn').onclick=()=>{stopFocusTimer();onFocusPhaseEnd(true)};
+function onFocusPhaseEnd(skipped){
+  stopFocusTimer();
+  if(focus.phase==='work'){
+    const t=focusTaskObj();
+    if(t){t.focusSessions=(t.focusSessions||0)+1;t.focusMinutes=(t.focusMinutes||0)+Math.round(focus.totalSec/60);save();updateFocusStats()}
+    if(!skipped){playFocusEndChime();$('focusCard').classList.remove('done-shake');void $('focusCard').offsetWidth;$('focusCard').classList.add('done-shake');showBanner(['Сессия завершена! 🎯','Отличный фокус! 💪'],'#0a84ff,#5ac8fa')}
+    focus.phase='break';const breakMin=Math.round(focus.totalSec/60)>=45?10:5;focus.totalSec=breakMin*60;focus.remainingSec=breakMin*60;
+    updateFocusDisplay();renderFocusRing();render();
+  }else{
+    focus.phase='work';const activeChip=document.querySelector('.focuspresetchip.active');const minutes=activeChip&&activeChip.dataset.min?+activeChip.dataset.min:25;
+    focus.totalSec=minutes*60;focus.remainingSec=minutes*60;updateFocusDisplay();renderFocusRing();
+    if(!skipped)toast('Перерыв окончен — снова в фокус 💪');
+  }
+  $('focusMainBtn').textContent='▶';$('focusMainBtn').classList.remove('running');
+}
+
+const WB_B='(?<![a-zA-Zа-яА-Я0-9])',WB_A='(?![a-zA-Zа-яА-Я0-9])';
+const RU_WEEKDAYS={'понедельник':1,'пн':1,'вторник':2,'вт':2,'среда':3,'ср':3,'четверг':4,'чт':4,'пятница':5,'пт':5,'суббота':6,'сб':6,'воскресенье':0,'вс':0};
+const VERB_STRIP_RE=new RegExp('^(звонок|позвонить|перезвонить)\\s+','i');
+function parseQuickAdd(raw){
+  let s=raw.trim();
+  let d=new Date();
+  let matchedTpl=findTemplateInText(s);
+  if(matchedTpl){
+    const re=new RegExp(matchedTpl.code.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
+    s=s.replace(re,'').trim();
+  }
+  let time=null,end=null;
+
+  const rangeRe=/(?:в\s+промежутке\s+)?с\s+(\d{1,2})(?::(\d{2}))?\s+до\s+(\d{1,2})(?::(\d{2}))?/i;
+  const dashRangeRe=/(?<!\d)(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})(?!\d)/;
+  const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
+
+  let mr=s.match(rangeRe);
+  if(mr){
+    time=pad(Math.min(23,+mr[1]))+':'+pad(Math.min(59,+(mr[2]||0)));
+    end=pad(Math.min(23,+mr[3]))+':'+pad(Math.min(59,+(mr[4]||0)));
+    s=(s.slice(0,mr.index)+' '+s.slice(mr.index+mr[0].length)).trim();
+  }else{
+    let md=s.match(dashRangeRe);
+    if(md){
+      time=pad(Math.min(23,+md[1]))+':'+pad(Math.min(59,+md[2]));
+      end=pad(Math.min(23,+md[3]))+':'+pad(Math.min(59,+md[4]));
+      s=(s.slice(0,md.index)+' '+s.slice(md.index+md[0].length)).trim();
+    }else{
+      let ms=s.match(singleTimeRe);
+      if(ms){
+        time=pad(Math.min(23,+ms[1]))+':'+pad(Math.min(59,+(ms[2]||0)));
+        s=(s.slice(0,ms.index)+' '+s.slice(ms.index+ms[0].length)).trim();
+      }
+    }
+  }
+
+  const throughRe=/через\s+(\d+)?\s*(недели|неделю|недель|день|дня|дней)/i;
+  let mt=s.match(throughRe);
+  if(mt){
+    const num=mt[1]?+mt[1]:1;
+    const unit=mt[2].toLowerCase();
+    if(unit.startsWith('недел'))d.setDate(d.getDate()+num*7);
+    else d.setDate(d.getDate()+num);
+    s=(s.slice(0,mt.index)+' '+s.slice(mt.index+mt[0].length)).trim();
+  }else if(new RegExp(WB_B+'послезавтра'+WB_A,'i').test(s)){
+    d.setDate(d.getDate()+2);
+    s=s.replace(new RegExp(WB_B+'послезавтра'+WB_A,'i'),' ').trim();
+  }else if(new RegExp(WB_B+'завтра'+WB_A,'i').test(s)){
+    d.setDate(d.getDate()+1);
+    s=s.replace(new RegExp(WB_B+'завтра'+WB_A,'i'),' ').trim();
+  }else if(new RegExp(WB_B+'сегодня'+WB_A,'i').test(s)){
+    s=s.replace(new RegExp(WB_B+'сегодня'+WB_A,'i'),' ').trim();
+  }else{
+    for(const name in RU_WEEKDAYS){
+      let re=new RegExp(WB_B+name+WB_A,'i');
+      if(re.test(s)){
+        let idx=RU_WEEKDAYS[name],cur=d.getDay(),diff=(idx-cur+7)%7;
+        if(diff===0)diff=7;
+        d.setDate(d.getDate()+diff);
+        s=s.replace(re,' ').trim();
+        break;
+      }
+    }
+  }
+
+  s=s.replace(VERB_STRIP_RE,'');
+  s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').trim();
+
+  return {title:s||raw.trim(),date:iso(d),time,endTime:end,template:matchedTpl};
+}
+function quick(){
+  const raw=$('quickInput').value;if(!raw.trim())return;
+  const {title,date,time,endTime,template}=parseQuickAdd(raw);
+  const subtasks=template?(template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
+  data.tasks.push({id:uid(),title,date,time,endTime,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0});
+  delete window.__realHeights;save();$('quickInput').value='';
+  const tmr=new Date();tmr.setDate(tmr.getDate()+1);
+  const when=date===iso(new Date())?'сегодня':date===iso(tmr)?'завтра':fmt(parse(date));
+  const tlabel=time?(endTime?`${time}–${endTime}`:time):'';
+  toast(`Добавлено: «${title}»${tlabel?', '+tlabel:''} (${when})${template?' · шаблон '+template.code:''}`);
+  state.date=parse(date);state.view='day';setTabs();render();
+}
+$('quickAddBtn').onclick=quick;
+$('quickInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quick()}});
+$('addBtn').onclick=()=>openModal();
+$('cancelBtn').onclick=closeModal;
+$('saveBtn').onclick=saveModal;
+$('deleteBtn').onclick=()=>{
+  if(state.editing){
+    delete __widthOverrides[state.editing];
+    data.tasks=data.tasks.filter(x=>x.id!==state.editing);
+    delete window.__realHeights;save();closeModal();render();
+  }
+};
+$('deleteSeriesBtn').onclick=()=>{
+  if(!state.editing)return;
+  const t=data.tasks.find(x=>x.id===state.editing);
+  if(!t||!t.seriesId)return;
+  const seriesId=t.seriesId;
+  const count=data.tasks.filter(x=>x.seriesId===seriesId).length;
+  if(!confirm(`Удалить все ${count} задач(и) этой серии из календаря?\n\nЭто действие нельзя отменить.`))return;
+  data.tasks=data.tasks.filter(x=>x.seriesId!==seriesId);
+  __widthOverrides={};
+  delete window.__realHeights;
+  save();
+  closeModal();
+  render();
+  toast(`Удалено ${count} задач(и) серии`);
+};
+document.querySelectorAll('.viewtabs button').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;setTabs();render()});
+$('navToday').onclick=()=>{state.date=new Date();state.view='day';setTabs();render()};
+$('navCalendar').onclick=()=>{state.view='month';setTabs();render()};
+$('todayBtn').onclick=()=>$('navToday').click();
+$('prev').onclick=()=>{__widthOverrides={};delete window.__realHeights;if(state.view==='day')state.date.setDate(state.date.getDate()-1);else if(state.view==='week')state.date.setDate(state.date.getDate()-7);else state.date.setMonth(state.date.getMonth()-1);render()};
+$('next').onclick=()=>{__widthOverrides={};delete window.__realHeights;if(state.view==='day')state.date.setDate(state.date.getDate()+1);else if(state.view==='week')state.date.setDate(state.date.getDate()+7);else state.date.setMonth(state.date.getMonth()+1);render()};
+renderQuickTplBar();
+render();
+attachSwipeNav();
+const mobileBackBtn=document.getElementById('mobileBackBtn');
+if(mobileBackBtn)mobileBackBtn.onclick=backToMobileSections;
+function exportBackup(){
+  const payload={...data,__meta:{exportedAt:new Date().toISOString(),app:'daily_planner_templates',version:1}};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const d=new Date();
+  a.href=url;
+  a.download=`planner-backup-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('Бэкап сохранён');
+}
+
+function importBackup(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    let parsed;
+    try{
+      parsed=JSON.parse(e.target.result);
+    }catch(err){
+      toast('Файл повреждён или не JSON');
+      return;
+    }
+    if(!parsed||!Array.isArray(parsed.tasks)){
+      toast('Это не похоже на файл бэкапа ежедневника');
+      return;
+    }
+    const count=parsed.tasks.length;
+    if(!confirm(`Заменить текущие данные на данные из файла?\n\nВ файле: ${count} задач, ${(parsed.clients||[]).length} клиентов, ${(parsed.templates||[]).length} шаблонов.\n\nТекущие данные будут перезаписаны без возможности отмены.`))return;
+    data={
+      tasks:parsed.tasks||[],
+      clients:parsed.clients||[],
+      clientChecks:parsed.clientChecks||{},
+      templates:parsed.templates||[]
+    };
+    save();
+    delete window.__realHeights;
+    __widthOverrides={};
+    render();
+    renderQuickTplBar();
+    toast(`Импортировано: ${count} задач`);
+  };
+  reader.onerror=()=>toast('Не удалось прочитать файл');
+  reader.readAsText(file);
+}
+
+$('exportBtn').onclick=exportBackup;
+$('importBtn').onclick=()=>$('importFileInput').click();
+$('importFileInput').addEventListener('change',e=>{
+  const file=e.target.files[0];
+  if(file)importBackup(file);
+  e.target.value='';
+});
+setInterval(()=>renderSidebarPending(),60000);
+driveInit();
+document.getElementById('driveConnectBtn').onclick=driveConnect;
+
+window.addEventListener('resize',()=>{render()});
+</script></body></html>
