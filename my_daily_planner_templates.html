@@ -359,8 +359,28 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .quickaddbtns{width:100%}
   .quickaddbtns button{width:100%;padding:12px;border-radius:10px;font-size:15px}
 }
+
+/* Патч №45: папка "Клиенты" в сайдбаре с раскрывающимися подпапками */
+.navclientsarrow{float:right;transition:transform .2s ease}
+.nav button.expanded .navclientsarrow{transform:rotate(180deg)}
+.clientfolders{display:none;padding:2px 10px 10px}
+.clientfolders.expanded{display:block}
+.clientfolderitem{display:flex;align-items:center;gap:6px;padding:7px 10px 7px 22px;border-radius:8px;cursor:pointer;color:#d1d5db;font-size:13px;position:relative}
+.clientfolderitem:hover{background:#263142}
+.clientfolderitem.active{background:#2563eb;color:#fff}
+.clientfoldername{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;user-select:none}
+.clientfolderrename{flex:1;border:1px solid #2563eb;border-radius:6px;padding:3px 6px;font-size:13px;background:#1a2333;color:#fff;min-width:0}
+.clientfolderdel{width:16px;height:16px;border-radius:50%;background:#374151;color:#9ca3af;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease}
+.clientfolderitem:hover .clientfolderdel{opacity:1}
+.clientfolderdel:hover{background:#dc2626;color:#fff}
+.clientfolderaddchip{width:100%;text-align:left;padding:7px 10px 7px 22px;color:#5ac8fa;font-size:13px}
+.clientfolderaddchip:hover{background:#263142}
+.clientfolderaddform{display:flex;gap:6px;padding:4px 10px 4px 22px}
+.clientfolderaddform input{flex:1;border:1px solid #2563eb;border-radius:6px;padding:5px 8px;font-size:13px;background:#1a2333;color:#fff;min-width:0}
+.clientfolderaddform button{background:#2563eb;color:#fff;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;flex:0 0 auto}
 </style></head>
-<body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
+<body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты <span class="navclientsarrow">▾</span></button></div>
+<div class="clientfolders" id="clientFoldersWrap"></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
   <button class="backupbtn" id="exportBtn">⬇ Экспорт</button>
   <button class="backupbtn" id="importBtn">⬆ Импорт</button>
@@ -2109,4 +2129,121 @@ driveInit();
 document.getElementById('driveConnectBtn').onclick=driveConnect;
 
 window.addEventListener('resize',()=>{render()});
+
+/* ================== ПАПКИ КЛИЕНТОВ (сайдбар) ================== */
+data.clientFolders=data.clientFolders||[];
+Object.assign(state,{clientFoldersExpanded:false,activeClientFolderId:null,editingClientFolderId:null,addingClientFolder:false});
+
+function buildClientFoldersHtml(){
+  const editingId=state.editingClientFolderId;
+  const itemsHtml=data.clientFolders.map(f=>{
+    const isEditing=editingId===f.id;
+    const isActive=state.activeClientFolderId===f.id;
+    return `<div class="clientfolderitem ${isActive?'active':''}" data-folder-id="${f.id}">
+      ${isEditing
+        ? `<input type="text" class="clientfolderrename" data-folder-id="${f.id}" value="${esc(f.name)}">`
+        : `<span class="clientfoldername" data-folder-id="${f.id}" title="${esc(f.name)}">${esc(f.name)}</span>`}
+      <button class="clientfolderdel" data-del-folder="${f.id}" title="Удалить">✕</button>
+    </div>`;
+  }).join('');
+  const addBlock=state.addingClientFolder
+    ? `<div class="clientfolderaddform"><input type="text" id="clientFolderAddInput" placeholder="Название папки" autofocus><button id="clientFolderAddOk">Добавить</button></div>`
+    : `<button class="clientfolderaddchip" id="clientFolderAddChip">+ Папка</button>`;
+  return itemsHtml+addBlock;
+}
+
+let __lastTapFolderId=null,__lastTapTime=0;
+
+function bindClientFolders(){
+  const wrap=$('clientFoldersWrap');
+  if(!wrap)return;
+  wrap.innerHTML=buildClientFoldersHtml();
+  wrap.classList.toggle('expanded',state.clientFoldersExpanded);
+
+  wrap.querySelectorAll('.clientfoldername').forEach(nameEl=>{
+    const fid=nameEl.dataset.folderId;
+    nameEl.addEventListener('click',()=>{
+      const now=Date.now();
+      if(__lastTapFolderId===fid && (now-__lastTapTime)<350){
+        __lastTapFolderId=null;__lastTapTime=0;
+        state.editingClientFolderId=fid;
+        bindClientFolders();
+        const input=wrap.querySelector(`.clientfolderrename[data-folder-id="${fid}"]`);
+        if(input){input.focus();input.select()}
+        return;
+      }
+      __lastTapFolderId=fid;__lastTapTime=now;
+      state.activeClientFolderId=fid;
+      bindClientFolders();
+    });
+    nameEl.addEventListener('dblclick',e=>{
+      e.preventDefault();
+      state.editingClientFolderId=fid;
+      bindClientFolders();
+      const input=wrap.querySelector(`.clientfolderrename[data-folder-id="${fid}"]`);
+      if(input){input.focus();input.select()}
+    });
+  });
+
+  wrap.querySelectorAll('.clientfolderrename').forEach(input=>{
+    const fid=input.dataset.folderId;
+    const commit=()=>{
+      const v=input.value.trim();
+      const folder=data.clientFolders.find(f=>f.id===fid);
+      if(folder && v)folder.name=v;
+      state.editingClientFolderId=null;
+      save();bindClientFolders();
+    };
+    input.addEventListener('keydown',e=>{
+      if(e.key==='Enter')commit();
+      if(e.key==='Escape'){state.editingClientFolderId=null;bindClientFolders()}
+    });
+    input.addEventListener('blur',()=>setTimeout(commit,80));
+    input.addEventListener('click',e=>e.stopPropagation());
+  });
+
+  wrap.querySelectorAll('[data-del-folder]').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const fid=btn.dataset.delFolder;
+      const folder=data.clientFolders.find(f=>f.id===fid);
+      if(!folder)return;
+      if(!confirm(`Удалить папку «${folder.name}»?\n\nЭто действие нельзя отменить.`))return;
+      data.clientFolders=data.clientFolders.filter(f=>f.id!==fid);
+      if(state.activeClientFolderId===fid)state.activeClientFolderId=null;
+      save();bindClientFolders();
+    });
+  });
+
+  const addChip=$('clientFolderAddChip');
+  if(addChip)addChip.onclick=()=>{state.addingClientFolder=true;bindClientFolders()};
+  const addInput=$('clientFolderAddInput');
+  const addOk=$('clientFolderAddOk');
+  if(addInput){
+    const commitAdd=()=>{
+      const v=addInput.value.trim();
+      if(v){data.clientFolders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
+      state.addingClientFolder=false;
+      bindClientFolders();
+    };
+    if(addOk)addOk.onclick=commitAdd;
+    addInput.onkeydown=e=>{
+      if(e.key==='Enter')commitAdd();
+      if(e.key==='Escape'){state.addingClientFolder=false;bindClientFolders()}
+    };
+    addInput.onblur=()=>setTimeout(()=>{if(state.addingClientFolder)commitAdd()},150);
+  }
+}
+
+const navClientsBtn=document.getElementById('navClients');
+if(navClientsBtn){
+  navClientsBtn.onclick=()=>{
+    state.clientFoldersExpanded=!state.clientFoldersExpanded;
+    navClientsBtn.classList.toggle('expanded',state.clientFoldersExpanded);
+    bindClientFolders();
+  };
+}
+bindClientFolders();
+/* ================== /ПАПКИ КЛИЕНТОВ ================== */
+</script></body></html>
 </script></body></html>
