@@ -341,6 +341,23 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .clientswrap.collapsed .clientsgrid{display:none}
   .clientswrap.collapsed{padding-bottom:12px}
 }
+
+/* Патч №42: мобильный топбар — верхняя строка навигации скрыта на мобильном, кнопка "Задача" рядом с "Добавить", кнопка "Сегодня" перенесена в dayhead, свайп от левого края = назад в разделы */
+.quickaddbtns{display:flex;gap:8px;flex:0 0 auto}
+.dayhead{justify-content:space-between}
+.dayhead .dayheadleft{display:flex;align-items:center;gap:8px}
+.daytodaybtn{display:none;padding:6px 12px;border-radius:8px;background:#f1f3f5;color:var(--accent);font-size:12.5px;font-weight:600;flex:0 0 auto;border:0;cursor:pointer}
+.daytodaybtn:hover{background:#e2e6ea}
+@media(max-width:800px){
+  .mobilebacklink{display:none!important}
+  #prev,#next,#todayBtn{display:none}
+  .top{padding:10px 12px;min-height:56px}
+  .daytodaybtn{display:inline-block}
+}
+@media(max-width:680px){
+  .quickaddbtns{width:100%}
+  .quickaddbtns button{width:100%;padding:12px;border-radius:10px;font-size:15px}
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
@@ -351,8 +368,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 <div class="sidebottom">
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
-</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button><button class="primary" id="addBtn">+ Задача</button></header>
-<div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><button class="primary" id="quickAddBtn">Добавить</button></div>
+</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button></header>
+<div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><div class="quickaddbtns"><button class="primary" id="quickAddBtn">Добавить</button><button class="primary" id="addBtn">Задача</button></div></div>
 <div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
 <div class="tplbar" id="quickTplBar"></div>
 <section class="content" id="content"></section></main></div>
@@ -1016,7 +1033,7 @@ function buildDayHtml(d){
   </div>`;
   let clientsHtml=buildClientsHtml(d);
   let noTimeHtml=noTime.length?`<div class="notime"><div class="notimelabel">Без времени</div>${noTime.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
-  return {html:`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>
+  return {html:`<div class="dayhead"><div class="dayheadleft"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div><button class="daytodaybtn" id="dayTodayBtn">Сегодня</button></div>
     ${progress}${clientsHtml}${noTimeHtml}
     <div class="timeline" style="height:${totalHeight}px">
       <div class="gridlines" style="min-width:${maxRight+83}px">${gridHtml}</div>
@@ -1037,14 +1054,18 @@ function renderDay(){
   if(isMobileLayout()){
     const mobileBuilt=buildMobileDayListHtml(d);
     activeBuilt=mobileBuilt;
-    $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${mobileBuilt.html}`;
+    $('content').innerHTML=`<div class="dayhead"><div class="dayheadleft"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div><button class="daytodaybtn" id="dayTodayBtn">Сегодня</button></div>${mobileBuilt.html}`;
     bindMobileDayList(d);
     bindClients(d);
+    const dtb=$('dayTodayBtn');
+    if(dtb)dtb.onclick=()=>$('navToday').click();
   } else {
     $('content').innerHTML=built.html;
     bindTasks();
     bindClients(d);
     fixupActualSizes(d);
+    const dtb=$('dayTodayBtn');
+    if(dtb)dtb.onclick=()=>$('navToday').click();
   }
   const newFill=$('dayProgressFill');
   if(newFill && oldWidthPx!==null){
@@ -1233,6 +1254,9 @@ function bindMobileDayList(d){
 let swipeStartX=null,swipeStartY=null,swipeActive=false;
 const SWIPE_THRESHOLD=60,SWIPE_MAX_VERTICAL=70;
 
+const EDGE_ZONE=24;
+let swipeFromEdge=false;
+
 function attachSwipeNav(){
   const content=$('content');
   if(!content||content.__swipeBound)return;
@@ -1243,6 +1267,7 @@ function attachSwipeNav(){
     if(e.touches.length!==1)return;
     swipeStartX=e.touches[0].clientX;
     swipeStartY=e.touches[0].clientY;
+    swipeFromEdge=swipeStartX<=EDGE_ZONE;
     swipeActive=true;
   },{passive:true});
   content.addEventListener('touchend',e=>{
@@ -1252,9 +1277,14 @@ function attachSwipeNav(){
     const endX=e.changedTouches[0].clientX;
     const endY=e.changedTouches[0].clientY;
     const dx=endX-swipeStartX,dy=endY-swipeStartY;
-    swipeStartX=null;swipeStartY=null;
+    const wasFromEdge=swipeFromEdge;
+    swipeStartX=null;swipeStartY=null;swipeFromEdge=false;
     if(Math.abs(dy)>SWIPE_MAX_VERTICAL)return;
     if(Math.abs(dx)<SWIPE_THRESHOLD)return;
+    if(wasFromEdge&&dx>0){
+      backToMobileSections();
+      return;
+    }
     const nd=new Date(state.date);
     const step=state.view==='week'?7:1;
     nd.setDate(nd.getDate()+(dx<0?step:-step));
