@@ -308,10 +308,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .mobileweekday{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
   .mobileweekday.today{border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
   .mobileweekdayhead{display:flex;align-items:baseline;gap:8px;padding:8px 12px;background:#f8f9fb;border-bottom:1px solid var(--line);cursor:pointer}
-  .mobileweekdayhead .wdname{font-weight:700;font-size:13px;text-transform:none}
-  .mobileweekdayhead .wdnum{font-weight:700;font-size:13px;color:var(--muted)}
-  .mobileweekday.today .mobileweekdayhead .wdname,
-  .mobileweekday.today .mobileweekdayhead .wdnum{color:var(--accent)}
+.mobileweekdayhead .wdfulldate{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mobileweekday.today .mobileweekdayhead .wdfulldate{color:var(--accent)}
   .mobileweekdaytasks{display:flex;flex-direction:column}
   .mobileweektask{display:flex;align-items:center;gap:8px;padding:7px 12px;border-top:1px solid var(--line);min-width:0;cursor:pointer}
   .mobileweektask:first-child{border-top:0}
@@ -663,7 +661,9 @@ async function driveCheckForUpdates(){
 }
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function esc(s=''){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function fmt(d){return `${d.getDate()} ${ruM[d.getMonth()]} ${d.getFullYear()}`}
+function fmtFullDate(d){
+  return `${ruDFull[d.getDay()]}, ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}`;
+}
 function timeMin(s){let[h,m]=(s||'0:0').split(':').map(Number);return h*60+m}
 function tasksFor(d){return data.tasks.filter(t=>t.date===iso(d)).sort((a,b)=>(a.time||'99:99').localeCompare(b.time||'99:99'))}
 function toast(x){$('toast').textContent=x;$('toast').style.display='block';setTimeout(()=>$('toast').style.display='none',1800)}
@@ -1355,7 +1355,7 @@ function buildMobileWeekListHtml(){
       : `<div class="mobileweekempty">Нет задач</div>`;
     html+=`<div class="mobileweekday ${isToday?'today':''}" data-date="${dIso}">
       <div class="mobileweekdayhead" data-date="${dIso}">
-        <span class="wdname">${ruDFull[dd.getDay()]}</span><span class="wdnum">${dd.getDate()}</span>
+        <span class="wdfulldate">${fmtFullDate(dd)}</span>
       </div>
       <div class="mobileweekdaytasks">${tasksHtml}</div>
     </div>`;
