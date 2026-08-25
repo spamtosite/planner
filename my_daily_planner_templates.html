@@ -265,6 +265,27 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .modal{padding:16px}
   .daypill{padding:9px 13px;font-size:14px}
 }
+@media(max-width:800px){
+  .app{position:relative;overflow:hidden}
+  .sidebar{position:absolute;top:0;left:0;width:100%!important;height:100%;z-index:5;background:#111827;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(0);display:block;padding:0}
+  .sidebar .brand{display:none}
+  .sidebar .nav{display:none}
+  .sidebar .sidebottom{display:none}
+  .main{position:absolute;top:0;left:0;width:100%;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(100%)}
+  .app.mobile-showing-sections .sidebar{transform:translateX(0)}
+  .app.mobile-showing-sections .main{transform:translateX(100%)}
+  .app.mobile-showing-detail .sidebar{transform:translateX(-100%)}
+  .app.mobile-showing-detail .main{transform:translateX(0)}
+  .mobilesectionswrap{padding:18px 14px;height:100%;overflow-y:auto}
+  .mobilesectionsbrand{font-size:20px;font-weight:700;color:#fff;padding:10px 6px 20px}
+  .mobilesectionitem{display:flex;align-items:center;gap:12px;width:100%;padding:14px 12px;border-radius:10px;color:#fff;font-size:16px;text-align:left;margin-bottom:4px}
+  .mobilesectionitem:active{background:#263142}
+  .mobilesectionicon{font-size:20px;flex:0 0 auto}
+  .mobilesectionlabel{flex:1}
+  .mobilesectionarrow{color:#6b7280;font-size:18px}
+  .mobilebacklink{display:none}
+  .app.mobile-showing-detail .mobilebacklink{display:inline-flex}
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
@@ -275,7 +296,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 <div class="sidebottom">
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
-</div></aside><main class="main"><header class="top"><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button><button class="primary" id="addBtn">+ Задача</button></header>
+</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button><button class="primary" id="addBtn">+ Задача</button></header>
 <div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><button class="primary" id="quickAddBtn">Добавить</button></div>
 <div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
 <div class="tplbar" id="quickTplBar"></div>
@@ -977,6 +998,82 @@ function renderDayMobile(){
   __lastKnownPct=built.pct;
 }
 
+let __mobileScreen='sections';
+
+function mobileNavList(){
+  return [
+    {id:'today',icon:'☀️',label:'Сегодня'},
+    {id:'calendar',icon:'📅',label:'Календарь'}
+  ];
+}
+
+function buildMobileSectionsHtml(){
+  const items=mobileNavList();
+  return `<div class="mobilesections">
+    <div class="mobilesectionsbrand">Мой ежедневник</div>
+    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionicon">${it.icon}</span><span class="mobilesectionlabel">${it.label}</span><span class="mobilesectionarrow">›</span></button>`).join('')}
+  </div>`;
+}
+
+function openMobileSection(sectionId){
+  if(sectionId==='today'){state.date=new Date();state.view='day'}
+  else if(sectionId==='calendar'){state.view='month'}
+  setTabs();
+  __mobileScreen='detail';
+  renderMobileShell();
+  render();
+}
+
+function backToMobileSections(){
+  __mobileScreen='sections';
+  renderMobileShell();
+}
+
+function renderMobileShell(){
+  if(!isMobileView())return;
+  const appEl=document.querySelector('.app');
+  if(!appEl)return;
+  if(__mobileScreen==='sections'){
+    appEl.classList.add('mobile-showing-sections');
+    appEl.classList.remove('mobile-showing-detail');
+  }else{
+    appEl.classList.add('mobile-showing-detail');
+    appEl.classList.remove('mobile-showing-sections');
+  }
+  const sidebar=document.querySelector('.sidebar');
+  if(sidebar && !sidebar.querySelector('.mobilesectionswrap')){
+    const wrap=document.createElement('div');
+    wrap.className='mobilesectionswrap';
+    wrap.innerHTML=buildMobileSectionsHtml();
+    sidebar.appendChild(wrap);
+    wrap.querySelectorAll('.mobilesectionitem').forEach(btn=>{
+      btn.addEventListener('click',()=>openMobileSection(btn.dataset.section));
+    });
+  }
+}
+
+function initMobileSwipeBack(){
+  const content=document.getElementById('content');
+  if(!content)return;
+  let startX=0,startY=0,tracking=false;
+  content.addEventListener('touchstart',e=>{
+    if(!isMobileView())return;
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    tracking=startX<40;
+  },{passive:true});
+  content.addEventListener('touchend',e=>{
+    if(!tracking || !isMobileView())return;
+    tracking=false;
+    const endX=e.changedTouches[0].clientX;
+    const endY=e.changedTouches[0].clientY;
+    const dx=endX-startX,dy=endY-startY;
+    if(dx>70 && Math.abs(dy)<50){
+      backToMobileSections();
+    }
+  },{passive:true});
+}
+
 function renderDay(){
   if(isMobileView()){renderDayMobile();return}
   const d=state.date;
@@ -1669,6 +1766,10 @@ $('prev').onclick=()=>{__widthOverrides={};delete window.__realHeights;if(state.
 $('next').onclick=()=>{__widthOverrides={};delete window.__realHeights;if(state.view==='day')state.date.setDate(state.date.getDate()+1);else if(state.view==='week')state.date.setDate(state.date.getDate()+7);else state.date.setMonth(state.date.getMonth()+1);render()};
 renderQuickTplBar();
 render();
+if(isMobileView()){renderMobileShell()}
+initMobileSwipeBack();
+const mobileBackBtn=document.getElementById('mobileBackBtn');
+if(mobileBackBtn)mobileBackBtn.onclick=backToMobileSections;
 function exportBackup(){
   const payload={...data,__meta:{exportedAt:new Date().toISOString(),app:'daily_planner_templates',version:1}};
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
