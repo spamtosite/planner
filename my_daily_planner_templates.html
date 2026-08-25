@@ -267,19 +267,19 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 }
 @media(max-width:800px){
   .app{position:relative;overflow:hidden}
-  .sidebar{position:absolute;top:0;left:0;width:100%!important;height:100%;z-index:5;background:#111827;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(0);display:block;padding:0}
+  .sidebar{position:absolute;top:0;left:0;width:100%!important;height:100%;z-index:5;background:#111827;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(0);display:flex;flex-direction:column;padding:0;overflow-y:auto}
   .sidebar .brand{display:none}
   .sidebar .nav{display:none}
-  .sidebar .sidebottom{display:none}
+  .sidebar .sidebottom{display:block;margin-top:0;flex:0 0 auto;padding:14px}
   .sidebar .backupbar{display:none}
-  .sidebar .sidebarpending{display:none}
-  .sidebar .backupbar.mobile-settings-open{display:flex;position:fixed;bottom:70px;left:14px;right:14px;z-index:10;background:#1f2937;padding:10px;border-radius:10px}
+  .sidebar .backupbar.mobile-settings-open{display:flex;flex:0 0 auto;position:static;background:transparent;padding:10px 14px 0}
+  .sidebar .sidebarpending{display:flex;flex:0 0 auto;padding:14px;overflow-y:visible;max-height:none}
   .main{position:absolute;top:0;left:0;width:100%;height:100%;transition:transform .3s cubic-bezier(.4,0,.2,1);transform:translateX(100%)}
   .app.mobile-showing-sections .sidebar{transform:translateX(0)}
   .app.mobile-showing-sections .main{transform:translateX(100%)}
   .app.mobile-showing-detail .sidebar{transform:translateX(-100%)}
   .app.mobile-showing-detail .main{transform:translateX(0)}
-  .mobilesectionswrap{padding:18px 14px;height:100%;overflow-y:auto}
+  .mobilesectionswrap{padding:18px 14px;flex:0 0 auto}
   .mobilesectionsbrand{font-size:20px;font-weight:700;color:#fff;padding:10px 6px 20px}
   .mobilesectionitem{display:flex;align-items:center;gap:12px;width:100%;padding:14px 12px;border-radius:10px;color:#fff;font-size:16px;text-align:left;margin-bottom:4px}
   .mobilesectionitem:active{background:#263142}
