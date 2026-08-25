@@ -373,8 +373,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientfolderdel{width:16px;height:16px;border-radius:50%;background:#374151;color:#9ca3af;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease}
 .clientfolderitem:hover .clientfolderdel{opacity:1}
 .clientfolderdel:hover{background:#dc2626;color:#fff}
-.clientfolderaddchip{width:100%;text-align:left;padding:7px 10px 7px 22px;color:#5ac8fa;font-size:13px}
-.clientfolderaddchip:hover{background:#263142}
+.clientfolderaddchip{width:calc(100% - 20px);margin:2px 10px;text-align:center;display:block}
 .clientfolderaddform{display:flex;gap:6px;padding:4px 10px 4px 22px}
 .clientfolderaddform input{flex:1;border:1px solid #2563eb;border-radius:6px;padding:5px 8px;font-size:13px;background:#1a2333;color:#fff;min-width:0}
 .clientfolderaddform button{background:#2563eb;color:#fff;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;flex:0 0 auto}
@@ -2147,12 +2146,12 @@ function buildClientFoldersHtml(){
     </div>`;
   }).join('');
   const addBlock=state.addingClientFolder
-    ? `<div class="clientfolderaddform"><input type="text" id="clientFolderAddInput" placeholder="Название папки" autofocus><button id="clientFolderAddOk">Добавить</button></div>`
-    : `<button class="clientfolderaddchip" id="clientFolderAddChip">+ Папка</button>`;
+    ? `<div class="clientfolderaddform"><input type="text" id="clientFolderAddInput" placeholder="Название папки" autofocus></div>`
+    : `<button class="primary clientfolderaddchip" id="clientFolderAddChip">Добавить папку</button>`;
   return itemsHtml+addBlock;
 }
 
-let __lastTapFolderId=null,__lastTapTime=0;
+let __folderClickTimer=null;
 
 function bindClientFolders(){
   const wrap=$('clientFoldersWrap');
@@ -2163,21 +2162,16 @@ function bindClientFolders(){
   wrap.querySelectorAll('.clientfoldername').forEach(nameEl=>{
     const fid=nameEl.dataset.folderId;
     nameEl.addEventListener('click',()=>{
-      const now=Date.now();
-      if(__lastTapFolderId===fid && (now-__lastTapTime)<350){
-        __lastTapFolderId=null;__lastTapTime=0;
-        state.editingClientFolderId=fid;
+      if(__folderClickTimer){clearTimeout(__folderClickTimer);__folderClickTimer=null;return}
+      __folderClickTimer=setTimeout(()=>{
+        __folderClickTimer=null;
+        state.activeClientFolderId=fid;
         bindClientFolders();
-        const input=wrap.querySelector(`.clientfolderrename[data-folder-id="${fid}"]`);
-        if(input){input.focus();input.select()}
-        return;
-      }
-      __lastTapFolderId=fid;__lastTapTime=now;
-      state.activeClientFolderId=fid;
-      bindClientFolders();
+      },220);
     });
     nameEl.addEventListener('dblclick',e=>{
       e.preventDefault();
+      if(__folderClickTimer){clearTimeout(__folderClickTimer);__folderClickTimer=null}
       state.editingClientFolderId=fid;
       bindClientFolders();
       const input=wrap.querySelector(`.clientfolderrename[data-folder-id="${fid}"]`);
@@ -2218,20 +2212,21 @@ function bindClientFolders(){
   const addChip=$('clientFolderAddChip');
   if(addChip)addChip.onclick=()=>{state.addingClientFolder=true;bindClientFolders()};
   const addInput=$('clientFolderAddInput');
-  const addOk=$('clientFolderAddOk');
   if(addInput){
+    let committed=false;
     const commitAdd=()=>{
+      if(committed)return;
+      committed=true;
       const v=addInput.value.trim();
       if(v){data.clientFolders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
       state.addingClientFolder=false;
       bindClientFolders();
     };
-    if(addOk)addOk.onclick=commitAdd;
     addInput.onkeydown=e=>{
       if(e.key==='Enter')commitAdd();
-      if(e.key==='Escape'){state.addingClientFolder=false;bindClientFolders()}
+      if(e.key==='Escape'){committed=true;state.addingClientFolder=false;bindClientFolders()}
     };
-    addInput.onblur=()=>setTimeout(()=>{if(state.addingClientFolder)commitAdd()},150);
+    addInput.onblur=()=>setTimeout(commitAdd,100);
   }
 }
 
