@@ -1003,152 +1003,21 @@ function buildDayHtml(d){
 
 let __lastDayComplete=false;
 
-const MOBILE_BREAKPOINT=680;
-function isMobileView(){return window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches}
-
-function buildDayHtmlMobile(d){
-  const ts=tasksFor(d);
-  const done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
-  const isComplete=ts.length>0 && pct===100;
-  const noTime=ts.filter(t=>!t.time);
-  const timed=ts.filter(t=>t.time).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
-  let progress=`<div class="progresswrap ${isComplete?'complete':''}" id="dayProgressWrap">
-    <div class="progressbar"><div class="progressfill ${isComplete?'complete':''}" id="dayProgressFill" style="width:${pct}%"></div></div>
-    <div class="progresslabel ${isComplete?'complete':''}">${pct}%</div>
-    <div class="day-complete-badge ${isComplete?'show':''}">🏆</div>
-  </div>`;
-  let clientsHtml=buildClientsHtml(d);
-  let noTimeHtml=noTime.length?`<div class="notime"><div class="notimelabel">Без времени</div>${noTime.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
-  let timedHtml=timed.length?`<div class="mobiletimedlist">${timed.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
-  return {html:`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>
-    ${progress}${clientsHtml}${noTimeHtml}${timedHtml}`, isComplete, pct};
-}
-
-function renderDayMobile(){
-  const d=state.date;
-  $('pageTitle').textContent=fmt(d);
-  const built=buildDayHtmlMobile(d);
-  $('content').innerHTML=built.html;
-  bindTasks();
-  bindClients(d);
-  const checks=clientsChecksForDay(d);
-  const total=data.clients.length;
-  const doneCount=data.clients.filter(c=>checks[c.id]).length;
-  __lastAllClientsDone=total>0 && doneCount===total;
-  if(built.isComplete && built.pct!==__lastKnownPct && !__lastDayComplete){
-    const wrap=$('dayProgressWrap');
-    if(wrap)setTimeout(()=>celebrateDayComplete(wrap),150);
-  }
-  __lastDayComplete=built.isComplete;
-  __lastKnownPct=built.pct;
-}
-
-let __mobileScreen='sections';
-
-function mobileNavList(){
-  return [
-    {id:'today',icon:'☀️',label:'Сегодня'},
-    {id:'calendar',icon:'📅',label:'Календарь'},
-    {id:'settings',icon:'⚙️',label:'Настройки'}
-  ];
-}
-
-function buildMobileSectionsHtml(){
-  const items=mobileNavList();
-  return `<div class="mobilesections">
-    <div class="mobilesectionsbrand">Мой ежедневник</div>
-    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionicon">${it.icon}</span><span class="mobilesectionlabel">${it.label}</span><span class="mobilesectionarrow">›</span></button>`).join('')}
-  </div>`;
-}
-
-function openMobileSection(sectionId){
-  if(sectionId==='today'){state.date=new Date();state.view='day'}
-  else if(sectionId==='calendar'){state.view='month'}
-  setTabs();
-  __mobileScreen='detail';
-  renderMobileShell();
-  render();
-}
-
-function backToMobileSections(){
-  __mobileScreen='sections';
-  renderMobileShell();
-}
-
-function renderMobileShell(){
-  if(!isMobileLayout())return;
-  const appEl=document.querySelector('.app');
-  if(!appEl)return;
-  if(__mobileScreen==='sections'){
-    appEl.classList.add('mobile-showing-sections');
-    appEl.classList.remove('mobile-showing-detail');
-  }else{
-    appEl.classList.add('mobile-showing-detail');
-    appEl.classList.remove('mobile-showing-sections');
-  }
-  const sidebar=document.querySelector('.sidebar');
-  if(sidebar && !sidebar.querySelector('.mobilesectionswrap')){
-    const wrap=document.createElement('div');
-    wrap.className='mobilesectionswrap';
-    wrap.innerHTML=buildMobileSectionsHtml();
-    const pendingWidget=sidebar.querySelector('.sidebarpending');
-    if(pendingWidget){
-      sidebar.insertBefore(wrap,pendingWidget);
-    }else{
-      sidebar.insertBefore(wrap,sidebar.firstChild);
-    }
-    wrap.querySelectorAll('.mobilesectionitem').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        if(btn.dataset.section==='settings'){openMobileSettings();return}
-        openMobileSection(btn.dataset.section);
-      });
-    });
-  }
-}
-
-function openMobileSettings(){
-  const backupBar=document.querySelector('.backupbar');
-  if(backupBar)backupBar.classList.toggle('mobile-settings-open');
-}
-
-function initMobileSwipeBack(){
-  const content=document.getElementById('content');
-  if(!content)return;
-  let startX=0,startY=0,tracking=false;
-  content.addEventListener('touchstart',e=>{
-    if(!isMobileView())return;
-    startX=e.touches[0].clientX;
-    startY=e.touches[0].clientY;
-    tracking=startX<40;
-  },{passive:true});
-  content.addEventListener('touchend',e=>{
-    if(!tracking || !isMobileView())return;
-    tracking=false;
-    const endX=e.changedTouches[0].clientX;
-    const endY=e.changedTouches[0].clientY;
-    const dx=endX-startX,dy=endY-startY;
-    if(dx>70 && Math.abs(dy)<50){
-      backToMobileSections();
-    }
-  },{passive:true});
-}
-
 function renderDay(){
-  if(isMobileView()){renderDayMobile();return}
   const d=state.date;
   $('pageTitle').textContent=fmt(d);
   const oldFill=$('dayProgressFill');
   const oldWidthPx=oldFill?oldFill.getBoundingClientRect().width:null;
   const built=buildDayHtml(d);
-if(isMobileLayout()){
-  $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${buildMobileDayListHtml(d)}`;
-  bindMobileDayList(d);
-} else {
-  $('content').innerHTML=built.html;
-  bindTasks();
-  bindClients(d);
-  fixupActualSizes(d);
-}
+  if(isMobileLayout()){
+    $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${buildMobileDayListHtml(d)}`;
+    bindMobileDayList(d);
+  } else {
+    $('content').innerHTML=built.html;
+    bindTasks();
+    bindClients(d);
+    fixupActualSizes(d);
+  }
   const newFill=$('dayProgressFill');
   if(newFill && oldWidthPx!==null){
     newFill.style.transition='none';
@@ -1439,7 +1308,6 @@ function renderMonthPicker(){
   bindMonthPicker();
 }
 function render(){
-  renderMobileShell();
   if(state.view==='day')renderDay();
   else if(state.view==='week')renderWeek();
   else if(isMobileLayout())renderMonthPicker();
