@@ -308,7 +308,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .mobileweekday{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);overflow:hidden}
   .mobileweekday.today{border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.15)}
   .mobileweekdayhead{display:flex;align-items:baseline;gap:8px;padding:8px 12px;background:#f8f9fb;border-bottom:1px solid var(--line);cursor:pointer}
-  .mobileweekdayhead .wdname{font-weight:700;font-size:13px;text-transform:lowercase}
+  .mobileweekdayhead .wdname{font-weight:700;font-size:13px;text-transform:none}
   .mobileweekdayhead .wdnum{font-weight:700;font-size:13px;color:var(--muted)}
   .mobileweekday.today .mobileweekdayhead .wdname,
   .mobileweekday.today .mobileweekdayhead .wdnum{color:var(--accent)}
@@ -320,6 +320,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .mobileweektask .wtime{flex:0 0 auto;font-size:11.5px;font-weight:700;color:var(--accent);min-width:40px;white-space:nowrap}
   .mobileweektask .wtitle{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600}
   .mobileweekempty{padding:8px 12px;font-size:11.5px;color:var(--muted)}
+}
+@media(max-width:800px){
+  .monthpicker{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px;touch-action:pan-y}
+  .monthpickeryear{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:16px;font-size:20px;font-weight:700;user-select:none}
+  .monthpickeryear .ypbtn{padding:6px 10px;font-size:20px;color:var(--muted);cursor:pointer}
+  .monthpickergrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .monthpickercell{padding:16px 6px;text-align:center;border-radius:10px;background:#f8f9fb;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s ease,transform .15s ease}
+  .monthpickercell:active{transform:scale(.96)}
+  .monthpickercell.current{background:var(--accent);color:#fff}
 }
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
@@ -420,13 +429,14 @@ data.clientChecks=data.clientChecks||{};
 data.templates=data.templates||[
   {code:'ВП',name:'Видеопоказ',subtasks:['Подтвердить с клиентом видеопоказ','Договориться с ОП','Провести ВП']}
 ];
-let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null};
+let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear()};
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parse=s=>{let[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
 const ruM=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const ruD=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const ruDFull=['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 const DAY_START=7*60,DAY_END=22*60;
 const ROWH=44,MIN_BLOCK=ROWH;
 const STEP=15;
@@ -1345,7 +1355,7 @@ function buildMobileWeekListHtml(){
       : `<div class="mobileweekempty">Нет задач</div>`;
     html+=`<div class="mobileweekday ${isToday?'today':''}" data-date="${dIso}">
       <div class="mobileweekdayhead" data-date="${dIso}">
-        <span class="wdname">${ruD[dd.getDay()]}</span><span class="wdnum">${dd.getDate()}</span>
+        <span class="wdname">${ruDFull[dd.getDay()]}</span><span class="wdnum">${dd.getDate()}</span>
       </div>
       <div class="mobileweekdaytasks">${tasksHtml}</div>
     </div>`;
@@ -1370,7 +1380,71 @@ function bindMobileWeekList(){
     });
   });
 }
-function render(){state.view==='day'?renderDay():state.view==='week'?renderWeek():renderMonth();renderSidebarPending()}
+const ruMShort=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+function buildMonthPickerHtml(){
+  const y=state.pickerYear;
+  const curY=state.date.getFullYear(),curM=state.date.getMonth();
+  const cells=ruMShort.map((label,idx)=>{
+    const isCurrent=(y===curY&&idx===curM);
+    return `<div class="monthpickercell ${isCurrent?'current':''}" data-month="${idx}">${label}</div>`;
+  }).join('');
+  return `<div class="monthpicker" id="monthPicker">
+    <div class="monthpickeryear">
+      <span class="ypbtn" id="pickerYearPrev">‹</span>
+      <span id="pickerYearLabel">${y}</span>
+      <span class="ypbtn" id="pickerYearNext">›</span>
+    </div>
+    <div class="monthpickergrid">${cells}</div>
+  </div>`;
+}
+
+let pickerSwipeStartX=null,pickerSwipeActive=false;
+const PICKER_SWIPE_THRESHOLD=50;
+
+function bindMonthPicker(){
+  const picker=$('monthPicker');
+  if(!picker)return;
+  $('pickerYearPrev').onclick=()=>{state.pickerYear--;renderMonthPicker()};
+  $('pickerYearNext').onclick=()=>{state.pickerYear++;renderMonthPicker()};
+  document.querySelectorAll('.monthpickercell').forEach(cell=>{
+    cell.addEventListener('click',()=>{
+      const m=Number(cell.dataset.month);
+      state.date=new Date(state.pickerYear,m,1);
+      state.view='week';
+      setTabs();
+      render();
+    });
+  });
+  picker.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1)return;
+    pickerSwipeStartX=e.touches[0].clientX;
+    pickerSwipeActive=true;
+  },{passive:true});
+  picker.addEventListener('touchend',e=>{
+    if(!pickerSwipeActive)return;
+    pickerSwipeActive=false;
+    if(pickerSwipeStartX===null)return;
+    const dx=e.changedTouches[0].clientX-pickerSwipeStartX;
+    pickerSwipeStartX=null;
+    if(Math.abs(dx)<PICKER_SWIPE_THRESHOLD)return;
+    state.pickerYear+=(dx<0?1:-1);
+    renderMonthPicker();
+  },{passive:true});
+}
+
+function renderMonthPicker(){
+  $('pageTitle').textContent='Выбор месяца';
+  $('content').innerHTML=buildMonthPickerHtml();
+  bindMonthPicker();
+}
+function render(){
+  if(state.view==='day')renderDay();
+  else if(state.view==='week')renderWeek();
+  else if(isMobileLayout())renderMonthPicker();
+  else renderMonth();
+  renderSidebarPending();
+}
 
 function renderSidebarPending(){
   const wrap=$('sidebarPending');
