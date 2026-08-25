@@ -327,11 +327,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .monthpickercell:active{transform:scale(.96)}
   .monthpickercell.current{background:var(--accent);color:#fff}
 }
-
-/* Патч №40: чуть уменьшенные отступы progresswrap/clientswrap на мобильном, чтобы не съедали много места над списком задач */
 @media(max-width:800px){
   .progresswrap{padding:12px 14px;margin-bottom:10px}
   .clientswrap{padding:12px 14px;margin-bottom:10px}
+}
+
+/* Патч №41: сворачиваемый блок "Ключевые клиенты" на мобильном */
+@media(max-width:800px){
+  .clientshead{cursor:pointer}
+  .clientscollapsearrow{margin-left:6px;color:var(--muted);font-size:12px;transition:transform .25s ease;flex:0 0 auto}
+  .clientswrap.collapsed .clientscollapsearrow{transform:rotate(-90deg)}
+  .clientswrap.collapsed .clientsgrid{display:none}
+  .clientswrap.collapsed{padding-bottom:12px}
 }
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
@@ -432,7 +439,7 @@ data.clientChecks=data.clientChecks||{};
 data.templates=data.templates||[
   {code:'ВП',name:'Видеопоказ',subtasks:['Подтвердить с клиентом видеопоказ','Договориться с ОП','Провести ВП']}
 ];
-let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear()};
+let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:true};
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -900,8 +907,9 @@ function buildClientsHtml(d){
   const addBlock=state.addingClient
     ? `<div class="clientaddform"><input type="text" id="clientAddInput" placeholder="Имя клиента" autofocus><button id="clientAddOk">Добавить</button></div>`
     : `<button class="clientaddchip" id="clientAddChip">+ Клиент</button>`;
-  return `<div class="clientswrap ${allDone?'complete':''}" id="clientsWrap">
-    <div class="clientshead"><span class="clientstitle">🤝 Ключевые клиенты</span><span class="clientscount ${allDone?'complete':''}">${total?`${doneCount}/${total}`:'нет клиентов'}</span></div>
+  const collapsedClass=state.clientsCollapsed?'collapsed':'';
+  return `<div class="clientswrap ${allDone?'complete':''} ${collapsedClass}" id="clientsWrap">
+    <div class="clientshead" id="clientsHeadToggle"><span class="clientstitle">🤝 Ключевые клиенты</span><span class="clientscount ${allDone?'complete':''}">${total?`${doneCount}/${total}`:'нет клиентов'}</span><span class="clientscollapsearrow">▾</span></div>
     <div class="clientsgrid">${chips}${addBlock}</div>
   </div>`;
 }
@@ -911,6 +919,15 @@ let __lastAllClientsDone=false;
 function bindClients(d){
   const wrap=$('clientsWrap');
   if(!wrap)return;
+  const headToggle=$('clientsHeadToggle');
+  if(headToggle){
+    headToggle.onclick=e=>{
+      if(!isMobileLayout())return;
+      if(e.target.closest('.clientscount'))return;
+      state.clientsCollapsed=!state.clientsCollapsed;
+      wrap.classList.toggle('collapsed',state.clientsCollapsed);
+    };
+  }
   wrap.querySelectorAll('.clientchip').forEach(chip=>{
     chip.addEventListener('click',e=>{
       if(e.target.closest('.clientremove'))return;
