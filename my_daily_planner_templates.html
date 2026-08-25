@@ -247,6 +247,24 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .focuscard.done-shake{animation:focusDoneShake .5s ease}
 
 @media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:18px}.nav button:nth-child(1):before{content:"☀️"}.nav button:nth-child(2):before{content:"📅"}.sidebottom{display:none}.top{padding:0 12px}.viewtabs{display:none}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
+@media(max-width:680px){
+  .quickadd{flex-direction:column}
+  .quickadd input{padding:12px 14px;font-size:15px;border-radius:10px}
+  .quickadd button{width:100%;padding:12px;border-radius:10px;font-size:15px}
+  .top{flex-wrap:wrap;height:auto;padding:10px 12px;gap:8px}
+  .title{font-size:17px}
+  .primary,.secondary,.iconbtn{padding:10px 12px;min-height:40px}
+  .mobiletimedlist{display:grid;gap:8px;margin-bottom:14px}
+  .mobiletimedlist .task{margin:0}
+  .task{padding:12px}
+  .tasktitle{font-size:14px;white-space:normal}
+  .taskmeta{white-space:normal}
+  .check{width:22px;height:22px}
+  .clientchip{padding:10px 14px}
+  .field input,.field textarea,.field select{padding:11px;font-size:15px}
+  .modal{padding:16px}
+  .daypill{padding:9px 13px;font-size:14px}
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
@@ -891,17 +909,57 @@ function buildDayHtml(d){
 
 let __lastDayComplete=false;
 
+const MOBILE_BREAKPOINT=680;
+function isMobileView(){return window.matchMedia(`(max-width:${MOBILE_BREAKPOINT}px)`).matches}
+
+function buildDayHtmlMobile(d){
+  const ts=tasksFor(d);
+  const done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
+  const isComplete=ts.length>0 && pct===100;
+  const noTime=ts.filter(t=>!t.time);
+  const timed=ts.filter(t=>t.time).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+  let progress=`<div class="progresswrap ${isComplete?'complete':''}" id="dayProgressWrap">
+    <div class="progressbar"><div class="progressfill ${isComplete?'complete':''}" id="dayProgressFill" style="width:${pct}%"></div></div>
+    <div class="progresslabel ${isComplete?'complete':''}">${pct}%</div>
+    <div class="day-complete-badge ${isComplete?'show':''}">🏆</div>
+  </div>`;
+  let clientsHtml=buildClientsHtml(d);
+  let noTimeHtml=noTime.length?`<div class="notime"><div class="notimelabel">Без времени</div>${noTime.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
+  let timedHtml=timed.length?`<div class="mobiletimedlist">${timed.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
+  return {html:`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>
+    ${progress}${clientsHtml}${noTimeHtml}${timedHtml}`, isComplete, pct};
+}
+
+function renderDayMobile(){
+  const d=state.date;
+  $('pageTitle').textContent=fmt(d);
+  const built=buildDayHtmlMobile(d);
+  $('content').innerHTML=built.html;
+  bindTasks();
+  bindClients(d);
+  const checks=clientsChecksForDay(d);
+  const total=data.clients.length;
+  const doneCount=data.clients.filter(c=>checks[c.id]).length;
+  __lastAllClientsDone=total>0 && doneCount===total;
+  if(built.isComplete && built.pct!==__lastKnownPct && !__lastDayComplete){
+    const wrap=$('dayProgressWrap');
+    if(wrap)setTimeout(()=>celebrateDayComplete(wrap),150);
+  }
+  __lastDayComplete=built.isComplete;
+  __lastKnownPct=built.pct;
+}
+
 function renderDay(){
+  if(isMobileView()){renderDayMobile();return}
   const d=state.date;
   $('pageTitle').textContent=fmt(d);
   const oldFill=$('dayProgressFill');
   const oldWidthPx=oldFill?oldFill.getBoundingClientRect().width:null;
-    const built=buildDayHtml(d);
-  content.innerHTML=built.html;
+  const built=buildDayHtml(d);
+  $('content').innerHTML=built.html;
   bindTasks();
   bindClients(d);
   fixupActualSizes(d);
-  enableTaskDrag();
   const newFill=$('dayProgressFill');
   if(newFill && oldWidthPx!==null){
     newFill.style.transition='none';
@@ -1641,4 +1699,13 @@ $('importFileInput').addEventListener('change',e=>{
 setInterval(()=>renderSidebarPending(),60000);
 driveInit();
 document.getElementById('driveConnectBtn').onclick=driveConnect;
+
+let __lastMobileState=null;
+window.addEventListener('resize',()=>{
+  const nowMobile=isMobileView();
+  if(nowMobile!==__lastMobileState){
+    __lastMobileState=nowMobile;
+    if(state.view==='day')renderDay();
+  }
+});
 </script></body></html>
