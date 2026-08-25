@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Мой ежедневник</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--bg:#f5f6f8;--panel:#fff;--text:#1f2328;--muted:#737a83;--line:#e6e8eb;--accent:#2563eb;--green:#16a34a;--danger:#dc2626;--shadow:0 8px 30px rgba(0,0,0,.07);--rowh:44px}
 *{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
@@ -253,7 +254,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   <button class="backupbtn" id="importBtn">⬆ Импорт</button>
 </div>
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
-<div class="sidebottom">Данные хранятся локально<br>в браузере.</div></aside><main class="main"><header class="top"><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button><button class="primary" id="addBtn">+ Задача</button></header>
+<div class="sidebottom">
+  <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
+  <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
+</div></aside><main class="main"><header class="top"><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button><button class="primary" id="addBtn">+ Задача</button></header>
 <div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><button class="primary" id="quickAddBtn">Добавить</button></div>
 <div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
 <div class="tplbar" id="quickTplBar"></div>
@@ -358,7 +362,193 @@ const SUB_ROW_CHROME=19*2+3+6+16+10+18;
 const COL_GAP=8;
 let __widthOverrides={};
 let __lastKnownPct=null;
-function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(data));
+  driveScheduleUpload();
+}
+const DRIVE_CLIENT_ID='268067507722-g93sh1jcgmd68s5t0jjmh1a1ur90364o.apps.googleusercontent.com';
+const DRIVE_SCOPES='https://www.googleapis.com/auth/drive.appdata';
+const DRIVE_FILE_NAME='daily_planner_data.json';
+let __driveToken=null;
+let __driveFileId=null;
+let __driveKnownModTime=null;
+let __driveSyncTimer=null;
+let __drivePollTimer=null;
+let __driveSyncing=false;
+let __driveConnected=false;
+
+function driveSetStatus(text){
+  const el=document.getElementById('driveStatus');
+  if(el)el.textContent=text;
+}
+
+function driveInit(){
+  if(!window.google || !window.google.accounts){
+    setTimeout(driveInit,300);
+    return;
+  }
+  const savedToken=sessionStorage.getItem('drive_token');
+  if(savedToken){
+    __driveToken=savedToken;
+    __driveConnected=true;
+    driveAfterConnect();
+  }
+}
+
+function driveConnect(){
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:DRIVE_CLIENT_ID,
+    scope:DRIVE_SCOPES,
+    callback:(resp)=>{
+      if(resp.error){driveSetStatus('Ошибка подключения');return}
+      __driveToken=resp.access_token;
+      __driveConnected=true;
+      sessionStorage.setItem('drive_token',__driveToken);
+      driveAfterConnect();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function driveAfterConnect(){
+  const btn=document.getElementById('driveConnectBtn');
+  if(btn)btn.textContent='☁️ Google Drive подключён';
+  driveSetStatus('Синхронизация…');
+  driveFindOrCreateFile().then(()=>{
+    driveDownloadAndMerge().then(()=>{
+      driveSetStatus('Синхронизировано');
+      driveStartPolling();
+    });
+  }).catch(err=>{
+    console.error(err);
+    driveSetStatus('Ошибка сети');
+  });
+}
+
+async function driveApi(path,options={}){
+  const res=await fetch('https://www.googleapis.com'+path,{
+    ...options,
+    headers:{...(options.headers||{}),'Authorization':'Bearer '+__driveToken}
+  });
+  if(res.status===401){
+    __driveConnected=false;
+    sessionStorage.removeItem('drive_token');
+    driveSetStatus('Нужна повторная авторизация');
+    throw new Error('unauthorized');
+  }
+  return res;
+}
+
+async function driveFindOrCreateFile(){
+  const listRes=await driveApi('/drive/v3/files?spaces=appDataFolder&fields=files(id,name,modifiedTime)');
+  const listJson=await listRes.json();
+  const found=(listJson.files||[]).find(f=>f.name===DRIVE_FILE_NAME);
+  if(found){
+    __driveFileId=found.id;
+    __driveKnownModTime=found.modifiedTime;
+    return;
+  }
+  const createRes=await driveApi('/drive/v3/files?fields=id,modifiedTime',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:DRIVE_FILE_NAME,parents:['appDataFolder']})
+  });
+  const createJson=await createRes.json();
+  __driveFileId=createJson.id;
+  __driveKnownModTime=createJson.modifiedTime;
+}
+
+function driveMergeArraysById(localArr,remoteArr){
+  localArr=Array.isArray(localArr)?localArr:[];
+  remoteArr=Array.isArray(remoteArr)?remoteArr:[];
+  const remoteIds=new Set(remoteArr.map(x=>x.id));
+  const localOnly=localArr.filter(x=>x && x.id && !remoteIds.has(x.id));
+  return remoteArr.concat(localOnly);
+}
+
+function driveMergeData(localData,remoteData){
+  return {
+    tasks:driveMergeArraysById(localData.tasks,remoteData.tasks),
+    clients:driveMergeArraysById(localData.clients,remoteData.clients),
+    templates:driveMergeArraysById(localData.templates,remoteData.templates),
+    clientChecks:Object.assign({},remoteData.clientChecks||{},localData.clientChecks||{})
+  };
+}
+
+async function driveDownloadAndMerge(){
+  if(!__driveFileId)return;
+  const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+  const meta=await metaRes.json();
+  const remoteModTime=meta.modifiedTime;
+  const contentRes=await driveApi(`/drive/v3/files/${__driveFileId}?alt=media`);
+  let remoteData={tasks:[],clients:[],clientChecks:{},templates:[]};
+  try{
+    const text=await contentRes.text();
+    if(text && text.trim())remoteData=JSON.parse(text);
+  }catch(e){}
+  data=driveMergeData(data,remoteData);
+  data.tasks=data.tasks||[];data.clients=data.clients||[];
+  data.clientChecks=data.clientChecks||{};data.templates=data.templates||[];
+  __driveKnownModTime=remoteModTime;
+  localStorage.setItem(KEY,JSON.stringify(data));
+  delete window.__realHeights;
+  render();
+}
+
+async function driveUpload(){
+  if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  __driveSyncing=true;
+  driveSetStatus('Сохранение…');
+  try{
+    const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+    const meta=await metaRes.json();
+    if(__driveKnownModTime && meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
+      await driveDownloadAndMerge();
+    }
+    const body=JSON.stringify(data);
+    const uploadRes=await driveApi(`/upload/drive/v3/files/${__driveFileId}?uploadType=media&fields=modifiedTime`,{
+      method:'PATCH',
+      headers:{'Content-Type':'application/json'},
+      body
+    });
+    const uploadJson=await uploadRes.json();
+    __driveKnownModTime=uploadJson.modifiedTime;
+    driveSetStatus('Сохранено');
+  }catch(e){
+    console.error(e);
+    driveSetStatus('Ошибка сети');
+  }finally{
+    __driveSyncing=false;
+  }
+}
+
+function driveScheduleUpload(){
+  if(!__driveConnected)return;
+  clearTimeout(__driveSyncTimer);
+  __driveSyncTimer=setTimeout(driveUpload,2500);
+}
+
+function driveStartPolling(){
+  clearInterval(__drivePollTimer);
+  __drivePollTimer=setInterval(()=>{
+    if(document.visibilityState==='visible')driveCheckForUpdates();
+  },25000);
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible' && __driveConnected)driveCheckForUpdates();
+  });
+}
+
+async function driveCheckForUpdates(){
+  if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  try{
+    const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+    const meta=await metaRes.json();
+    if(meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
+      await driveDownloadAndMerge();
+      driveSetStatus('Синхронизировано');
+    }
+  }catch(e){}
+}
 function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 function esc(s=''){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function fmt(d){return `${d.getDate()} ${ruM[d.getMonth()]} ${d.getFullYear()}`}
@@ -1449,4 +1639,6 @@ $('importFileInput').addEventListener('change',e=>{
   e.target.value='';
 });
 setInterval(()=>renderSidebarPending(),60000);
+driveInit();
+document.getElementById('driveConnectBtn').onclick=driveConnect;
 </script></body></html>
