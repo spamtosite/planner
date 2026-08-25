@@ -484,12 +484,23 @@ function driveMergeArraysById(localArr,remoteArr){
   return remoteArr.concat(localOnly);
 }
 
+function driveMergeClientChecks(localChecks,remoteChecks){
+  localChecks=localChecks||{};
+  remoteChecks=remoteChecks||{};
+  const merged={};
+  const allDates=new Set([...Object.keys(localChecks),...Object.keys(remoteChecks)]);
+  allDates.forEach(date=>{
+    merged[date]=Object.assign({},remoteChecks[date]||{},localChecks[date]||{});
+  });
+  return merged;
+}
+
 function driveMergeData(localData,remoteData){
   return {
     tasks:driveMergeArraysById(localData.tasks,remoteData.tasks),
     clients:driveMergeArraysById(localData.clients,remoteData.clients),
     templates:driveMergeArraysById(localData.templates,remoteData.templates),
-    clientChecks:Object.assign({},remoteData.clientChecks||{},localData.clientChecks||{})
+    clientChecks:driveMergeClientChecks(localData.clientChecks,remoteData.clientChecks)
   };
 }
 
