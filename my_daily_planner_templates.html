@@ -1076,7 +1076,7 @@ function backToMobileSections(){
 }
 
 function renderMobileShell(){
-  if(!isMobileView())return;
+  if(!isMobileLayout())return;
   const appEl=document.querySelector('.app');
   if(!appEl)return;
   if(__mobileScreen==='sections'){
@@ -1439,6 +1439,7 @@ function renderMonthPicker(){
   bindMonthPicker();
 }
 function render(){
+  renderMobileShell();
   if(state.view==='day')renderDay();
   else if(state.view==='week')renderWeek();
   else if(isMobileLayout())renderMonthPicker();
