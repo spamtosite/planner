@@ -327,6 +327,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .monthpickercell:active{transform:scale(.96)}
   .monthpickercell.current{background:var(--accent);color:#fff}
 }
+
+/* Патч №40: чуть уменьшенные отступы progresswrap/clientswrap на мобильном, чтобы не съедали много места над списком задач */
+@media(max-width:800px){
+  .progresswrap{padding:12px 14px;margin-bottom:10px}
+  .clientswrap{padding:12px 14px;margin-bottom:10px}
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
@@ -1009,9 +1015,13 @@ function renderDay(){
   const oldFill=$('dayProgressFill');
   const oldWidthPx=oldFill?oldFill.getBoundingClientRect().width:null;
   const built=buildDayHtml(d);
+  let activeBuilt=built;
   if(isMobileLayout()){
-    $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${buildMobileDayListHtml(d)}`;
+    const mobileBuilt=buildMobileDayListHtml(d);
+    activeBuilt=mobileBuilt;
+    $('content').innerHTML=`<div class="dayhead"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div>${mobileBuilt.html}`;
     bindMobileDayList(d);
+    bindClients(d);
   } else {
     $('content').innerHTML=built.html;
     bindTasks();
@@ -1024,7 +1034,7 @@ function renderDay(){
     newFill.style.width=oldWidthPx+'px';
     void newFill.offsetWidth;
     newFill.style.transition='';
-    requestAnimationFrame(()=>{newFill.style.width=built.pct+'%'});
+    requestAnimationFrame(()=>{newFill.style.width=activeBuilt.pct+'%'});
   }
   document.querySelectorAll('.slotbg').forEach(s=>{s.addEventListener('click',()=>{const m=Number(s.dataset.minute);openModal(null,iso(d),`${pad(Math.floor(m/60))}:${pad(m%60)}`)})});
   const activeInput=document.querySelector('.subaddinput');
@@ -1033,12 +1043,12 @@ function renderDay(){
   const total=data.clients.length;
   const doneCount=data.clients.filter(c=>checks[c.id]).length;
   __lastAllClientsDone=total>0 && doneCount===total;
-  if(built.isComplete && built.pct!==__lastKnownPct && !__lastDayComplete){
+  if(activeBuilt.isComplete && activeBuilt.pct!==__lastKnownPct && !__lastDayComplete){
     const wrap=$('dayProgressWrap');
     if(wrap)setTimeout(()=>celebrateDayComplete(wrap),150);
   }
-  __lastDayComplete=built.isComplete;
-  __lastKnownPct=built.pct;
+  __lastDayComplete=activeBuilt.isComplete;
+  __lastKnownPct=activeBuilt.pct;
 }
 
 function fixupActualSizes(d){
@@ -1131,19 +1141,31 @@ function renderMonth(){
 }
 
 function buildMobileDayListHtml(d){
-  const ts=tasksFor(d).slice().sort((a,b)=>{
+  const allTs=tasksFor(d);
+  const done=allTs.filter(t=>t.done).length,pct=allTs.length?Math.round(done/allTs.length*100):0;
+  const isComplete=allTs.length>0 && pct===100;
+  const ts=allTs.slice().sort((a,b)=>{
     const at=a.time?timeMin(a.time):9999,bt=b.time?timeMin(b.time):9999;
     return at-bt;
   });
-  if(!ts.length)return '<div class="notime"><div class="notimelabel">На этот день пока нет задач</div></div>';
-  return '<div class="mobiledaylist">'+ts.map(t=>{
-    const timeStr=t.time?esc(t.time):'—';
-    return `<div class="mobiledayrow ${t.done?'done':''}" data-id="${t.id}">
-      <div class="mobiledaycheck ${t.done?'on':''}" data-check="${t.id}"></div>
-      <div class="mobiledaytime">${timeStr}</div>
-      <div class="mobiledaytitle" title="${esc(t.title)}">${esc(t.title)}</div>
-    </div>`;
-  }).join('')+'</div>';
+  const progress=`<div class="progresswrap ${isComplete?'complete':''}" id="dayProgressWrap">
+    <div class="progresslabel ${isComplete?'complete':''}">${allTs.length?`Выполнено ${done}/${allTs.length}`:'На этот день пока нет задач'}</div>
+    <div class="progressbar"><div class="progressfill ${isComplete?'complete':''}" id="dayProgressFill" style="width:${pct}%"></div></div>
+    <div class="progresslabel ${isComplete?'complete':''}">${pct}%</div>
+    <div class="day-complete-badge ${isComplete?'show':''}">🏆</div>
+  </div>`;
+  const clientsHtml=buildClientsHtml(d);
+  const listHtml=!ts.length
+    ? '<div class="notime"><div class="notimelabel">На этот день пока нет задач</div></div>'
+    : '<div class="mobiledaylist">'+ts.map(t=>{
+        const timeStr=t.time?esc(t.time):'—';
+        return `<div class="mobiledayrow ${t.done?'done':''}" data-id="${t.id}">
+          <div class="mobiledaycheck ${t.done?'on':''}" data-check="${t.id}"></div>
+          <div class="mobiledaytime">${timeStr}</div>
+          <div class="mobiledaytitle" title="${esc(t.title)}">${esc(t.title)}</div>
+        </div>`;
+      }).join('')+'</div>';
+  return {html:progress+clientsHtml+listHtml, isComplete, pct};
 }
 
 function bindMobileDayList(d){
@@ -1165,6 +1187,27 @@ function bindMobileDayList(d){
       row.classList.toggle('done',t.done);
       box.classList.toggle('on',t.done);
       if(t.done){celebrateSubtask(box,true);playTick()}
+      const allTs=tasksFor(d);
+      const done=allTs.filter(x=>x.done).length,pct=allTs.length?Math.round(done/allTs.length*100):0;
+      const isComplete=allTs.length>0 && pct===100;
+      const wrap=$('dayProgressWrap');
+      if(wrap){
+        wrap.classList.toggle('complete',isComplete);
+        const fill=$('dayProgressFill');
+        if(fill){fill.style.width=pct+'%';fill.classList.toggle('complete',isComplete)}
+        wrap.querySelectorAll('.progresslabel').forEach((lbl,idx)=>{
+          lbl.classList.toggle('complete',isComplete);
+          if(idx===0)lbl.textContent=allTs.length?`Выполнено ${done}/${allTs.length}`:'На этот день пока нет задач';
+          if(idx===1)lbl.textContent=pct+'%';
+        });
+        const badge=wrap.querySelector('.day-complete-badge');
+        if(badge)badge.classList.toggle('show',isComplete);
+        if(isComplete && pct!==__lastKnownPct && !__lastDayComplete){
+          setTimeout(()=>celebrateDayComplete(wrap),150);
+        }
+        __lastDayComplete=isComplete;
+        __lastKnownPct=pct;
+      }
     });
   });
 }
