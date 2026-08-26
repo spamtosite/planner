@@ -2,7 +2,12 @@
 <html lang="ru">
 <head>
 <link rel="icon" type="image/png" href="fav.png">
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Мой ежедневник">
+<meta name="theme-color" content="#111827">
 <title>Мой ежедневник</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -379,26 +384,43 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientfolderaddform input{flex:1;border:1px solid #2563eb;border-radius:6px;padding:5px 8px;font-size:13px;background:#1a2333;color:#fff;min-width:0}
 .clientfolderaddform button{background:#2563eb;color:#fff;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;flex:0 0 auto}
 /* Патч №47а: мобильная оболочка и safe area */
+/* Патч №47а-2: полноценное заполнение экрана iOS Safari */
+html,
+body{
+  margin:0;
+  width:100%;
+  min-width:100%;
+  min-height:100%;
+  background:#111827;
+}
+
 @media(max-width:800px){
   html,
   body{
     width:100%;
-    min-height:100%;
+    height:100%;
+    min-height:100vh;
     overflow:hidden;
     overscroll-behavior:none;
+    background:#111827;
   }
 
   .app{
+    position:fixed;
+    inset:0;
     width:100%;
-    height:100dvh;
+    height:100vh;
+    min-height:100vh;
     max-width:100vw;
     overflow:hidden;
+    background:#111827;
   }
 
   .main,
   .sidebar{
     max-width:100vw;
     min-width:0;
+    height:100%;
   }
 
   .content{
