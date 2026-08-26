@@ -394,6 +394,10 @@ body{
   background:#111827;
 }
 
+.main{
+  background:var(--bg);
+}
+
 @media(max-width:800px){
   html,
   body{
@@ -405,23 +409,30 @@ body{
     background:#111827;
   }
 
-  .app{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100vh;
-    min-height:100vh;
-    max-width:100vw;
-    overflow:hidden;
-    background:#111827;
-  }
+    .app{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100vh;
+      min-height:100vh;
+      max-width:100vw;
+      overflow:hidden;
+      background:var(--bg);
+    }
 
-  .main,
-  .sidebar{
-    max-width:100vw;
-    min-width:0;
-    height:100%;
-  }
+.main{
+  max-width:100vw;
+  min-width:0;
+  height:100%;
+  background:var(--bg);
+}
+
+.sidebar{
+  max-width:100vw;
+  min-width:0;
+  height:100%;
+  background:#111827;
+}
 
   .content{
     max-width:100vw;
