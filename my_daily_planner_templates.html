@@ -278,6 +278,89 @@ body{
     background:var(--app-surface)!important;
   }
 }
+.dayhead{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.dayheadleft{
+  display:flex;
+  align-items:baseline;
+  gap:10px;
+  min-width:0;
+  order:1;
+}
+
+.dayheadcontrols{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  flex:0 0 auto;
+  order:2;
+}
+
+.dayheadcontrols .viewtabs{
+  display:flex;
+}
+
+.dayheadcontrols .viewtabs button{
+  padding:6px 10px;
+}
+
+.dayheadcontrols .iconbtn{
+  padding:6px 9px;
+  border-radius:7px;
+}
+
+.datebig{
+  margin:0;
+  font-size:17px;
+  font-weight:700;
+}
+
+.weekday{
+  color:var(--muted);
+  font-size:14px;
+  white-space:nowrap;
+}
+
+/* Верхняя панель больше не содержит навигацию */
+.top .viewtabs,
+.top #prev,
+.top #next,
+.top #todayBtn,
+.top .mobilebacklink{
+  display:none!important;
+}
+
+@media(max-width:800px){
+  .dayhead{
+    align-items:center;
+    gap:6px;
+  }
+
+  .dayheadleft{
+    width:100%;
+    order:1;
+  }
+
+  .dayheadcontrols{
+    display:none!important;
+  }
+
+  .weekday{
+    font-size:12px;
+  }
+
+  .datebig{
+    font-size:16px;
+  }
+}
 </style>
 </head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты <span class="navclientsarrow">▾</span></button></div>
@@ -290,7 +373,7 @@ body{
 <div class="sidebottom">
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
-</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button></header>
+</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div></header>
 <div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><div class="quickaddbtns"><button class="primary" id="quickAddBtn">Добавить</button><button class="primary" id="addBtn">Задача</button></div></div>
 <div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
 <div class="tplbar" id="quickTplBar"></div>
@@ -955,7 +1038,24 @@ function buildDayHtml(d){
   </div>`;
   let clientsHtml=buildClientsHtml(d);
   let noTimeHtml=noTime.length?`<div class="notime"><div class="notimelabel">Без времени</div>${noTime.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
-  return {html:`<div class="dayhead"><div class="dayheadleft"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div><button class="daytodaybtn" id="dayTodayBtn">Сегодня</button></div>
+  return {html:`<div class="dayhead">
+  <div class="dayheadleft">
+    <div class="weekday" id="dayWeekday"></div>
+    <div class="datebig" id="dayDate"></div>
+  </div>
+
+  <div class="dayheadcontrols">
+    <div class="viewtabs">
+      <button data-view="day" class="sel">День</button>
+      <button data-view="week">Неделя</button>
+      <button data-view="month">Месяц</button>
+    </div>
+
+    <button class="iconbtn" id="prev" title="Предыдущий период">‹</button>
+    <button class="iconbtn" id="next" title="Следующий период">›</button>
+    <button class="iconbtn" id="todayBtn">Сегодня</button>
+  </div>
+</div>
     ${progress}${clientsHtml}${noTimeHtml}
     <div class="timeline" style="height:${totalHeight}px">
       <div class="gridlines" style="min-width:${maxRight+83}px">${gridHtml}</div>
@@ -1449,6 +1549,50 @@ function renderSidebarPending(){
   });
 }
 function setTabs(){document.querySelectorAll('.viewtabs button').forEach(x=>x.classList.toggle('sel',x.dataset.view===state.view))}
+document.querySelectorAll('.dayheadcontrols .viewtabs button').forEach(b=>{
+  b.onclick=()=>{
+    state.view=b.dataset.view;
+    setTabs();
+    render();
+  };
+});
+
+$('prev').onclick=()=>{
+  const d=new Date(state.date);
+
+  if(state.view==='month'){
+    d.setMonth(d.getMonth()-1);
+  }else if(state.view==='week'){
+    d.setDate(d.getDate()-7);
+  }else{
+    d.setDate(d.getDate()-1);
+  }
+
+  state.date=d;
+  render();
+};
+
+$('next').onclick=()=>{
+  const d=new Date(state.date);
+
+  if(state.view==='month'){
+    d.setMonth(d.getMonth()+1);
+  }else if(state.view==='week'){
+    d.setDate(d.getDate()+7);
+  }else{
+    d.setDate(d.getDate()+1);
+  }
+
+  state.date=d;
+  render();
+};
+
+$('todayBtn').onclick=()=>{
+  state.date=new Date();
+  state.view='day';
+  setTabs();
+  render();
+};
 function recomputeDone(t){if((t.subtasks||[]).length)t.done=t.subtasks.every(s=>subDone(s))}
 
 /* ================== ВСПЛЫВАЮЩЕЕ ОКНО РЕЗУЛЬТАТА ПОДЗАДАЧИ ================== */
