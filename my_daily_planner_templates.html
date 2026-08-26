@@ -146,6 +146,138 @@ button{cursor:pointer;border:0;background:none;color:inherit}
   .navclientsarrow{float:right}.clientfolders{display:none;padding:2px 10px 10px}.clientfolders.expanded{display:block}.clientfolderitem{display:flex;align-items:center;gap:6px;padding:7px 10px 7px 22px;border-radius:8px;color:#d1d5db;font-size:13px;position:relative}.clientfolderitem.active{background:#2563eb;color:#fff}.clientfoldername{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.clientfolderrename{flex:1;border:1px solid #2563eb;border-radius:6px;padding:3px 6px;font-size:13px;background:#1a2333;color:#fff;min-width:0}.clientfolderdel{width:16px;height:16px;border-radius:50%;background:#374151;color:#9ca3af;font-size:10px;display:grid;place-items:center;flex:0 0 auto}.clientfolderaddchip{width:calc(100% - 20px);margin:2px 10px;text-align:center;display:block}.clientfolderaddform{display:flex;gap:6px;padding:4px 10px 4px 22px}.clientfolderaddform input{flex:1;border:1px solid #2563eb;border-radius:6px;padding:5px 8px;font-size:13px;background:#1a2333;color:#fff;min-width:0}.clientfolderaddform button{background:#2563eb;color:#fff;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;flex:0 0 auto}
   button,input,textarea,select,.mobiledayrow,.mobileweektask,.mobilesectionitem,.mobileclientfolderrow{touch-action:manipulation}
 }
+/* Единый светлый фон для сайдбара и рабочей части */
+
+:root{
+  --app-surface:#f5f6f8;
+  --app-panel:#ffffff;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  min-width:100%;
+  min-height:100%;
+  background:var(--app-surface)!important;
+  color:var(--text);
+}
+
+.app{
+  background:var(--app-surface)!important;
+}
+
+.sidebar,
+.main{
+  background:var(--app-surface)!important;
+  color:var(--text);
+}
+
+.sidebar{
+  border-right:1px solid var(--line);
+}
+
+.main .top,
+.main .quickadd,
+.main .quickhint,
+.main .content{
+  background:var(--app-surface)!important;
+}
+
+.top,
+.quickadd{
+  border-color:var(--line);
+}
+
+.nav button{
+  color:#59616b;
+}
+
+.nav button.active,
+.nav button:hover{
+  background:#e7ebf0;
+  color:var(--text);
+}
+
+.brand,
+.sidebarpending-title,
+.sidebarpending-empty,
+.sidebarpending-name,
+.sidebottom{
+  color:var(--text);
+}
+
+.sidebarpending-time{
+  color:var(--accent);
+}
+
+.sidebarpending-item:hover{
+  background:#e9edf2;
+}
+
+.sidebarpending-item.overdue{
+  background:rgba(220,38,38,.10);
+}
+
+.sidebarpending-item.upcoming-far{
+  background:rgba(22,163,74,.10);
+}
+
+.sidebarpending-item.upcoming-soon{
+  background:rgba(217,119,6,.12);
+}
+
+.backupbtn{
+  background:#e7ebf0;
+  color:#4b5563;
+}
+
+.backupbtn:hover{
+  background:#dce2e9;
+}
+
+@media(max-width:800px){
+  html,
+  body{
+    background:var(--app-surface)!important;
+  }
+
+  .app{
+    background:var(--app-surface)!important;
+  }
+
+  .sidebar{
+    background:var(--app-surface)!important;
+    border-right:0;
+    padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+
+  .main{
+    background:var(--app-surface)!important;
+  }
+
+  .mobilesectionswrap{
+    background:var(--app-surface)!important;
+  }
+
+  .mobilesectionsbrand,
+  .mobilesectionitem{
+    color:var(--text);
+  }
+
+  .mobilesectionitem:active,
+  .mobilesectionitem.active{
+    background:#e7ebf0;
+  }
+
+  .main .top,
+  .main .quickadd,
+  .main .quickhint,
+  .main .content{
+    background:var(--app-surface)!important;
+  }
+}
 </style>
 </head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты <span class="navclientsarrow">▾</span></button></div>
