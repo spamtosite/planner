@@ -2,11 +2,12 @@
 <html lang="ru">
 <head>
 <link rel="icon" type="image/png" href="fav.png">
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Мой ежедневник</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{--bg:#f5f6f8;--panel:#fff;--text:#1f2328;--muted:#737a83;--line:#e6e8eb;--accent:#2563eb;--green:#16a34a;--danger:#dc2626;--shadow:0 8px 30px rgba(0,0,0,.07);--rowh:44px}
+html,body{background:#111827}
 *{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
 button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;background:none;color:inherit}
 .app{display:flex;height:100vh;overflow:hidden}.sidebar{width:235px;background:#111827;color:#fff;padding:18px 14px;display:flex;flex-direction:column;gap:8px}.brand{font-size:19px;font-weight:700;padding:6px 10px 18px}.nav button{width:100%;text-align:left;padding:10px 12px;border-radius:8px;color:#d1d5db}.nav button.active,.nav button:hover{background:#263142;color:#fff}.sidebottom{margin-top:auto;color:#9ca3af;font-size:12px;padding:10px}
@@ -377,6 +378,52 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientfolderaddform{display:flex;gap:6px;padding:4px 10px 4px 22px}
 .clientfolderaddform input{flex:1;border:1px solid #2563eb;border-radius:6px;padding:5px 8px;font-size:13px;background:#1a2333;color:#fff;min-width:0}
 .clientfolderaddform button{background:#2563eb;color:#fff;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;flex:0 0 auto}
+/* Патч №47а: мобильная оболочка и safe area */
+@media(max-width:800px){
+  html,
+  body{
+    width:100%;
+    min-height:100%;
+    overflow:hidden;
+    overscroll-behavior:none;
+  }
+
+  .app{
+    width:100%;
+    height:100dvh;
+    max-width:100vw;
+    overflow:hidden;
+  }
+
+  .main,
+  .sidebar{
+    max-width:100vw;
+    min-width:0;
+  }
+
+  .content{
+    max-width:100vw;
+    overflow-x:hidden;
+    overscroll-behavior-x:none;
+  }
+
+  input,
+  textarea,
+  select{
+    font-size:16px;
+  }
+
+  button,
+  input,
+  textarea,
+  select,
+  .mobiledayrow,
+  .mobileweektask,
+  .mobilesectionitem,
+  .mobileclientfolderrow{
+    touch-action:manipulation;
+  }
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты <span class="navclientsarrow">▾</span></button></div>
 <div class="clientfolders" id="clientFoldersWrap"></div><div class="sidebarpending" id="sidebarPending"></div>
