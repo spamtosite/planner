@@ -358,6 +358,35 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .quickaddbtns{width:100%}
   .quickaddbtns button{width:100%;padding:12px;border-radius:10px;font-size:15px}
 }
+/* ==== Единый светлый цвет сайдбара и контента ==== */
+.sidebar{background:var(--bg)!important;color:var(--text)!important;border-right:1px solid var(--line)}
+.brand{color:var(--text)}
+.nav button{color:var(--muted)}
+.nav button.active,.nav button:hover{background:var(--line);color:var(--text)}
+.sidebottom{color:var(--muted)}
+.backupbtn{background:#fff;color:var(--text);border:1px solid var(--line)}
+.backupbtn:hover{background:var(--line)}
+#driveConnectBtn{background:#fff!important;color:var(--text)!important;border:1px solid var(--line)}
+#driveStatus{color:var(--muted)!important}
+.sidebarpending-title{color:var(--muted)}
+.sidebarpending-item:hover{background:var(--line)}
+.sidebarpending-time{color:var(--accent)}
+.sidebarpending-name{color:var(--text)}
+.sidebarpending-item.upcoming-far .sidebarpending-time{color:#16a34a}
+.sidebarpending-item.upcoming-far .sidebarpending-name{color:#166534}
+.sidebarpending-item.upcoming-soon .sidebarpending-time{color:#d97706}
+.sidebarpending-item.upcoming-soon .sidebarpending-name{color:#92400e}
+.sidebarpending-item.overdue .sidebarpending-time{color:#dc2626}
+.sidebarpending-item.overdue .sidebarpending-name{color:#991b1b}
+@media(max-width:800px){
+  .sidebar{background:var(--bg)!important}
+  .mobilesectionsbrand{color:var(--text)}
+  .mobilesectionitem{color:var(--text)}
+  .mobilesectionitem:active{background:var(--line)}
+  .mobilesectionarrow{color:var(--muted)}
+}
+/* ==== Убираем верхнюю панель, строка быстрого ввода теперь первая ==== */
+.top{display:none!important}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
