@@ -519,6 +519,68 @@ body{
     background:var(--bg);
   }
 }
+/* Патч №50: светлая рабочая область без синих полос */
+html,
+body{
+  margin:0;
+  width:100%;
+  min-width:100%;
+  min-height:100%;
+  background:#f5f6f8;
+}
+
+.app{
+  position:fixed;
+  inset:0;
+  width:100%;
+  min-width:100%;
+  max-width:none;
+  background:#f5f6f8;
+}
+
+.main{
+  position:absolute;
+  inset:0;
+  width:100%;
+  min-width:0;
+  max-width:none;
+  background:#f5f6f8;
+}
+
+.main .top,
+.main .quickadd,
+.main .quickhint,
+.main .content{
+  width:100%;
+  max-width:none;
+  background:#f5f6f8;
+}
+
+@media(max-width:800px){
+  html,
+  body{
+    background:#f5f6f8;
+  }
+
+  .app{
+    background:#f5f6f8;
+  }
+
+  .main{
+    background:#f5f6f8;
+  }
+
+  .main .top,
+  .main .quickadd,
+  .main .quickhint,
+  .main .content{
+    background:#f5f6f8;
+  }
+
+  .sidebar{
+    background:#111827;
+  }
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты <span class="navclientsarrow">▾</span></button></div>
 <div class="clientfolders" id="clientFoldersWrap"></div><div class="sidebarpending" id="sidebarPending"></div>
