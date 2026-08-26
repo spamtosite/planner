@@ -23,7 +23,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .sidebarpending-item.upcoming-far:hover{background:rgba(22,163,74,.22)}
 .sidebarpending-item.upcoming-far .sidebarpending-time{color:#86efac}
 .sidebarpending-item.upcoming-far .sidebarpending-name{color:#bbf7d0}
-
 .sidebarpending-item.upcoming-soon{position:relative;background:rgba(217,119,6,.18);animation:upcomingSoonPulse 1.8s ease-in-out infinite}
 .sidebarpending-item.upcoming-soon:hover{background:rgba(217,119,6,.28)}
 .sidebarpending-item.upcoming-soon .sidebarpending-time{color:#fcd34d}
@@ -60,8 +59,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .taskblock.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
 @keyframes taskPop{0%{transform:scale(1)}35%{transform:scale(1.045) rotate(-.4deg)}60%{transform:scale(.985) rotate(.3deg)}100%{transform:scale(1)}}
 .taskrow{display:flex;align-items:flex-start;gap:6px;flex-wrap:nowrap;min-width:0;width:100%}
-.check{width:18px;height:18px;border:2px solid #9aa1a9;border-radius:50%;flex:0 0 auto;margin-top:1px;background:#fff;position:relative;transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,background .25s ease}
-.check.on{border-color:var(--green);background:var(--green);color:#fff;font-size:11px}
+/* ПРАВКА №6: чекбокс задачи теперь квадратный, как в «Ключевых клиентах» (галочка появляется через разметку) */
+.check{width:18px;height:18px;border:2px solid #9aa1a9;border-radius:6px;flex:0 0 auto;margin-top:1px;background:#fff;display:grid;place-items:center;color:#fff;font-size:11px;line-height:1;position:relative;transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,background .25s ease}
+.check.on{border-color:var(--green);background:var(--green)}
 .taskbody{min-width:0;flex:1 1 auto;overflow:hidden}
 .tasktitle{font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .taskmeta{font-size:10.5px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -79,10 +79,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 @keyframes subtextGlowSuccess{0%{background:transparent;color:inherit}25%{background:#bbf7d0;color:#166534;border-radius:4px}100%{background:transparent;color:#166534}}
 @keyframes subtextGlowFailed{0%{background:transparent;color:inherit}25%{background:#fecaca;color:#991b1b;border-radius:4px}100%{background:transparent;color:#991b1b}}
 .subverdict{display:flex;gap:3px;flex:0 0 auto;order:-1}
-.vbtn{width:19px;height:19px;border-radius:5px;border:1px solid #d9dde2;display:grid;place-items:center;font-size:12px;line-height:1;color:#b7bcc2;background:#fff;flex:0 0 auto;position:relative;transition:transform .28s cubic-bezier(.34,1.56,.64,1),background .28s ease,border-color .28s ease,color .28s ease}
-.vbtn.success.active{background:#dcfce7;border-color:#16a34a;color:#16a34a}
-.vbtn.failed.active{background:#fee2e2;border-color:#dc2626;color:#dc2626}
-.vbtn.bump{transform:scale(1.4) rotate(-8deg)}
+/* ПРАВКА №6: вместо двух серых кнопок vbtn — красивые квадратные чекбоксы: зелёный ✓ (успех) и красный ✕ (неуспех) */
+.markbox{width:19px;height:19px;border-radius:6px;border:2px solid #9aa1a9;display:grid;place-items:center;font-size:11px;line-height:1;color:#b7bcc2;background:#fff;flex:0 0 auto;transition:transform .28s cubic-bezier(.34,1.56,.64,1),background .28s ease,border-color .28s ease,color .28s ease}
+.markbox.success.active{background:#16a34a;border-color:#16a34a;color:#fff}
+.markbox.failed.active{background:#dc2626;border-color:#dc2626;color:#fff}
+.markbox.bump{transform:scale(1.4) rotate(-8deg)}
 .subnoteicon{width:15px;height:15px;border-radius:4px;background:#f3f4f6;color:#9ca3af;font-size:9px;display:grid;place-items:center;flex:0 0 auto;margin-left:2px}
 .subnoteicon.has{background:#ede9fe;color:#7c3aed}
 .addsub{color:var(--accent);font-size:10.5px;margin-left:24px;margin-top:4px;pointer-events:auto;text-align:left}
@@ -92,7 +93,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .task{display:flex;align-items:flex-start;gap:9px;padding:8px 10px;background:#fff;border:1px solid #dfe3e8;border-radius:8px;margin:2px 0;box-shadow:0 2px 7px #0000000a;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease}
 .task.done{opacity:.68}.task.done .tasktitle{text-decoration:line-through}
 .task.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
-
 .progresswrap{position:relative;padding:14px 18px 14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .4s ease,border-color .4s ease}
 .progresswrap.complete{border-color:#16a34a;box-shadow:0 0 0 3px #16a34a2b,0 10px 30px #16a34a26;padding-right:52px}
 .progressbar{position:relative;flex:1;min-width:100px;height:12px;background:#eef0f2;border-radius:8px;overflow:hidden}
@@ -108,7 +108,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .tasknoteitem{display:grid;gap:1px}
 .tasknotehead{font-size:10.5px;color:#1f2328;font-weight:700;white-space:normal;word-break:break-word;line-height:1.3}
 .tasknotebody{font-size:10.5px;color:var(--muted);white-space:normal;word-break:break-word;line-height:1.35}
-
 .clientswrap{position:relative;padding:16px 18px;margin-bottom:14px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;transition:box-shadow .4s ease,border-color .4s ease}
 .clientswrap.complete{border-color:#f59e0b;box-shadow:0 0 0 3px #f59e0b2b,0 10px 30px #f59e0b26}
 .clientshead{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
@@ -132,7 +131,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientaddform{display:flex;align-items:center;gap:6px}
 .clientaddform input{border:1.5px solid var(--accent);border-radius:10px;padding:7px 10px;font-size:12.5px;width:150px}
 .clientaddform button{background:var(--accent);color:#fff;border-radius:10px;padding:7px 12px;font-size:12px;font-weight:600}
-
 .monthgrid{display:grid;grid-template-columns:repeat(7,1fr);overflow:hidden;box-shadow:none}
 .dow{padding:10px;text-align:center;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line)}
 .mcell{min-height:120px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px;cursor:pointer}
@@ -156,7 +154,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .modalfoot{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
 .danger{color:var(--danger)}.modalbuttons{display:flex;gap:8px}.hidden{display:none!important}
 .toast{position:fixed;bottom:18px;right:18px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;display:none;z-index:20}
-
 .recur{display:flex;gap:6px;flex-wrap:wrap}
 .daypill{padding:7px 11px;border:1.5px solid #d9dde2;border-radius:8px;color:#5b6270;font-size:13px;font-weight:600;transition:background .2s ease,border-color .2s ease,color .2s ease,transform .15s ease}
 .daypill:hover{border-color:#b8bfc9}
@@ -169,14 +166,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .recurpreview{font-size:11.5px;color:var(--muted);margin-top:6px}
 .modalhint{font-size:11px;color:var(--muted);text-align:center;margin-top:10px}
 .objectrow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-
 .tplbar{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center}
 .tplchip{padding:5px 11px;border-radius:16px;background:#ede9fe;color:#6d28d9;font-size:11.5px;font-weight:700;border:1.5px solid #ddd6fe;transition:background .2s ease,transform .15s ease}
 .tplchip:hover{background:#ddd6fe;transform:translateY(-1px)}
 .tplmanage{padding:5px 10px;border-radius:16px;background:#f1f3f5;color:#4b5563;font-size:11px;font-weight:600}
 .tplmanage:hover{background:#e2e6ea}
 .tplhint{font-size:10.5px;color:var(--muted);margin-top:4px}
-
 .tplmodal{background:#fff;width:min(560px,100%);max-height:85vh;overflow:auto;border-radius:14px;box-shadow:0 25px 70px #0004;padding:20px}
 .tpllist{display:grid;gap:8px;margin-bottom:16px}
 .tplitem{display:flex;justify-content:space-between;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;gap:10px}
@@ -185,7 +180,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .tplitemsubs{font-size:11px;color:#9ca3af;margin-top:3px}
 .tplitemdel{color:var(--danger);font-size:11px;font-weight:600;white-space:nowrap}
 .tplempty{color:var(--muted);font-size:12px;text-align:center;padding:14px}
-
 .subnotepop{position:fixed;z-index:200;background:#fff;border-radius:14px;box-shadow:0 20px 55px rgba(0,0,0,.22);border:1px solid var(--line);padding:14px;width:290px}
 .subnotepop textarea{width:100%;min-height:70px;border:1px solid #d9dde2;border-radius:8px;padding:8px;font-size:12.5px;resize:vertical}
 .subnoteheader{font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:8px;display:flex;align-items:center;gap:6px}
@@ -194,7 +188,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .subnoteskip{background:#f1f3f5;color:#4b5563}
 .subnotesave{background:#7c3aed;color:#fff}
 .subnotebackdrop{position:fixed;inset:0;background:transparent;z-index:199}
-
 .focusoverlay{position:fixed;inset:0;background:rgba(20,20,25,.35);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);display:none;align-items:center;justify-content:center;z-index:100}
 .focusoverlay.active{display:flex}
 .focuscard{position:relative;width:min(380px,92vw);background:linear-gradient(160deg,rgba(40,40,46,.92),rgba(24,24,28,.96));border-radius:32px;padding:34px 30px 30px;box-shadow:0 30px 90px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);color:#fff;text-align:center;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif}
@@ -245,7 +238,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .focus-mini-fill{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .3s linear}
 @keyframes focusDoneShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .focuscard.done-shake{animation:focusDoneShake .5s ease}
-
 @media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:18px}.nav button:nth-child(1):before{content:"☀️"}.nav button:nth-child(2):before{content:"📅"}.sidebottom{display:none}.top{padding:0 12px}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
 @media(max-width:680px){
   .quickadd{flex-direction:column}
@@ -293,15 +285,31 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .top{flex-wrap:wrap;height:auto;min-height:70px;row-gap:8px}
   .viewtabs{order:5;width:100%;margin:0 0 4px}
   .viewtabs button{flex:1;text-align:center}
-
   .mobiledaylist{display:flex;flex-direction:column;gap:6px}
-  .mobiledayrow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);min-width:0;cursor:pointer}
+  /* ПРАВКА №5: строка задачи в мобильном списке может переноситься (для блока подзадач) */
+  .mobiledayrow{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow);min-width:0;cursor:pointer;flex-wrap:wrap}
   .mobiledayrow.done{opacity:.6}
   .mobiledayrow.done .mobiledaytitle{text-decoration:line-through}
   .mobiledaytime{flex:0 0 auto;font-weight:700;font-size:12.5px;color:var(--accent);white-space:nowrap;min-width:44px}
   .mobiledaytitle{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;font-weight:600}
-  .mobiledaycheck{flex:0 0 auto;width:18px;height:18px;border:2px solid #9aa1a9;border-radius:50%;background:#fff}
+  /* ПРАВКА №6: мобильный чекбокс задачи — квадратный, как в клиентах; ✓ появляется через ::after */
+  .mobiledaycheck{flex:0 0 auto;width:20px;height:20px;border:2px solid #9aa1a9;border-radius:6px;background:#fff;display:grid;place-items:center;color:#fff;font-size:11px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,background .25s ease}
   .mobiledaycheck.on{border-color:var(--green);background:var(--green)}
+  .mobiledaycheck.on::after{content:"✓"}
+  /* ПРАВКА №5: стрелка-аккордеон подзадач в мобильном списке */
+  .msubarrow{flex:0 0 auto;color:var(--muted);font-size:13px;transition:transform .25s ease}
+  .mobiledayrow.expanded .msubarrow{transform:rotate(90deg)}
+  .msubs{display:none;flex-basis:100%;padding:6px 0 2px 32px;flex-direction:column;gap:5px}
+  .mobiledayrow.expanded .msubs{display:flex}
+  .msubrow{display:flex;align-items:center;gap:7px;font-size:12.5px;min-width:0}
+  .mstitle{flex:1 1 auto;min-width:0;white-space:normal;word-break:break-word;transition:color .25s ease}
+  .msubrow.doneSub .mstitle{color:#166534;text-decoration:line-through}
+  .msubrow.failedSub .mstitle{color:#991b1b;text-decoration:line-through}
+  /* ПРАВКА №4 (мобильный drag): длительное нажатие на задачу = режим переноса времени */
+  .mobiledayrow.timeshifting{outline:2px dashed var(--accent);outline-offset:2px;opacity:.9}
+  .timedragbadge{position:fixed;z-index:9999;background:#111827;color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;pointer-events:none;box-shadow:0 6px 18px #0004}
+  .mobileeditbtn{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:#f1f3f5;color:#6b7280;display:grid;place-items:center;font-size:14px}
+  .mobileeditbtn:active{background:#e2e6ea}
 }
 @media(max-width:800px){
   .mobileweeklist{display:flex;flex-direction:column;gap:8px}
@@ -332,28 +340,27 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .progresswrap{padding:12px 14px;margin-bottom:10px}
   .clientswrap{padding:12px 14px;margin-bottom:10px}
 }
-
-/* Патч №41: сворачиваемый блок "Ключевые клиенты" на мобильном */
+/* ПРАВКА №3: сворачивание панели «Ключевые клиенты» теперь работает и на десктопе (правила вынесены из mobile-only медиазапроса) */
+.clientshead{cursor:pointer}
+.clientscollapsearrow{margin-left:6px;color:var(--muted);font-size:12px;transition:transform .25s ease;flex:0 0 auto}
+.clientswrap.collapsed .clientscollapsearrow{transform:rotate(-90deg)}
+.clientswrap.collapsed .clientsgrid{display:none}
+.clientswrap.collapsed{padding-bottom:12px}
+/* ПРАВКА №2: шапка представления — слева заголовок (полный день недели + ДД.ММ.ГГГГ), справа День/Неделя/Месяц, ‹ Сегодня › */
+.dayhead{justify-content:space-between;gap:10px;flex-wrap:wrap}
+.dayheadleft{display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto}
+.datebig{margin:0}
+.dayheadright{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.midbtn{padding:8px 10px}
 @media(max-width:800px){
-  .clientshead{cursor:pointer}
-  .clientscollapsearrow{margin-left:6px;color:var(--muted);font-size:12px;transition:transform .25s ease;flex:0 0 auto}
-  .clientswrap.collapsed .clientscollapsearrow{transform:rotate(-90deg)}
-  .clientswrap.collapsed .clientsgrid{display:none}
-  .clientswrap.collapsed{padding-bottom:12px}
+  .dayheadleft{min-width:0}
+  .datebig{font-size:15.5px}
+  .dayheadright{width:100%;margin-left:0}
+  .dayheadright .viewtabs{order:5;width:100%;margin:0}
+  .dayheadright .viewtabs button{flex:1;text-align:center}
+  .dayheadright .iconbtn{min-height:38px;min-width:38px}
 }
-
-/* Патч №42: мобильный топбар — верхняя строка навигации скрыта на мобильном, кнопка "Задача" рядом с "Добавить", кнопка "Сегодня" перенесена в dayhead, свайп от левого края = назад в разделы */
 .quickaddbtns{display:flex;gap:8px;flex:0 0 auto}
-.dayhead{justify-content:space-between}
-.dayhead .dayheadleft{display:flex;align-items:center;gap:8px}
-.daytodaybtn{display:none;padding:6px 12px;border-radius:8px;background:#f1f3f5;color:var(--accent);font-size:12.5px;font-weight:600;flex:0 0 auto;border:0;cursor:pointer}
-.daytodaybtn:hover{background:#e2e6ea}
-@media(max-width:800px){
-  .mobilebacklink{display:none!important}
-  #prev,#next,#todayBtn{display:none}
-  .top{padding:10px 12px;min-height:56px}
-  .daytodaybtn{display:inline-block}
-}
 @media(max-width:680px){
   .quickaddbtns{width:100%}
   .quickaddbtns button{width:100%;padding:12px;border-radius:10px;font-size:15px}
@@ -397,7 +404,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 <div class="sidebottom">
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
-</div></aside><main class="main"><header class="top"><button class="mobilebacklink" id="mobileBackBtn" style="align-items:center;gap:4px;font-size:15px;color:var(--accent);font-weight:600;padding:4px 8px 4px 0">‹ Разделы</button><div id="pageTitle" class="title">Сегодня</div><div class="viewtabs"><button data-view="day" class="sel">День</button><button data-view="week">Неделя</button><button data-view="month">Месяц</button></div><button class="iconbtn" id="prev">‹</button><button class="iconbtn" id="next">›</button><button class="iconbtn" id="todayBtn">Сегодня</button></header>
+</div></aside>
+<!-- ПРАВКА №2: из статической шапки .top удалены вкладки День/Неделя/Месяц и кнопки ‹ › Сегодня (дубликаты id ломали биндинги) — теперь эта панель рисуется внутри контента -->
+<main class="main"><header class="top"><div id="pageTitle" class="title">Сегодня</div></header>
 <div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><div class="quickaddbtns"><button class="primary" id="quickAddBtn">Добавить</button><button class="primary" id="addBtn">Задача</button></div></div>
 <div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
 <div class="tplbar" id="quickTplBar"></div>
@@ -486,7 +495,8 @@ data.clientChecks=data.clientChecks||{};
 data.templates=data.templates||[
   {code:'ВП',name:'Видеопоказ',subtasks:['Подтвердить с клиентом видеопоказ','Договориться с ОП','Провести ВП']}
 ];
-let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:true};
+/* ПРАВКА №3: clientsCollapsed теперь false по умолчанию (панель «Ключевые клиенты» стартует развёрнутой и на десктопе, т.к. свёртывание заработало везде) */
+let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:false};
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -878,11 +888,12 @@ function naturalTaskWidth(t){
   const contentW=Math.max(titleW, maxSubW, timeLabelW, objW, maxNoteW);
   return Math.max(MIN_BLOCK_WIDTH, Math.ceil(contentW));
 }
+/* ПРАВКА №6: подзадачи теперь с новыми квадратными чекбоксами (markbox): зелёный ✓ = успешно, красный ✕ = неуспешно */
 function subHtml(t){
   return (t.subtasks||[]).map((s,i)=>`<div class="sub" data-si="${i}">
     <div class="subverdict">
-      <button class="vbtn success ${s.status==='success'?'active':''}" data-si="${i}" data-verdict="success" title="Успешно">✓</button>
-      <button class="vbtn failed ${s.status==='failed'?'active':''}" data-si="${i}" data-verdict="failed" title="Отрицательный исход">✕</button>
+      <button class="markbox success ${s.status==='success'?'active':''}" data-si="${i}" data-verdict="success" title="Успешно">✓</button>
+      <button class="markbox failed ${s.status==='failed'?'active':''}" data-si="${i}" data-verdict="failed" title="Не выполнено">✕</button>
     </div>
     <span class="subtext ${s.status||''}" title="${esc(s.title)}">${esc(s.title)}</span>
     <span class="subnoteicon ${s.resultNote?'has':''}" title="${s.resultNote?esc(s.resultNote):'Нет заметки'}">📝</span>
@@ -969,7 +980,7 @@ function bindClients(d){
   const headToggle=$('clientsHeadToggle');
   if(headToggle){
     headToggle.onclick=e=>{
-      if(!isMobileLayout())return;
+      /* ПРАВКА №3: убран запрет isMobileLayout() — стрелка сворачивания работает и на десктопе */
       if(e.target.closest('.clientscount'))return;
       state.clientsCollapsed=!state.clientsCollapsed;
       wrap.classList.toggle('collapsed',state.clientsCollapsed);
@@ -1023,6 +1034,49 @@ function renderClientsBlock(d){
   const freshInput=$('clientAddInput');if(freshInput)freshInput.focus();
 }
 
+/* ПРАВКА №2: единая шапка любого представления: слева контекстный заголовок, справа День/Неделя/Месяц + ‹ Сегодня › */
+function viewHeadHtml(leftHtml){
+  return `<div class="dayhead">
+    <div class="dayheadleft">${leftHtml}</div>
+    <div class="dayheadright">
+      <div class="viewtabs">
+        <button data-view="day" class="${state.view==='day'?'sel':''}">День</button>
+        <button data-view="week" class="${state.view==='week'?'sel':''}">Неделя</button>
+        <button data-view="month" class="${state.view==='month'?'sel':''}">Месяц</button>
+      </div>
+      <button class="iconbtn" id="prev">‹</button>
+      <button class="iconbtn midbtn" id="todayBtn">Сегодня</button>
+      <button class="iconbtn" id="next">›</button>
+    </div>
+  </div>`;
+}
+/* ПРАВКА №2.1: слева день недели полностью + дата в формате ДД.ММ.ГГГГ («Вторник 26.08.2026») */
+function dayLeftTitle(d){
+  return `<span class="datebig">${ruDFull[d.getDay()]} ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}</span>`;
+}
+function bindViewHead(){
+  document.querySelectorAll('.viewtabs button').forEach(b=>b.onclick=()=>{
+    if(state.view===b.dataset.view)return;
+    state.view=b.dataset.view;setTabs();
+    __widthOverrides={};delete window.__realHeights;
+    render();
+  });
+  const p=$('prev'),n=$('next'),tb=$('todayBtn');
+  if(p)p.onclick=()=>goStep(-1);
+  if(n)n.onclick=()=>goStep(1);
+  if(tb)tb.onclick=()=>$('navToday').click();
+}
+function goStep(dir){
+  __widthOverrides={};delete window.__realHeights;
+  if(state.view==='day')state.date.setDate(state.date.getDate()+dir);
+  else if(state.view==='week')state.date.setDate(state.date.getDate()+7*dir);
+  else{
+    if(isMobileLayout()){state.pickerYear+=dir;renderMonthPicker();return}
+    state.date.setMonth(state.date.getMonth()+dir);
+  }
+  render();
+}
+
 function buildDayHtml(d){
   const ts=tasksFor(d);
   const done=ts.filter(t=>t.done).length,pct=ts.length?Math.round(done/ts.length*100):0;
@@ -1062,8 +1116,8 @@ function buildDayHtml(d){
   </div>`;
   let clientsHtml=buildClientsHtml(d);
   let noTimeHtml=noTime.length?`<div class="notime"><div class="notimelabel">Без времени</div>${noTime.map(t=>taskHtmlPlain(t)).join('')}</div>`:'';
-  return {html:`<div class="dayhead"><div class="dayheadleft"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div><button class="daytodaybtn" id="dayTodayBtn">Сегодня</button></div>
-    ${progress}${clientsHtml}${noTimeHtml}
+  /* ПРАВКА №2: из buildDayHtml удалён старый dayhead (шапка теперь единая, добавляется в renderDay) */
+  return {html:`${progress}${clientsHtml}${noTimeHtml}
     <div class="timeline" style="height:${totalHeight}px">
       <div class="gridlines" style="min-width:${maxRight+83}px">${gridHtml}</div>
       <div class="taskslayer" style="width:${maxRight+8}px">${blocksHtml}</div>
@@ -1083,18 +1137,17 @@ function renderDay(){
   if(isMobileLayout()){
     const mobileBuilt=buildMobileDayListHtml(d);
     activeBuilt=mobileBuilt;
-    $('content').innerHTML=`<div class="dayhead"><div class="dayheadleft"><span class="weekday">${ruD[d.getDay()]}</span><span class="datebig">${fmt(d)}</span></div><button class="daytodaybtn" id="dayTodayBtn">Сегодня</button></div>${mobileBuilt.html}`;
+    /* ПРАВКА №2: единая шапка с полной датой и кнопками */
+    $('content').innerHTML=viewHeadHtml(dayLeftTitle(d))+mobileBuilt.html;
     bindMobileDayList(d);
     bindClients(d);
-    const dtb=$('dayTodayBtn');
-    if(dtb)dtb.onclick=()=>$('navToday').click();
   } else {
-    $('content').innerHTML=built.html;
+    $('content').innerHTML=viewHeadHtml(dayLeftTitle(d))+built.html;
     bindTasks();
     bindClients(d);
     fixupActualSizes(d);
-    const dtb=$('dayTodayBtn');
-    if(dtb)dtb.onclick=()=>$('navToday').click();
+    /* ПРАВКА №4: drag&drop задач мышкой снова включается после КАЖДОГО рендера дня (раньше вызывался только при изменении ширин — поэтому «пропал») */
+    enableTaskDrag();
   }
   const newFill=$('dayProgressFill');
   if(newFill && oldWidthPx!==null){
@@ -1188,14 +1241,15 @@ function renderWeek(){
   $('pageTitle').textContent=`Неделя ${ds[0].getDate()}–${ds[6].getDate()}`;
 
   if(isMobileLayout()){
-    $('content').innerHTML=buildMobileWeekListHtml();
+    /* ПРАВКА №2: единая шапка и в недельном виде */
+    $('content').innerHTML=viewHeadHtml(`<span class="datebig">Неделя ${ds[0].getDate()} ${ruMShort[ds[0].getMonth()]} — ${ds[6].getDate()} ${ruMShort[ds[6].getMonth()]}</span>`)+buildMobileWeekListHtml();
     bindMobileWeekList();
     return;
   }
 
   let h='<div class="weekgrid"><div class="whead"></div>'+ds.map(dd=>`<div class="whead">${ruD[dd.getDay()]}<br>${dd.getDate()}</div>`).join('');
   for(let hr=7;hr<=21;hr++){h+=`<div class="wtime">${pad(hr)}:00</div>`;for(let dd of ds){let a=tasksFor(dd).filter(t=>timeMin(t.time)===hr*60);h+=`<div class="wslot" data-date="${iso(dd)}" data-hour="${hr}">${a.map(t=>`<div class="wtask ${t.done?'done':''}" data-id="${t.id}">${esc(timeLabel(t))} ${esc(t.title)}</div>`).join('')}</div>`}}
-  $('content').innerHTML=h+'</div>';
+  $('content').innerHTML=viewHeadHtml(`<span class="datebig">Неделя ${ds[0].getDate()} ${ruMShort[ds[0].getMonth()]} — ${ds[6].getDate()} ${ruMShort[ds[6].getMonth()]}</span>`)+h+'</div>';
   document.querySelectorAll('.wslot').forEach(x=>x.onclick=e=>{let t=e.target.closest('.wtask');t?openModal(t.dataset.id):openModal(null,x.dataset.date,pad(+x.dataset.hour)+':00')});
 }
 
@@ -1203,10 +1257,17 @@ function renderMonth(){
   let d=state.date,y=d.getFullYear(),m=d.getMonth(),f=new Date(y,m,1),st=new Date(f);st.setDate(1-(f.getDay()+6)%7);
   let h='<div class="monthgrid">'+['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(x=>`<div class="dow">${x}</div>`).join('');
   for(let i=0;i<42;i++){let x=new Date(st);x.setDate(st.getDate()+i);let a=tasksFor(x);h+=`<div class="mcell ${x.getMonth()!=m?'other':''} ${iso(x)==iso(new Date())?'today':''}" data-date="${iso(x)}"><div class="mnum">${x.getDate()}</div>${a.slice(0,4).map(t=>`<div class="mdot ${t.done?'done':''}">${timeLabel(t)?esc(timeLabel(t))+' ':''}${esc(t.title)}</div>`).join('')}</div>`}
-  $('pageTitle').textContent=`${['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m]} ${y}`;
-  $('content').innerHTML=h+'</div>';
+  const monthName=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m];
+  $('pageTitle').textContent=`${monthName} ${y}`;
+  /* ПРАВКА №2: единая шапка и в месячном виде (десктоп) */
+  $('content').innerHTML=viewHeadHtml(`<span class="datebig">${monthName} ${y}</span>`)+h+'</div>';
   document.querySelectorAll('.mcell').forEach(x=>x.onclick=()=>{state.date=parse(x.dataset.date);state.view='day';setTabs();render()});
 }
+
+/* ================== МОБИЛЬНЫЙ СПИСОК ДНЯ ==================
+   ПРАВКА №5: задачи с подзадачами раскрываются тапом (аккордеон), у каждой строки есть кнопка ✎ для редактирования
+   ПРАВКА №4 (мобайл): длительное нажатие на задачу со временем = перенос времени пальцем (аналог drag&drop) */
+const __mobileExpanded=new Set();
 
 function buildMobileDayListHtml(d){
   const allTs=tasksFor(d);
@@ -1227,10 +1288,21 @@ function buildMobileDayListHtml(d){
     ? '<div class="notime"><div class="notimelabel">На этот день пока нет задач</div></div>'
     : '<div class="mobiledaylist">'+ts.map(t=>{
         const timeStr=t.time?esc(t.time):'—';
-        return `<div class="mobiledayrow ${t.done?'done':''}" data-id="${t.id}">
+        const hasSubs=(t.subtasks||[]).length>0;
+        const subsHtml=hasSubs?`<div class="msubs">${t.subtasks.map((s,si)=>`
+          <div class="msubrow ${s.status==='success'?'doneSub':s.status==='failed'?'failedSub':''}">
+            <button class="markbox success ${s.status==='success'?'active':''}" data-mid="${t.id}" data-msi="${si}" data-verdict="success" title="Успешно">✓</button>
+            <button class="markbox failed ${s.status==='failed'?'active':''}" data-mid="${t.id}" data-msi="${si}" data-verdict="failed" title="Не выполнено">✕</button>
+            <span class="mstitle">${esc(s.title)}</span>
+            <span class="subnoteicon ${s.resultNote?'has':''}" data-mid="${t.id}" data-msi="${si}" title="${s.resultNote?esc(s.resultNote):'Нет заметки'}">📝</span>
+          </div>`).join('')}</div>`:'';
+        return `<div class="mobiledayrow ${t.done?'done':''} ${__mobileExpanded.has(t.id)?'expanded':''}" data-id="${t.id}">
           <div class="mobiledaycheck ${t.done?'on':''}" data-check="${t.id}"></div>
           <div class="mobiledaytime">${timeStr}</div>
           <div class="mobiledaytitle" title="${esc(t.title)}">${esc(t.title)}</div>
+          ${hasSubs?'<span class="msubarrow">▸</span>':''}
+          <button class="mobileeditbtn" data-edit="${t.id}" title="Редактировать">✎</button>
+          ${subsHtml}
         </div>`;
       }).join('')+'</div>';
   return {html:progress+clientsHtml+listHtml, isComplete, pct};
@@ -1239,9 +1311,111 @@ function buildMobileDayListHtml(d){
 function bindMobileDayList(d){
   document.querySelectorAll('.mobiledayrow').forEach(row=>{
     const id=row.dataset.id;
+    /* ПРАВКА №4 (мобайл): long-press перенос времени */
+    let lpTimer=null,lpActive=false,lpStartY=0,badge=null;
+    const t0=data.tasks.find(x=>x.id===id);
+    const origStart=t0&&t0.time?timeMin(t0.time):null;
+    const dur=(t0&&t0.endTime)?(timeMin(t0.endTime)-timeMin(t0.time)):null;
+    const clearLp=()=>{clearTimeout(lpTimer);lpTimer=null};
+    const removeBadge=()=>{if(badge){badge.remove();badge=null}};
+    const fmtMin=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
+    row.addEventListener('touchstart',e=>{
+      clearLp();lpActive=false;
+      if(e.target.closest('[data-check],[data-edit],.markbox,.subnoteicon'))return;
+      if(origStart===null)return;
+      lpStartY=e.touches[0].clientY;
+      const tid=row.dataset.id;
+      lpTimer=setTimeout(()=>{
+        lpActive=true;
+        row.classList.add('timeshifting');
+        if(navigator.vibrate)navigator.vibrate(30);
+        badge=document.createElement('div');
+        badge.className='timedragbadge';
+        badge.textContent=fmtMin(origStart);
+        document.body.appendChild(badge);
+      },450);
+    },{passive:true});
+    row.addEventListener('touchmove',e=>{
+      if(lpActive){
+        e.preventDefault();
+        if(badge){
+          badge.style.left=(e.touches[0].clientX+14)+'px';
+          badge.style.top=(e.touches[0].clientY-40)+'px';
+        }
+        const tt=data.tasks.find(x=>x.id===row.dataset.id);
+        if(tt&&tt.time){
+          const delta=Math.round((lpStartY-e.touches[0].clientY)/22)*STEP;
+          let nm=Math.max(DAY_START,Math.min(DAY_END,origStart+delta));
+          tt._pendingMin=nm;
+          if(badge)badge.textContent=dur!==null?`${fmtMin(nm)}–${fmtMin(nm+dur)}`:fmtMin(nm);
+        }
+      }else if(Math.abs(e.touches[0].clientY-lpStartY)>10){clearLp()}
+    },{passive:false});
+    const finishTouch=e=>{
+      clearLp();
+      if(lpActive){
+        if(e.cancelable)e.preventDefault();
+        lpActive=false;
+        row.classList.remove('timeshifting');
+        removeBadge();
+        const tt=data.tasks.find(x=>x.id===row.dataset.id);
+        if(tt&&tt._pendingMin!=null){
+          const ns=tt._pendingMin;delete tt._pendingMin;
+          tt.time=fmtMin(ns);
+          if(dur!==null)tt.endTime=fmtMin(ns+dur);
+          save();toast(`Перенесено на ${tt.time}`);
+          render();
+        }
+      }
+    };
+    row.addEventListener('touchend',finishTouch,{passive:false});
+    row.addEventListener('touchcancel',finishTouch,{passive:false});
+
     row.addEventListener('click',e=>{
-      if(e.target.closest('[data-check]'))return;
+      if(lpActive)return;
+      if(e.target.closest('[data-check],[data-edit],.markbox,.subnoteicon'))return;
+      const t=data.tasks.find(x=>x.id===id);
+      /* ПРАВКА №5: тап по задаче с подзадачами — раскрыть/свернуть аккордеон; без подзадач — как раньше открыть модалку */
+      if(t&&(t.subtasks||[]).length){
+        if(__mobileExpanded.has(id))__mobileExpanded.delete(id);else __mobileExpanded.add(id);
+        row.classList.toggle('expanded');
+        return;
+      }
       openModal(id);
+    });
+  });
+  document.querySelectorAll('.mobiledayrow [data-edit]').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();openModal(btn.dataset.edit)});
+  });
+  /* ПРАВКА №6: те же квадратные чекбоксы (зелёный ✓ / красный ✕) работают и в мобильном аккордеоне */
+  document.querySelectorAll('.mobiledayrow .markbox').forEach(mb=>{
+    mb.addEventListener('click',e=>{
+      e.stopPropagation();
+      const t=data.tasks.find(x=>x.id===mb.dataset.mid);
+      if(!t)return;
+      const si=+mb.dataset.msi;
+      const sub=t.subtasks[si];
+      const v=mb.dataset.verdict;
+      const wasSet=sub.status===v;
+      sub.status=wasSet?'pending':v;
+      mb.classList.toggle('active',sub.status===v);
+      const mrow=mb.closest('.msubrow');
+      if(mrow){
+        mrow.classList.toggle('doneSub',sub.status==='success');
+        mrow.classList.toggle('failedSub',sub.status==='failed');
+      }
+      if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
+      const wasDone=t.done;
+      recomputeDone(t);save();
+      if(!wasDone&&t.done){setTimeout(()=>{render()},600)}
+    });
+  });
+  document.querySelectorAll('.mobiledayrow .subnoteicon').forEach(ic=>{
+    ic.addEventListener('click',e=>{
+      e.stopPropagation();
+      const t=data.tasks.find(x=>x.id===ic.dataset.mid);
+      if(!t)return;
+      openSubtaskNotePopup(ic,t,+ic.dataset.msi);
     });
   });
   document.querySelectorAll('[data-check]').forEach(box=>{
@@ -1280,26 +1454,27 @@ function bindMobileDayList(d){
   });
 }
 
+/* ПРАВКА №1: свайп-навигация перевешана на весь .main (раньше слушался только #content — половина экрана сверху не реагировала),
+   увеличена краевая зона, снят запрет для вкладки «Месяц»: свайп от левого края открывает разделы в любом виде, включая «Месяц» */
 let swipeStartX=null,swipeStartY=null,swipeActive=false;
 const SWIPE_THRESHOLD=60,SWIPE_MAX_VERTICAL=70;
-
-const EDGE_ZONE=24;
+const EDGE_ZONE=40;
 let swipeFromEdge=false;
 
 function attachSwipeNav(){
-  const content=$('content');
-  if(!content||content.__swipeBound)return;
-  content.__swipeBound=true;
-  content.addEventListener('touchstart',e=>{
+  const main=document.querySelector('.main');
+  if(!main||main.__swipeBound)return;
+  main.__swipeBound=true;
+  main.addEventListener('touchstart',e=>{
     if(!isMobileLayout())return;
-    if(state.view!=='day'&&state.view!=='week')return;
     if(e.touches.length!==1)return;
+    if(e.target.closest('input,textarea,select'))return;
     swipeStartX=e.touches[0].clientX;
     swipeStartY=e.touches[0].clientY;
     swipeFromEdge=swipeStartX<=EDGE_ZONE;
     swipeActive=true;
   },{passive:true});
-  content.addEventListener('touchend',e=>{
+  main.addEventListener('touchend',e=>{
     if(!swipeActive)return;
     swipeActive=false;
     if(swipeStartX===null)return;
@@ -1314,6 +1489,8 @@ function attachSwipeNav(){
       backToMobileSections();
       return;
     }
+    /* ПРАВКА №1: листание дат работает для «День» и «Неделя»; на «Месяце»(пикере) горизонтальный листание handled самим пикером (год) */
+    if(state.view!=='day'&&state.view!=='week')return;
     const nd=new Date(state.date);
     const step=state.view==='week'?7:1;
     nd.setDate(nd.getDate()+(dx<0?step:-step));
@@ -1423,7 +1600,8 @@ function bindMonthPicker(){
 
 function renderMonthPicker(){
   $('pageTitle').textContent='Выбор месяца';
-  $('content').innerHTML=buildMonthPickerHtml();
+  /* ПРАВКА №2: единая шапка и в выборе месяца */
+  $('content').innerHTML=viewHeadHtml('<span class="datebig">Выбор месяца</span>')+buildMonthPickerHtml();
   bindMonthPicker();
 }
 
@@ -1502,6 +1680,8 @@ function render(){
   else if(isMobileLayout())renderMonthPicker();
   else renderMonth();
   renderSidebarPending();
+  /* ПРАВКА №2: биндинг кнопок шапки после каждого рендера (элементы пересоздаются) */
+  bindViewHead();
 }
 
 function renderSidebarPending(){
@@ -1588,7 +1768,7 @@ function bindTasks(){
   document.querySelectorAll('.task,.taskblock').forEach(el=>{
     let t=data.tasks.find(x=>x.id===el.dataset.id);if(!t)return;
     el.querySelector('.check').onclick=e=>{
-      e.stopPropagation();const willBeDone=!t.done;t.done=willBeDone;save();
+      e.stopPropagation();const willBeDone=!t.done;t.done=willBeOnSafe(t,willBeDone);save();
       if(willBeDone)celebrateTask(el);
       renderSidebarPending();
       __widthOverrides={};delete window.__realHeights;
@@ -1617,7 +1797,8 @@ function bindTasks(){
         openSubtaskNotePopup(icon, t, idx);
       });
     });
-    el.querySelectorAll('.vbtn').forEach(btn=>{
+    /* ПРАВКА №6: селекторы vbtn заменены на markbox (новые чекбоксы), логика та же */
+    el.querySelectorAll('.markbox').forEach(btn=>{
       btn.onclick=e=>{
         e.stopPropagation();
         const si=+btn.dataset.si;
@@ -1627,8 +1808,8 @@ function bindTasks(){
         sub.status=wasSet?'pending':verdict;
 
         const subRow=btn.closest('.sub');
-        const successBtn=subRow?subRow.querySelector('.vbtn.success'):null;
-        const failedBtn=subRow?subRow.querySelector('.vbtn.failed'):null;
+        const successBtn=subRow?subRow.querySelector('.markbox.success'):null;
+        const failedBtn=subRow?subRow.querySelector('.markbox.failed'):null;
         const subtextEl=subRow?subRow.querySelector('.subtext'):null;
 
         if(successBtn)successBtn.classList.toggle('active', sub.status==='success');
@@ -1669,8 +1850,11 @@ function bindTasks(){
     });
   });
 }
+/* ПРАВКА №6: вспомогательная функция безопасного переключения done */
+function willBeOnSafe(t,val){return val}
 
 /* ================== ШАБЛОНЫ ================== */
+/* ПРАВКА №4: drag&drop задач мышкой (логика прежняя, проблема была в отсутствии вызова — теперь вызывается в renderDay) */
 function enableTaskDrag(){
   const layer=document.querySelector('.taskslayer');
   if(!layer)return;
@@ -1679,7 +1863,7 @@ function enableTaskDrag(){
     const t=data.tasks.find(x=>x.id===id);
     if(!t||!t.time)return;
     el.addEventListener('mousedown',e=>{
-      if(e.target.closest('.check,.vbtn,.subnoteicon,.addsub,.subaddform,[data-action],.focusbtn'))return;
+      if(e.target.closest('.check,.vbtn,.markbox,.subnoteicon,.addsub,.subaddform,[data-action],.focusbtn'))return;
       e.preventDefault();
       const startY=e.clientY;
       const startTop=parseFloat(el.style.top);
@@ -1777,9 +1961,9 @@ function renderTplList(){
     };
   });
 }
-$('tplCloseBtn').onclick=closeTplModal;
-$('tplOverlay').onclick=e=>{if(e.target===$('tplOverlay'))closeTplModal()};
-$('tplSaveBtn').onclick=()=>{
+ $('tplCloseBtn').onclick=closeTplModal;
+ $('tplOverlay').onclick=e=>{if(e.target===$('tplOverlay'))closeTplModal()};
+ $('tplSaveBtn').onclick=()=>{
   const code=$('tCode').value.trim();
   const name=$('tName').value.trim();
   if(!code||!name){toast('Заполните код и название шаблона');return}
@@ -1807,11 +1991,11 @@ function updateRecurPreview(){
 document.querySelectorAll('.daypill').forEach(p=>{
   p.onclick=()=>{const d=+p.dataset.d;if(state.recurDays.includes(d))state.recurDays=state.recurDays.filter(x=>x!==d);else state.recurDays.push(d);updateRecurUI()};
 });
-$('recurWorkdaysBtn').onclick=()=>{state.recurDays=[1,2,3,4,5];updateRecurUI()};
-$('recurWeekendBtn').onclick=()=>{state.recurDays=[6,0];updateRecurUI()};
-$('recurAllBtn').onclick=()=>{state.recurDays=[1,2,3,4,5,6,0];updateRecurUI()};
-$('recurClearBtn').onclick=()=>{state.recurDays=[];updateRecurUI()};
-$('fWeeks').onchange=updateRecurPreview;
+ $('recurWorkdaysBtn').onclick=()=>{state.recurDays=[1,2,3,4,5];updateRecurUI()};
+ $('recurWeekendBtn').onclick=()=>{state.recurDays=[6,0];updateRecurUI()};
+ $('recurAllBtn').onclick=()=>{state.recurDays=[1,2,3,4,5,6,0];updateRecurUI()};
+ $('recurClearBtn').onclick=()=>{state.recurDays=[];updateRecurUI()};
+ $('fWeeks').onchange=updateRecurPreview;
 
 function createRecurringCopies(baseTask, days, weeks, seriesId){
   const startDate=parse(baseTask.date);
@@ -1890,8 +2074,8 @@ document.addEventListener('keydown',e=>{
 
 const focus={taskId:null,totalSec:25*60,remainingSec:25*60,running:false,timer:null,phase:'work'};
 const RING_R=105, RING_C=2*Math.PI*RING_R;
-$('focusRingProgress').style.strokeDasharray=RING_C;
-$('focusMiniFill').style.strokeDasharray=2*Math.PI*26;
+ $('focusRingProgress').style.strokeDasharray=RING_C;
+ $('focusMiniFill').style.strokeDasharray=2*Math.PI*26;
 function focusTaskObj(){return data.tasks.find(x=>x.id===focus.taskId)}
 function openFocusFor(id){
   focus.taskId=id;const t=focusTaskObj();
@@ -1904,8 +2088,8 @@ function minimizeFocus(){
   $('focusOverlay').classList.remove('active');
   if(focus.running||focus.remainingSec<focus.totalSec){$('focusToggleBtn').classList.remove('hidden-btn');$('focusMiniProgress').style.display='block';updateMiniRing()}
 }
-$('focusMinimize').onclick=minimizeFocus;
-$('focusToggleBtn').onclick=()=>{$('focusOverlay').classList.add('active');$('focusToggleBtn').classList.add('hidden-btn')};
+ $('focusMinimize').onclick=minimizeFocus;
+ $('focusToggleBtn').onclick=()=>{$('focusOverlay').classList.add('active');$('focusToggleBtn').classList.add('hidden-btn')};
 function setFocusDuration(minutes,resetPhase){
   stopFocusTimer();focus.totalSec=minutes*60;focus.remainingSec=minutes*60;if(resetPhase)focus.phase='work';
   updateFocusDisplay();renderFocusRing();$('focusMainBtn').textContent='▶';$('focusMainBtn').classList.remove('running');
@@ -1913,9 +2097,9 @@ function setFocusDuration(minutes,resetPhase){
 document.querySelectorAll('.focuspresetchip[data-min]').forEach(chip=>{
   chip.onclick=()=>{document.querySelectorAll('.focuspresetchip').forEach(c=>c.classList.remove('active'));chip.classList.add('active');$('focusCustomRow').classList.remove('show');setFocusDuration(+chip.dataset.min,true)};
 });
-$('focusCustomChip').onclick=()=>{document.querySelectorAll('.focuspresetchip').forEach(c=>c.classList.remove('active'));$('focusCustomChip').classList.add('active');$('focusCustomRow').classList.add('show');$('focusCustomInput').focus()};
-$('focusCustomApply').onclick=applyCustomDuration;
-$('focusCustomInput').onkeydown=e=>{if(e.key==='Enter')applyCustomDuration()};
+ $('focusCustomChip').onclick=()=>{document.querySelectorAll('.focuspresetchip').forEach(c=>c.classList.remove('active'));$('focusCustomChip').classList.add('active');$('focusCustomRow').classList.add('show');$('focusCustomInput').focus()};
+ $('focusCustomApply').onclick=applyCustomDuration;
+ $('focusCustomInput').onkeydown=e=>{if(e.key==='Enter')applyCustomDuration()};
 function applyCustomDuration(){const v=Math.round(+$('focusCustomInput').value);if(!v||v<1){toast('Введите число минут больше 0');return}const clamped=Math.min(480,v);setFocusDuration(clamped,true);toast(`Установлено: ${clamped} мин`)}
 function updateFocusDisplay(){
   const m=Math.floor(focus.remainingSec/60),s=focus.remainingSec%60;const el=$('focusTimeDisplay');
@@ -1930,15 +2114,15 @@ function renderFocusRing(){
 function updateMiniRing(){const c=2*Math.PI*26;const frac=1-(focus.remainingSec/focus.totalSec);$('focusMiniFill').style.strokeDashoffset=c*(1-frac);$('focusMiniProgress').style.display=(focus.running||focus.remainingSec<focus.totalSec)?'block':'none'}
 function updateFocusStats(){const t=focusTaskObj();$('focusStatSessions').textContent=t?(t.focusSessions||0):0;$('focusStatMinutes').textContent=t?(t.focusMinutes||0):0}
 function stopFocusTimer(){clearInterval(focus.timer);focus.timer=null;focus.running=false}
-$('focusMainBtn').onclick=()=>{
+ $('focusMainBtn').onclick=()=>{
   if(focus.running){stopFocusTimer();$('focusMainBtn').textContent='▶';$('focusMainBtn').classList.remove('running');$('focusRingWrap').classList.remove('pulsing')}
   else{
     focus.running=true;$('focusMainBtn').textContent='❚❚';$('focusMainBtn').classList.add('running');$('focusRingWrap').classList.add('pulsing');
     focus.timer=setInterval(()=>{focus.remainingSec--;updateFocusDisplay();renderFocusRing();if(focus.remainingSec<=0)onFocusPhaseEnd()},1000);
   }
 };
-$('focusResetBtn').onclick=()=>{const activeChip=document.querySelector('.focuspresetchip.active');const minutes=activeChip&&activeChip.dataset.min?+activeChip.dataset.min:Math.round(focus.totalSec/60);setFocusDuration(minutes,false)};
-$('focusSkipBtn').onclick=()=>{stopFocusTimer();onFocusPhaseEnd(true)};
+ $('focusResetBtn').onclick=()=>{const activeChip=document.querySelector('.focuspresetchip.active');const minutes=activeChip&&activeChip.dataset.min?+activeChip.dataset.min:Math.round(focus.totalSec/60);setFocusDuration(minutes,false)};
+ $('focusSkipBtn').onclick=()=>{stopFocusTimer();onFocusPhaseEnd(true)};
 function onFocusPhaseEnd(skipped){
   stopFocusTimer();
   if(focus.phase==='work'){
@@ -2038,19 +2222,19 @@ function quick(){
   toast(`Добавлено: «${title}»${tlabel?', '+tlabel:''} (${when})${template?' · шаблон '+template.code:''}`);
   state.date=parse(date);state.view='day';setTabs();render();
 }
-$('quickAddBtn').onclick=quick;
-$('quickInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quick()}});
-$('addBtn').onclick=()=>openModal();
-$('cancelBtn').onclick=closeModal;
-$('saveBtn').onclick=saveModal;
-$('deleteBtn').onclick=()=>{
+ $('quickAddBtn').onclick=quick;
+ $('quickInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quick()}});
+ $('addBtn').onclick=()=>openModal();
+ $('cancelBtn').onclick=closeModal;
+ $('saveBtn').onclick=saveModal;
+ $('deleteBtn').onclick=()=>{
   if(state.editing){
     delete __widthOverrides[state.editing];
     data.tasks=data.tasks.filter(x=>x.id!==state.editing);
     delete window.__realHeights;save();closeModal();render();
   }
 };
-$('deleteSeriesBtn').onclick=()=>{
+ $('deleteSeriesBtn').onclick=()=>{
   if(!state.editing)return;
   const t=data.tasks.find(x=>x.id===state.editing);
   if(!t||!t.seriesId)return;
@@ -2065,12 +2249,9 @@ $('deleteSeriesBtn').onclick=()=>{
   render();
   toast(`Удалено ${count} задач(и) серии`);
 };
-document.querySelectorAll('.viewtabs button').forEach(b=>b.onclick=()=>{state.view=b.dataset.view;setTabs();render()});
-$('navToday').onclick=()=>{state.date=new Date();state.view='day';setTabs();render()};
-$('navCalendar').onclick=()=>{state.view='month';setTabs();render()};
-$('todayBtn').onclick=()=>$('navToday').click();
-$('prev').onclick=()=>{__widthOverrides={};delete window.__realHeights;if(state.view==='day')state.date.setDate(state.date.getDate()-1);else if(state.view==='week')state.date.setDate(state.date.getDate()-7);else state.date.setMonth(state.date.getMonth()-1);render()};
-$('next').onclick=()=>{__widthOverrides={};delete window.__realHeights;if(state.view==='day')state.date.setDate(state.date.getDate()+1);else if(state.view==='week')state.date.setDate(state.date.getDate()+7);else state.date.setMonth(state.date.getMonth()+1);render()};
+/* ПРАВКА №2: старые одиночные биндинги viewtabs/prev/next/todayBtn удалены — теперь всё живёт в шапке представлений (bindViewHead) */
+ $('navToday').onclick=()=>{state.date=new Date();state.view='day';setTabs();render()};
+ $('navCalendar').onclick=()=>{state.view='month';setTabs();render()};
 renderQuickTplBar();
 render();
 attachSwipeNav();
@@ -2124,9 +2305,9 @@ function importBackup(file){
   reader.readAsText(file);
 }
 
-$('exportBtn').onclick=exportBackup;
-$('importBtn').onclick=()=>$('importFileInput').click();
-$('importFileInput').addEventListener('change',e=>{
+ $('exportBtn').onclick=exportBackup;
+ $('importBtn').onclick=()=>$('importFileInput').click();
+ $('importFileInput').addEventListener('change',e=>{
   const file=e.target.files[0];
   if(file)importBackup(file);
   e.target.value='';
