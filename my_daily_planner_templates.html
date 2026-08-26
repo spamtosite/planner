@@ -457,6 +457,68 @@ body{
     touch-action:manipulation;
   }
 }
+/* Патч №49: синий сайдбар и светлая рабочая область */
+html,
+body{
+  background:#111827;
+}
+
+.app{
+  background:var(--bg);
+}
+
+.main{
+  background:var(--bg);
+  color:var(--text);
+}
+
+.main .top,
+.main .quickadd,
+.main .quickhint,
+.main .content{
+  background:var(--bg);
+}
+
+.main .top{
+  border-bottom-color:var(--line);
+}
+
+@media(max-width:800px){
+  .sidebar{
+    background:#111827;
+  }
+
+  .main{
+    background:var(--bg);
+  }
+
+  .main .top,
+  .main .quickadd,
+  .main .quickhint,
+  .main .content{
+    background:var(--bg);
+  }
+}
+@supports(padding:env(safe-area-inset-top)){
+  html,
+  body{
+    background:#111827;
+  }
+
+  .app{
+    min-height:100%;
+    background:var(--bg);
+  }
+
+  .sidebar{
+    padding-top:max(18px, env(safe-area-inset-top));
+    padding-bottom:max(18px, env(safe-area-inset-bottom));
+  }
+
+  .main{
+    background:var(--bg);
+  }
+}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты <span class="navclientsarrow">▾</span></button></div>
 <div class="clientfolders" id="clientFoldersWrap"></div><div class="sidebarpending" id="sidebarPending"></div>
@@ -1359,33 +1421,47 @@ const EDGE_ZONE=24;
 let swipeFromEdge=false;
 
 function attachSwipeNav(){
-  const content=$('content');
-  if(!content||content.__swipeBound)return;
-  content.__swipeBound=true;
-  content.addEventListener('touchstart',e=>{
+  const app=document.querySelector('.app');
+  if(!app||app.__swipeBound)return;
+
+  app.__swipeBound=true;
+
+  app.addEventListener('touchstart',e=>{
     if(!isMobileLayout())return;
-    if(state.view!=='day'&&state.view!=='week')return;
     if(e.touches.length!==1)return;
+
     swipeStartX=e.touches[0].clientX;
     swipeStartY=e.touches[0].clientY;
-    swipeFromEdge=swipeStartX<=EDGE_ZONE;
+    swipeFromEdge=swipeStartX<=window.innerWidth*0.12;
     swipeActive=true;
   },{passive:true});
-  content.addEventListener('touchend',e=>{
+
+  app.addEventListener('touchend',e=>{
     if(!swipeActive)return;
+
     swipeActive=false;
     if(swipeStartX===null)return;
+
     const endX=e.changedTouches[0].clientX;
     const endY=e.changedTouches[0].clientY;
-    const dx=endX-swipeStartX,dy=endY-swipeStartY;
+    const dx=endX-swipeStartX;
+    const dy=endY-swipeStartY;
     const wasFromEdge=swipeFromEdge;
-    swipeStartX=null;swipeStartY=null;swipeFromEdge=false;
+
+    swipeStartX=null;
+    swipeStartY=null;
+    swipeFromEdge=false;
+
     if(Math.abs(dy)>SWIPE_MAX_VERTICAL)return;
     if(Math.abs(dx)<SWIPE_THRESHOLD)return;
+
     if(wasFromEdge&&dx>0){
       backToMobileSections();
       return;
     }
+
+    if(state.view!=='day'&&state.view!=='week')return;
+
     const nd=new Date(state.date);
     const step=state.view==='week'?7:1;
     nd.setDate(nd.getDate()+(dx<0?step:-step));
