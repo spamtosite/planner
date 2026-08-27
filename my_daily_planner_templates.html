@@ -1443,9 +1443,12 @@ function fallbackCopy(s,done){
   try{document.execCommand('copy');done()}catch(e){}
   ta.remove();
 }
-/* vCard: кнопка «В контакты» (iOS/Android открывают .vcf в приложении Контакты) */
+/* ПРАВКА №17.4: vCard с единым полем имени — iPhone не режет на Имя/Фамилию и не показывает «без имени».
+   N:;Имя;;; — всё имя кладётся в одно поле (family-часть пустая), X-PHONETIC-поля не задаются */
 function downloadVCard(fullName,phoneDigits){
-  const v=['BEGIN:VCARD','VERSION:3.0','FN:'+fullName,'TEL;TYPE=CELL:+7'+phoneDigits,'END:VCARD'].join('\r\n');
+  const escV=s=>String(s).replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
+  const name=escV(fullName);
+  const v=['BEGIN:VCARD','VERSION:3.0','N:;'+name+';;;','FN:'+name,'TEL;TYPE=CELL:+7'+phoneDigits,'END:VCARD'].join('\r\n');
   const blob=new Blob([v],{type:'text/vcard;charset=utf-8'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
