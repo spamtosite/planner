@@ -59,8 +59,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .taskblock.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
 @keyframes taskPop{0%{transform:scale(1)}35%{transform:scale(1.045) rotate(-.4deg)}60%{transform:scale(.985) rotate(.3deg)}100%{transform:scale(1)}}
 .taskrow{display:flex;align-items:flex-start;gap:6px;flex-wrap:nowrap;min-width:0;width:100%}
-/* ПРАВКА №6: чекбокс задачи теперь квадратный, как в «Ключевых клиентах» (галочка появляется через разметку) */
-.check{width:18px;height:18px;border:2px solid #9aa1a9;border-radius:6px;flex:0 0 auto;margin-top:1px;background:#fff;display:grid;place-items:center;color:#fff;font-size:11px;line-height:1;position:relative;transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,background .25s ease}
+/* ПРАВКА №6.2: сброшен браузерный padding у кнопки — галочка теперь по центру */
+.check{padding:0;width:18px;height:18px;border:2px solid #9aa1a9;border-radius:6px;flex:0 0 auto;margin-top:1px;background:#fff;display:grid;place-items:center;color:#fff;font-size:11px;line-height:1;position:relative;transition:transform .25s cubic-bezier(.34,1.56,.64,1),border-color .25s ease,background .25s ease}
 .check.on{border-color:var(--green);background:var(--green)}
 .taskbody{min-width:0;flex:1 1 auto;overflow:hidden}
 .tasktitle{font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -79,8 +79,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 @keyframes subtextGlowSuccess{0%{background:transparent;color:inherit}25%{background:#bbf7d0;color:#166534;border-radius:4px}100%{background:transparent;color:#166534}}
 @keyframes subtextGlowFailed{0%{background:transparent;color:inherit}25%{background:#fecaca;color:#991b1b;border-radius:4px}100%{background:transparent;color:#991b1b}}
 .subverdict{display:flex;gap:3px;flex:0 0 auto;order:-1}
-/* ПРАВКА №6.1: чекбоксы подзадач теперь в едином стиле с «Ключевыми клиентами»: пустой квадрат → зелёный с белой ✓ (успех) / красный с белой ✕ (неуспех); значок скрыт, пока чекбокс не активен */
-.markbox{width:19px;height:19px;border-radius:6px;border:2px solid #9aa1a9;display:grid;place-items:center;font-size:11px;line-height:1;color:transparent;background:#fff;flex:0 0 auto;transition:transform .28s cubic-bezier(.34,1.56,.64,1),background .28s ease,border-color .28s ease,color .28s ease}
+/* ПРАВКА №6.2: сброшен браузерный padding у кнопки — ✓/✕ по центру */
+.markbox{padding:0;width:19px;height:19px;border-radius:6px;border:2px solid #9aa1a9;display:grid;place-items:center;font-size:11px;line-height:1;color:transparent;background:#fff;flex:0 0 auto;transition:transform .28s cubic-bezier(.34,1.56,.64,1),background .28s ease,border-color .28s ease,color .28s ease}
 .markbox:hover{color:#c3c9d1}
 .markbox.success.active{background:#16a34a;border-color:#16a34a;color:#fff}
 .markbox.failed.active{background:#dc2626;border-color:#dc2626;color:#fff}
