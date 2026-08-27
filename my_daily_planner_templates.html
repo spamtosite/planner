@@ -1825,7 +1825,6 @@ function bindTasks(){
           btn.classList.add('bump');setTimeout(()=>btn.classList.remove('bump'),260);
           if(subRow){subRow.classList.remove('glow-success','glow-failed');void subRow.offsetWidth;subRow.classList.add(verdict==='success'?'glow-success':'glow-failed')}
           celebrateSubtask(btn,verdict==='success');playTick();
-          setTimeout(()=>openSubtaskNotePopup(subRow.querySelector('.subnoteicon'), t, si), 260);
         }
 
         const wasTaskDone=t.done;
