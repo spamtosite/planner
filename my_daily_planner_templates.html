@@ -398,11 +398,65 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .sidebarfolderadd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:6px;padding:6px 8px;font-size:12px}
 .sidebarfolderadd button{background:var(--accent);color:#fff;border-radius:6px;padding:6px 9px;font-size:11.5px;font-weight:600}
 /* рабочая область папки (контент) */
+/* ПРАВКА №11+15: раздел «Задачи на месяц» */
+.mgoalnav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.mgoalnav .iconbtn{padding:8px 12px}
+.mgoaladd{display:flex;gap:8px;margin-bottom:8px}
+.mgoaladd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
+.mgoalopts{display:grid;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.mgoalopts-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.mgoalopts-row .optlabel{font-size:11.5px;color:var(--muted);font-weight:700;flex:0 0 auto}
+.mgoalopts-row input[type=number]{width:70px;border:1px solid #d9dde2;border-radius:6px;padding:6px 8px}
+.mgoalopts-row input[type=text]{flex:1;min-width:120px;border:1px solid #d9dde2;border-radius:6px;padding:6px 8px}
+.mgoalopts textarea{width:100%;min-height:52px;border:1px solid #d9dde2;border-radius:6px;padding:7px 9px;font-size:12.5px;resize:vertical}
+.mgoallist{display:grid;gap:8px}
+.mgoalrow{background:#fff;border:1px solid #dfe3e8;border-radius:10px;box-shadow:0 2px 7px #0000000a;padding:10px 12px}
+.mgoalrow.done .mgoaltitle{text-decoration:line-through;opacity:.65}
+.mgoalhead{display:flex;align-items:center;gap:9px}
+.mgoaltitle{flex:1;min-width:0;font-weight:600;font-size:13.5px;word-break:break-word}
+.mgoalprogress{font-size:11.5px;color:var(--muted);font-weight:700;white-space:nowrap}
+.mgoaldel{width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;padding:0}
+.mgoaldel:hover{background:#fecaca;color:#991b1b}
+.mgoalcounters{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-left:27px}
+.mgoalcounter{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;background:#f8f9fb;border:1.5px solid var(--line);cursor:pointer;font-size:12px;font-weight:600;user-select:none;transition:background .25s ease,border-color .25s ease}
+.mgoalcounter.on{background:#ecfdf3;border-color:#16a34a}
+.mgoalcounter .mcbox{width:16px;height:16px;border-radius:5px;border:2px solid #9aa1a9;display:grid;place-items:center;font-size:10px;color:#fff;background:#fff;flex:0 0 auto;transition:background .25s ease,border-color .25s ease;padding:0}
+.mgoalcounter.on .mcbox{background:#16a34a;border-color:#16a34a}
+.mgoalsubs{margin-top:8px;padding-left:27px;display:grid;gap:4px}
+.mgoalsub{display:flex;align-items:center;gap:7px;font-size:12.5px}
+.mgoalsub .mstitle{min-width:0}
+.mgoalsub.doneSub .mstitle{color:#166534;text-decoration:line-through}
+.mgoalsub.failedSub .mstitle{color:#991b1b;text-decoration:line-through}
+/* ПРАВКА №14+16: рабочая область папки + карточка клиента */
 .folderclientlist{display:grid;gap:6px;margin-bottom:12px}
-.folderclientitem{display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 2px 7px #0000000a}
-.folderclientitem .cname{flex:1;min-width:0;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folderclientitem{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 7px #0000000a;overflow:hidden}
+.folderclienthead{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer}
+.folderclienthead .cname{flex:1;min-width:0;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folderclienthead .carrow{color:var(--muted);font-size:12px;transition:transform .25s ease;flex:0 0 auto}
+.folderclientitem.open .carrow{transform:rotate(90deg)}
 .folderclientitem .cdel{width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:11px;display:grid;place-items:center;flex:0 0 auto;padding:0}
 .folderclientitem .cdel:hover{background:#fecaca;color:#991b1b}
+/* карточка клиента */
+.clientcard{border-top:1px solid var(--line);padding:12px;display:grid;gap:12px;background:#fafbfc}
+.ccgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.ccgrid label{display:grid;gap:3px;font-size:11px;color:var(--muted);font-weight:700}
+.ccgrid input{border:1px solid #d9dde2;border-radius:7px;padding:8px 9px;font-size:13px;background:#fff}
+.ccnotesection{display:grid;gap:8px}
+.ccnotesection .cctitle{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.ccnoteadd{display:flex;gap:8px}
+.ccnoteadd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff}
+.ccnoteadd button{background:#7c3aed;color:#fff;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:600}
+.ccnoteitem{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px;display:grid;gap:4px}
+.ccnoteitem .cctext{font-size:13px;white-space:pre-wrap;word-break:break-word}
+.ccnoteitem .ccts{font-size:10.5px;color:var(--muted)}
+.ccnoteitem .ccacts{display:flex;gap:8px}
+.ccnoteitem .ccacts button{font-size:11px;color:var(--muted);padding:2px 4px}
+.ccnoteitem .ccacts button:hover{color:var(--accent)}
+.ccnoteedit textarea{width:100%;min-height:60px;border:1px solid #d9dde2;border-radius:8px;padding:8px;font-size:13px;resize:vertical}
+.ccnoteedit .cceditbtns{display:flex;gap:8px;margin-top:6px}
+.ccnoteedit .cceditbtns button{border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
+.ccnoteedit .ccsave{background:#7c3aed;color:#fff}
+.ccnoteedit .cccancel{background:#f1f3f5;color:#4b5563}
 .folderempty{color:var(--muted);font-size:12.5px;text-align:center;padding:14px 0 6px}
 .folderaddrow{display:flex;gap:8px;margin-bottom:14px}
 .folderaddrow input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
@@ -1311,34 +1365,103 @@ function renderMonth(){
 function monthKeyOf(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}`}
 function monthGoalsOf(d){const k=monthKeyOf(d);data.monthGoals[k]=data.monthGoals[k]||[];return data.monthGoals[k]}
 
+/* ПРАВКА №15: шапка без День/Неделя/Месяц — только ‹ Сегодня › (сегодня = текущий месяц);
+   у задачи-максимум: чекбоксы-счётчики (кол-во + название) и подзадачи как в обычных задачах */
 function renderMonthGoals(){
   const d=state.date,y=d.getFullYear(),m=d.getMonth();
   const monthName=ruMonths[m];
   const list=monthGoalsOf(d).slice().sort((a,b)=>(a.done?1:0)-(b.done?1:0));
   const done=list.filter(t=>t.done).length,pct=list.length?Math.round(done/list.length*100):0;
   $('pageTitle').textContent=`Задачи на месяц · ${monthName} ${y}`;
-  const items=list.map(t=>`<div class="mgoalrow ${t.done?'done':''}" data-id="${t.id}">
-    <button class="check ${t.done?'on':''}" data-mgoal-check="${t.id}">${t.done?'✓':''}</button>
-    <span class="mgoaltitle">${esc(t.title)}</span>
-    <button class="mgoaldel" data-mgoal-del="${t.id}" title="Удалить">✕</button>
-  </div>`).join('');
-  $('content').innerHTML=viewHeadHtml(`<span class="datebig">🎯 ${monthName} ${y}</span>`)
-    +`<div class="progresswrap"><div class="progresslabel">${list.length?`Выполнено ${done}/${list.length}`:'Задач на месяц пока нет'}</div><div class="progressbar"><div class="progressfill" style="width:${pct}%"></div></div><div class="progresslabel">${pct}%</div></div>`
-    +`<div class="mgoaladd"><input id="mgoalInput" placeholder="Новая задача-максимум на месяц"><button class="primary" id="mgoalAddBtn">Добавить</button></div>`
-    +`<div class="mgoallist">${items||'<div class="folderempty">Пусто. Добавь первую задачу на месяц.</div>'}</div>`;
-  bindViewHead();
+  const items=list.map(t=>{
+    const counters=t.counters||[];
+    const subs=t.subtasks||[];
+    const cDone=counters.filter(c=>c.done).length;
+    const sDone=subs.filter(subDone).length;
+    const total=counters.length+subs.length;
+    const got=cDone+sDone;
+    const countersHtml=counters.length?`<div class="mgoalcounters">${counters.map(c=>`
+      <div class="mgoalcounter ${c.done?'on':''}" data-cnt="${t.id}:${c.id}">
+        <button class="mcbox ${c.done?'on':''}" style="${c.done?'':''}">${c.done?'✓':''}</button>
+        <span>${esc(c.label||'')}</span>
+      </div>`).join('')}</div>`:'';
+    const subsHtml=subs.length?`<div class="mgoalsubs">${subs.map((s,si)=>`
+      <div class="mgoalsub ${s.status==='success'?'doneSub':s.status==='failed'?'failedSub':''}">
+        <button class="markbox success ${s.status==='success'?'active':''}" data-msub="${t.id}:${si}" data-verdict="success">✓</button>
+        <button class="markbox failed ${s.status==='failed'?'active':''}" data-msub="${t.id}:${si}" data-verdict="failed">✕</button>
+        <span class="mstitle">${esc(s.title)}</span>
+      </div>`).join('')}</div>`:'';
+    return `<div class="mgoalrow ${t.done?'done':''}" data-id="${t.id}">
+      <div class="mgoalhead">
+        <button class="check ${t.done?'on':''}" data-mgoal-check="${t.id}">${t.done?'✓':''}</button>
+        <span class="mgoaltitle">${esc(t.title)}</span>
+        ${total?`<span class="mgoalprogress">${got}/${total}</span>`:''}
+        <button class="mgoaldel" data-mgoal-del="${t.id}" title="Удалить">✕</button>
+      </div>
+      ${countersHtml}${subsHtml}
+    </div>`;
+  }).join('');
+  $('content').innerHTML=`<div class="dayhead">
+      <div class="dayheadleft"><span class="datebig">🎯 ${monthName} ${y}</span></div>
+      <div class="dayheadright">
+        <button class="iconbtn" id="mgPrev">‹</button>
+        <button class="iconbtn midbtn" id="mgToday">Сегодня</button>
+        <button class="iconbtn" id="mgNext">›</button>
+      </div>
+    </div>
+    <div class="progresswrap"><div class="progresslabel">${list.length?`Выполнено ${done}/${list.length}`:'Задач на месяц пока нет'}</div><div class="progressbar"><div class="progressfill" style="width:${pct}%"></div></div><div class="progresslabel">${pct}%</div></div>
+    <div class="mgoaladd"><input id="mgoalInput" placeholder="Новая задача-максимум на месяц"><button class="primary" id="mgoalAddBtn">Добавить</button></div>
+    <div class="mgoalopts">
+      <div class="mgoalopts-row"><span class="optlabel">☑ Чекбоксы:</span><input type="number" id="mgCntCount" min="1" max="100" placeholder="Кол-во"><input type="text" id="mgCntLabel" placeholder="Название (необязательно), напр. «Показ»"></div>
+      <div class="mgoalopts-row" style="flex-direction:column;align-items:stretch"><span class="optlabel">☑ Подзадачи (по одной на строку):</span><textarea id="mgSubs" placeholder="Подготовить материалы&#10;Провести показ"></textarea></div>
+    </div>
+    <div class="mgoallist">${items||'<div class="folderempty">Пусто. Добавь первую задачу на месяц.</div>'}</div>`;
+  /* навигация: ‹ › — месяцы, «Сегодня» — текущий месяц */
+  $('mgPrev').onclick=()=>{state.date.setMonth(state.date.getMonth()-1);render()};
+  $('mgNext').onclick=()=>{state.date.setMonth(state.date.getMonth()+1);render()};
+  $('mgToday').onclick=()=>{const n=new Date();state.date=new Date(n.getFullYear(),n.getMonth(),1);render()};
   const inp=$('mgoalInput');
   const add=()=>{
     const v=inp.value.trim();if(!v)return;
-    monthGoalsOf(d).push({id:uid(),title:v,done:false});
+    const cnt=Math.max(0,Math.min(100,Math.round(+$('mgCntCount').value||0)));
+    const label=$('mgCntLabel').value.trim();
+    const subs=$('mgSubs').value.split('\n').map(x=>x.trim()).filter(Boolean).map(x=>({title:x,status:'pending'}));
+    const counters=cnt?Array.from({length:cnt},(_,i)=>({id:uid(),label:label?`${label} ${i+1}`:'',done:false})):[];
+    monthGoalsOf(d).push({id:uid(),title:v,done:false,counters,subtasks:subs});
     save();renderMonthGoals();
-    const ni=$('mgoalInput');if(ni&&!('ontouchstart' in window))ni.focus();
   };
   $('mgoalAddBtn').onclick=add;
   inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}};
+  /* отметить счётчик */
+  document.querySelectorAll('[data-cnt]').forEach(el=>{
+    el.onclick=()=>{
+      const [gid,cid]=el.dataset.cnt.split(':');
+      const t=monthGoalsOf(d).find(x=>x.id===gid);if(!t)return;
+      const c=(t.counters||[]).find(x=>x.id===cid);if(!c)return;
+      c.done=!c.done;save();
+      if(c.done){celebrateSubtask(el.querySelector('.mcbox'),true);playTick()}
+      renderMonthGoals();
+    };
+  });
+  /* вердикт подзадачи */
+  document.querySelectorAll('[data-msub]').forEach(mb=>{
+    mb.onclick=(e)=>{
+      e.stopPropagation();
+      const [gid,si]=mb.dataset.msub.split(':');
+      const t=monthGoalsOf(d).find(x=>x.id===gid);if(!t)return;
+      const sub=t.subtasks[+si];if(!sub)return;
+      const v=mb.dataset.verdict;
+      sub.status=sub.status===v?'pending':v;
+      save();
+      if(sub.status===v){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
+      renderMonthGoals();
+    };
+  });
   document.querySelectorAll('[data-mgoal-check]').forEach(b=>{
     b.onclick=()=>{
       const t=monthGoalsOf(d).find(x=>x.id===b.dataset.mgoalCheck);if(!t)return;
+      /* если у цели есть счётчики/подзадачи — done считается по ним, ручной чекбокс недоступен */
+      if((t.counters||[]).length||(t.subtasks||[]).length){toast('Отмечайте чекбоксы/подзадачи внутри задачи');return}
       t.done=!t.done;save();
       if(t.done){celebrateSubtask(b,true);playTick()}
       renderMonthGoals();
@@ -1368,33 +1491,151 @@ function openFolderView(fid){
 }
 
 /* Рабочая область папки: список клиентов + добавление + удаление папки */
+/* ПРАВКА №16: клик по клиенту раскрывает карточку (Город, Часовой пояс, Тип недвижимости, Бюджет, ПВ)
+   + заметки: сохраняются с датой и временем, можно редактировать и удалять */
+function fmtTs(ts){const d=new Date(ts);return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+
 function renderFolderView(){
   const f=data.clientFolders.find(x=>x.id===state.openFolderId);
   if(!f){state.view='day';setTabs();render();return}
   const list=folderClientsOf(f.id);
   $('pageTitle').textContent=`📁 ${f.name}`;
+  const itemsHtml=list.length
+    ?list.map(c=>{
+      const open=state.openClientId===c.id;
+      const notes=c.notes||[];
+      let cardHtml='';
+      if(open){
+        if(state.editingNoteId){
+          const nt=notes.find(n=>n.id===state.editingNoteId);
+          cardHtml+=`<div class="clientcard">
+            <div class="ccgrid">
+              <label>Город<input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}"></label>
+              <label>Часовой пояс<input data-cf="tz" data-cid="${c.id}" value="${esc(c.tz||'')}" placeholder="UTC+3"></label>
+              <label>Тип недвижимости<input data-cf="realty" data-cid="${c.id}" value="${esc(c.realty||'')}"></label>
+              <label>Бюджет<input data-cf="budget" data-cid="${c.id}" value="${esc(c.budget||'')}"></label>
+              <label>ПВ<input data-cf="pv" data-cid="${c.id}" value="${esc(c.pv||'')}"></label>
+            </div>
+            <div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
+              <div class="ccnoteedit">
+                <textarea id="ccNoteEditInput">${esc(nt?nt.text:'')}</textarea>
+                <div class="cceditbtns"><button class="ccsave" id="ccNoteSave">Сохранить</button><button class="cccancel" id="ccNoteCancel">Отмена</button></div>
+              </div>
+            </div>
+          </div>`;
+        }else{
+          cardHtml+=`<div class="clientcard">
+            <div class="ccgrid">
+              <label>Город<input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}"></label>
+              <label>Часовой пояс<input data-cf="tz" data-cid="${c.id}" value="${esc(c.tz||'')}" placeholder="UTC+3"></label>
+              <label>Тип недвижимости<input data-cf="realty" data-cid="${c.id}" value="${esc(c.realty||'')}"></label>
+              <label>Бюджет<input data-cf="budget" data-cid="${c.id}" value="${esc(c.budget||'')}"></label>
+              <label>ПВ<input data-cf="pv" data-cid="${c.id}" value="${esc(c.pv||'')}"></label>
+            </div>
+            <div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
+              <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
+              ${notes.length?notes.slice().reverse().map(n=>`<div class="ccnoteitem">
+                <div class="cctext">${esc(n.text)}</div>
+                <div class="ccts">${fmtTs(n.ts)}</div>
+                <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
+              </div>`).join(''):'<div class="folderempty">Заметок пока нет</div>'}
+            </div>
+          </div>`;
+        }
+      }
+      return `<div class="folderclientitem ${open?'open':''}" data-client="${c.id}">
+        <div class="folderclienthead" data-toggle="${c.id}">
+          <span class="carrow">▸</span>
+          <span class="cname">${esc(c.name)}</span>
+          <button class="cdel" data-cid="${c.id}" title="Удалить клиента">✕</button>
+        </div>
+        ${cardHtml}
+      </div>`;
+    }).join('')
+    :'<div class="folderempty">В папке пока никого нет. Добавь первого клиента выше.</div>';
   $('content').innerHTML=viewHeadHtml(`<span class="datebig">📁 ${esc(f.name)}</span>`,true)
     +`<div class="folderaddrow"><input id="fvInput" placeholder="Имя клиента"><button class="primary" id="fvAdd">Добавить</button></div>`
-    +`<div class="folderclientlist" id="fvList">${list.length
-        ?list.map(c=>`<div class="folderclientitem"><span class="cname">${esc(c.name)}</span><button class="cdel" data-cid="${c.id}" title="Удалить">✕</button></div>`).join('')
-        :'<div class="folderempty">В папке пока никого нет. Добавь первого клиента выше.</div>'}</div>`
+    +`<div class="folderclientlist">${itemsHtml}</div>`
     +`<div class="modalfoot"><button class="danger" id="fvDelFolder">Удалить папку</button><div></div></div>`;
   bindViewHead();
   const inp=$('fvInput');
   const add=()=>{
     const v=inp.value.trim();if(!v)return;
-    folderClientsOf(f.id).push({id:uid(),name:v});
+    folderClientsOf(f.id).push({id:uid(),name:v,city:'',tz:'',realty:'',budget:'',pv:'',notes:[]});
     save();renderFolderView();renderSidebarFolders();
-    const ni=$('fvInput');if(ni&&!('ontouchstart' in window))ni.focus();
   };
   $('fvAdd').onclick=add;
   inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}};
-  document.querySelectorAll('#fvList [data-cid]').forEach(b=>{
-    b.onclick=()=>{
-      data.folderClients[f.id]=folderClientsOf(f.id).filter(c=>c.id!==b.dataset.cid);
+  /* раскрытие карточки */
+  document.querySelectorAll('[data-toggle]').forEach(h=>{
+    h.onclick=(e)=>{
+      if(e.target.closest('.cdel'))return;
+      state.openClientId=state.openClientId===h.dataset.toggle?null:h.dataset.toggle;
+      state.editingNoteId=null;
+      renderFolderView();
+    };
+  });
+  /* удаление клиента */
+  document.querySelectorAll('.folderclientitem .cdel').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      const cid=b.dataset.cid;
+      const cl=list.find(x=>x.id===cid);
+      if(!confirm(`Удалить клиента «${cl?cl.name:''}»?`))return;
+      data.folderClients[f.id]=list.filter(c=>c.id!==cid);
+      if(state.openClientId===cid)state.openClientId=null;
       save();renderFolderView();renderSidebarFolders();
     };
   });
+  /* поля карточки: сохранение при изменении/blur */
+  document.querySelectorAll('[data-cf]').forEach(fl=>{
+    const saveField=()=>{
+      const cl=list.find(x=>x.id===fl.dataset.cid);if(!cl)return;
+      cl[fl.dataset.cf]=fl.value.trim();
+      save();
+    };
+    fl.onchange=saveField;
+    fl.onblur=saveField;
+  });
+  /* добавление заметки */
+  const noteInput=$('ccNoteInput');
+  const addNote=(cid)=>{
+    const cl=list.find(x=>x.id===cid);if(!cl)return;
+    const v=noteInput.value.trim();if(!v)return;
+    cl.notes=cl.notes||[];
+    cl.notes.push({id:uid(),text:v,ts:Date.now()});
+    save();renderFolderView();
+  };
+  document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
+  if(noteInput)noteInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addNote(state.openClientId)}};
+  /* редактирование заметки */
+  document.querySelectorAll('[data-note-edit]').forEach(b=>{
+    b.onclick=()=>{
+      const [cid,nid]=b.dataset.noteEdit.split(':');
+      state.openClientId=cid;state.editingNoteId=nid;
+      renderFolderView();
+    };
+  });
+  const editInput=$('ccNoteEditInput');
+  if(editInput){
+    const cl=list.find(x=>x.id===state.openClientId);
+    const nt=cl&&(cl.notes||[]).find(n=>n.id===state.editingNoteId);
+    $('ccNoteSave').onclick=()=>{
+      if(nt){nt.text=editInput.value.trim();nt.edited=true;save()}
+      state.editingNoteId=null;renderFolderView();
+    };
+    $('ccNoteCancel').onclick=()=>{state.editingNoteId=null;renderFolderView()};
+  }
+  /* удаление заметки */
+  document.querySelectorAll('[data-note-del]').forEach(b=>{
+    b.onclick=()=>{
+      const [cid,nid]=b.dataset.noteDel.split(':');
+      const cl=list.find(x=>x.id===cid);if(!cl)return;
+      cl.notes=(cl.notes||[]).filter(n=>n.id!==nid);
+      save();renderFolderView();
+    };
+  });
+  /* удаление папки */
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
