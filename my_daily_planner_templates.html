@@ -394,6 +394,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .mobilesectionitem:active{background:var(--line)}
   .mobilesectionarrow{color:var(--muted)}
 }
+  /* ПРАВКА №7: кнопка шаблонов — только ПК; на мобиле скрыта */
+@media(max-width:800px){.tplquickbtn{display:none!important}}
+/* ПРАВКА №7: мобильная шапка — «Сегодня» рядом с датой, стрелки ‹ › скрыты (листание свайпом), дубль кнопки справа скрыт */
+.daytodaymob{display:none}
+@media(max-width:800px){
+  .daytodaymob{display:inline-block;padding:8px 12px;border-radius:8px;background:#f1f3f5;color:var(--accent);font-size:12.5px;font-weight:600;white-space:nowrap}
+  .daytodaymob:active{background:#e2e6ea}
+  .dayhead #prev,.dayhead #next,.dayhead #todayBtn{display:none}
+}
 /* ==== Убираем верхнюю панель, строка быстрого ввода теперь первая ==== */
 .top{display:none!important}
 </style></head>
@@ -409,7 +418,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 </div></aside>
 <!-- ПРАВКА №2: из статической шапки .top удалены вкладки День/Неделя/Месяц и кнопки ‹ › Сегодня (дубликаты id ломали биндинги) — теперь эта панель рисуется внутри контента -->
 <main class="main"><header class="top"><div id="pageTitle" class="title">Сегодня</div></header>
-<div class="quickadd"><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><div class="quickaddbtns"><button class="primary" id="quickAddBtn">Добавить</button><button class="primary" id="addBtn">Задача</button></div></div>
+<!-- ПРАВКА №7: кнопка «Шаблоны» перенесена в строку быстрого ввода (ПК) -->
+<div class="quickadd"><button class="secondary tplquickbtn" id="tplManageQuick">⚙ Шаблоны</button><input id="quickInput" placeholder="Например: ВП Надежда Владимир+0 К Ж 10 млн, ПВ 2 млн завтра в 12"><div class="quickaddbtns"><button class="primary" id="quickAddBtn">Добавить</button><button class="primary" id="addBtn">Задача</button></div></div>
 <div class="quickhint">Понимает: сегодня/завтра/послезавтра, время «в 12:00», диапазон «15:00-17:30». Начните текст с кода шаблона (например «ВП»), чтобы подставить подзадачи автоматически.</div>
 <div class="tplbar" id="quickTplBar"></div>
 <section class="content" id="content"></section></main></div>
@@ -1037,9 +1047,10 @@ function renderClientsBlock(d){
 }
 
 /* ПРАВКА №2: единая шапка любого представления: слева контекстный заголовок, справа День/Неделя/Месяц + ‹ Сегодня › */
+/* ПРАВКА №2 + №7: слева контекстный заголовок (+ на мобиле кнопка «Сегодня»), справа День/Неделя/Месяц + ‹ Сегодня › (ПК) */
 function viewHeadHtml(leftHtml){
   return `<div class="dayhead">
-    <div class="dayheadleft">${leftHtml}</div>
+    <div class="dayheadleft">${leftHtml}<button class="daytodaymob" id="todayBtnM">Сегодня</button></div>
     <div class="dayheadright">
       <div class="viewtabs">
         <button data-view="day" class="${state.view==='day'?'sel':''}">День</button>
@@ -1057,6 +1068,20 @@ function dayLeftTitle(d){
   return `<span class="datebig">${ruDFull[d.getDay()]} ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}</span>`;
 }
 function bindViewHead(){
+  /* ПРАВКА №7: мобильная кнопка «Сегодня» рядом с датой */
+  const tm=$('todayBtnM');
+  if(tm)tm.onclick=()=>$('navToday').click();
+  document.querySelectorAll('.viewtabs button').forEach(b=>b.onclick=()=>{
+    if(state.view===b.dataset.view)return;
+    state.view=b.dataset.view;setTabs();
+    __widthOverrides={};delete window.__realHeights;
+    render();
+  });
+  const p=$('prev'),n=$('next'),tb=$('todayBtn');
+  if(p)p.onclick=()=>goStep(-1);
+  if(n)n.onclick=()=>goStep(1);
+  if(tb)tb.onclick=()=>$('navToday').click();
+}
   document.querySelectorAll('.viewtabs button').forEach(b=>b.onclick=()=>{
     if(state.view===b.dataset.view)return;
     state.view=b.dataset.view;setTabs();
@@ -1961,8 +1986,8 @@ function enableTaskDrag(){
 }
 function renderQuickTplBar(){
   const bar=$('quickTplBar');
-  bar.innerHTML=data.templates.map(tp=>`<button type="button" class="tplchip" data-code="${esc(tp.code)}">${esc(tp.code)} — ${esc(tp.name)}</button>`).join('')
-    +`<button type="button" class="tplmanage" id="tplManageBtn">⚙ Управлять шаблонами</button>`;
+  /* ПРАВКА №7: кнопка «Управлять шаблонами» убрана из панели — переехала в строку быстрого ввода */
+  bar.innerHTML=data.templates.map(tp=>`<button type="button" class="tplchip" data-code="${esc(tp.code)}">${esc(tp.code)} — ${esc(tp.name)}</button>`).join('');
   bar.querySelectorAll('.tplchip').forEach(chip=>{
     chip.onclick=()=>{
       const code=chip.dataset.code;
@@ -1973,7 +1998,6 @@ function renderQuickTplBar(){
       $('quickInput').focus();
     };
   });
-  $('tplManageBtn').onclick=openTplModal;
 }
 function findTemplateInText(raw){
   const trimmed=raw.trimStart();
@@ -2266,6 +2290,8 @@ function quick(){
  $('quickAddBtn').onclick=quick;
  $('quickInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quick()}});
  $('addBtn').onclick=()=>openModal();
+  /* ПРАВКА №7: открытие управления шаблонами из строки быстрого ввода */
+ $('tplManageQuick').onclick=openTplModal;
  $('cancelBtn').onclick=closeModal;
  $('saveBtn').onclick=saveModal;
  $('deleteBtn').onclick=()=>{
