@@ -1312,71 +1312,13 @@ function buildMobileDayListHtml(d){
 function bindMobileDayList(d){
   document.querySelectorAll('.mobiledayrow').forEach(row=>{
     const id=row.dataset.id;
-    /* ПРАВКА №4 (мобайл): long-press перенос времени */
-    let lpTimer=null,lpActive=false,lpStartY=0,badge=null;
-    const t0=data.tasks.find(x=>x.id===id);
-    const origStart=t0&&t0.time?timeMin(t0.time):null;
-    const dur=(t0&&t0.endTime)?(timeMin(t0.endTime)-timeMin(t0.time)):null;
-    const clearLp=()=>{clearTimeout(lpTimer);lpTimer=null};
-    const removeBadge=()=>{if(badge){badge.remove();badge=null}};
-    const fmtMin=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
-    row.addEventListener('touchstart',e=>{
-      clearLp();lpActive=false;
-      if(e.target.closest('[data-check],[data-edit],.markbox,.subnoteicon'))return;
-      if(origStart===null)return;
-      lpStartY=e.touches[0].clientY;
-      const tid=row.dataset.id;
-      lpTimer=setTimeout(()=>{
-        lpActive=true;
-        row.classList.add('timeshifting');
-        if(navigator.vibrate)navigator.vibrate(30);
-        badge=document.createElement('div');
-        badge.className='timedragbadge';
-        badge.textContent=fmtMin(origStart);
-        document.body.appendChild(badge);
-      },450);
-    },{passive:true});
-    row.addEventListener('touchmove',e=>{
-      if(lpActive){
-        e.preventDefault();
-        if(badge){
-          badge.style.left=(e.touches[0].clientX+14)+'px';
-          badge.style.top=(e.touches[0].clientY-40)+'px';
-        }
-        const tt=data.tasks.find(x=>x.id===row.dataset.id);
-        if(tt&&tt.time){
-          const delta=Math.round((lpStartY-e.touches[0].clientY)/22)*STEP;
-          let nm=Math.max(DAY_START,Math.min(DAY_END,origStart+delta));
-          tt._pendingMin=nm;
-          if(badge)badge.textContent=dur!==null?`${fmtMin(nm)}–${fmtMin(nm+dur)}`:fmtMin(nm);
-        }
-      }else if(Math.abs(e.touches[0].clientY-lpStartY)>10){clearLp()}
-    },{passive:false});
-    const finishTouch=e=>{
-      clearLp();
-      if(lpActive){
-        if(e.cancelable)e.preventDefault();
-        lpActive=false;
-        row.classList.remove('timeshifting');
-        removeBadge();
-        const tt=data.tasks.find(x=>x.id===row.dataset.id);
-        if(tt&&tt._pendingMin!=null){
-          const ns=tt._pendingMin;delete tt._pendingMin;
-          tt.time=fmtMin(ns);
-          if(dur!==null)tt.endTime=fmtMin(ns+dur);
-          save();toast(`Перенесено на ${tt.time}`);
-          render();
-        }
-      }
-    };
     row.addEventListener('touchend',finishTouch,{passive:false});
     row.addEventListener('touchcancel',finishTouch,{passive:false});
 
+    /* ПРАВКА №4.2: mobile long-press перенос времени удалён — остаётся только тап (раскрытие подзадач / редактирование) */
     row.addEventListener('click',e=>{
-      if(lpActive)return;
       if(e.target.closest('[data-check],[data-edit],.markbox,.subnoteicon'))return;
       const t=data.tasks.find(x=>x.id===id);
-      /* ПРАВКА №5: тап по задаче с подзадачами — раскрыть/свернуть аккордеон; без подзадач — как раньше открыть модалку */
       if(t&&(t.subtasks||[]).length){
         if(__mobileExpanded.has(id))__mobileExpanded.delete(id);else __mobileExpanded.add(id);
         row.classList.toggle('expanded');
