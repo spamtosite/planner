@@ -1796,10 +1796,13 @@ function bindTasks(){
 function willBeOnSafe(t,val){return val}
 
 /* ================== ШАБЛОНЫ ================== */
-/* ПРАВКА №4: drag&drop задач мышкой (логика прежняя, проблема была в отсутствии вызова — теперь вызывается в renderDay) */
+/* ПРАВКА №4.1: drag&drop переработан — блок свободно двигается мышью в обе стороны,
+   время считается по реальной сетке строк (точное попадание в слот, даже занятый другой задачей),
+   у курсора — бейдж с целевым временем. После переноса случайный клик подавляется. */
 function enableTaskDrag(){
   const layer=document.querySelector('.taskslayer');
-  if(!layer)return;
+  const gridlines=document.querySelector('.gridlines');
+  if(!layer||!gridlines)return;
   document.querySelectorAll('.taskblock').forEach(el=>{
     const id=el.dataset.id;
     const t=data.tasks.find(x=>x.id===id);
@@ -1807,49 +1810,74 @@ function enableTaskDrag(){
     el.addEventListener('mousedown',e=>{
       if(e.target.closest('.check,.vbtn,.markbox,.subnoteicon,.addsub,.subaddform,[data-action],.focusbtn'))return;
       e.preventDefault();
-      const startY=e.clientY;
+      const startX=e.clientX,startY=e.clientY;
       const startTop=parseFloat(el.style.top);
-      const rowh=ROWH;
-      const minutesPerPx=60/rowh;
+      const startLeft=parseFloat(el.style.left);
       const origStartMin=timeMin(t.time);
       const origEndMin=t.endTime?timeMin(t.endTime):null;
       const duration=origEndMin!==null?(origEndMin-origStartMin):null;
-      let dragging=false;
-      let ghost=null;
+      let dragging=false,ghost=null,badge=null;
+      const fmtMin=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
+      const buildRowMap=()=>[...gridlines.querySelectorAll('.gridrow')].map(r=>({minute:+r.dataset.minute,top:r.offsetTop,height:r.offsetHeight}));
+      const minutesAtY=(clientY,rows)=>{
+        const gy=clientY-gridlines.getBoundingClientRect().top;
+        for(const r of rows){if(gy>=r.top&&gy<r.top+r.height)return r.minute+((gy-r.top)/r.height)*60}
+        const first=rows[0],last=rows[rows.length-1];
+        if(gy<first.top)return first.minute-((first.top-gy)/first.height)*60;
+        return last.minute+((gy-last.top-last.height)/last.height)*60;
+      };
+      const minuteToY=(m,rows)=>{
+        for(const r of rows){if(m>=r.minute&&m<r.minute+60)return r.top+(m-r.minute)/60*r.height}
+        const first=rows[0],last=rows[rows.length-1];
+        if(m<first.minute)return first.top+(m-first.minute)/60*first.height;
+        return last.top+(m-last.minute)/60*last.height;
+      };
       const onMove=me=>{
-        const dy=me.clientY-startY;
-        if(!dragging&&Math.abs(dy)>4){
+        const dx=me.clientX-startX,dy=me.clientY-startY;
+        if(!dragging&&Math.hypot(dx,dy)>4){
           dragging=true;
           el.classList.add('dragging');
           ghost=document.createElement('div');
           ghost.className='taskdragghost';
           ghost.style.height=el.style.height;
+          ghost.style.width=el.style.width;
           layer.appendChild(ghost);
+          badge=document.createElement('div');
+          badge.className='timedragbadge';
+          document.body.appendChild(badge);
         }
         if(!dragging)return;
-        let rawMinutes=origStartMin+dy*minutesPerPx;
-        let snapped=Math.round(rawMinutes/STEP)*STEP;
+        /* свободное перемещение по обеим осям */
+        el.style.left=(startLeft+dx)+'px';
+        el.style.top=(startTop+dy)+'px';
+        const rows=buildRowMap();
+        const rawMin=minutesAtY(me.clientY,rows);
+        let snapped=Math.round(rawMin/STEP)*STEP;
         snapped=Math.max(DAY_START,Math.min(DAY_END,snapped));
-        const deltaMin=snapped-origStartMin;
-        const newTop=startTop+deltaMin/60*rowh;
-        el.style.top=newTop+'px';
-        if(ghost)ghost.style.top=newTop+'px';
         el.dataset.pendingMin=snapped;
+        if(ghost){
+          ghost.style.left=(startLeft+dx)+'px';
+          ghost.style.top=minuteToY(snapped,rows)+'px';
+        }
+        if(badge){
+          badge.style.left=(me.clientX+14)+'px';
+          badge.style.top=(me.clientY-36)+'px';
+          badge.textContent=duration!==null?`${fmtMin(snapped)}–${fmtMin(snapped+duration)}`:fmtMin(snapped);
+        }
       };
       const onUp=()=>{
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
-        if(!dragging){return}
+        if(!dragging)return;
         el.classList.remove('dragging');
         if(ghost)ghost.remove();
+        if(badge)badge.remove();
         const snapped=+el.dataset.pendingMin;
         delete el.dataset.pendingMin;
-        const newStartMin=snapped;
-        t.time=`${pad(Math.floor(newStartMin/60))}:${pad(newStartMin%60)}`;
-        if(duration!==null){
-          const newEndMin=newStartMin+duration;
-          t.endTime=`${pad(Math.floor(newEndMin/60))}:${pad(newEndMin%60)}`;
-        }
+        /* подавляем клик, чтобы после переноса не открылась модалка */
+        el.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault()},{capture:true,once:true});
+        t.time=fmtMin(snapped);
+        if(duration!==null)t.endTime=fmtMin(snapped+duration);
         delete __widthOverrides[t.id];
         delete window.__realHeights;
         save();
