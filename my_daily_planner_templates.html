@@ -54,6 +54,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .taskblock{position:absolute;background:#fff;border:1px solid #dfe3e8;border-left:4px solid var(--accent);border-radius:8px;box-shadow:0 2px 7px #0000000a;padding:6px 8px;overflow:hidden;pointer-events:auto;display:flex;flex-direction:column;box-sizing:border-box;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease;cursor:grab}
 .taskblock.dragging{cursor:grabbing;opacity:.85;box-shadow:0 10px 26px #0003;z-index:5;transition:none!important}
 .taskdragghost{position:absolute;left:0;right:0;background:#eef4ff;border:1.5px dashed var(--accent);border-radius:8px;pointer-events:none;z-index:1}
+  /* ПРАВКА №4.6: подсветка часового слота-цели при перетаскивании (визуальное «прилипание») */
+.gridrow.droptarget .slotbg{background:#eef4ff;box-shadow:inset 0 0 0 2px var(--accent);border-radius:6px}
 .taskblock.done{opacity:.65}
 .taskblock.done .tasktitle{text-decoration:line-through}
 .taskblock.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
@@ -1870,6 +1872,8 @@ function willBeOnSafe(t,val){return val}
    время считается по реальной сетке строк (точное попадание в слот, даже занятый другой задачей),
    у курсора — бейдж с целевым временем. После переноса случайный клик подавляется. */
 /* ПРАВКА №4.4: исправлено чтение минут слота (data-minute на .slotbg, а не на .gridrow) + защита от NaN */
+/* ПРАВКА №4.6: перетаскивание теперь привязывается только к круглым часам (9:00, 10:00, …),
+   целевой часовой слот подсвечивается, пока задача «зажата» над ним */
 function enableTaskDrag(){
   const layer=document.querySelector('.taskslayer');
   const gridlines=document.querySelector('.gridlines');
@@ -1888,16 +1892,23 @@ function enableTaskDrag(){
       const startLeft=parseFloat(el.style.left);
       const origEndMin=t.endTime?timeMin(t.endTime):null;
       const duration=origEndMin!==null?(origEndMin-origStartMin):null;
-      let dragging=false,ghost=null,badge=null;
+      let dragging=false,ghost=null,badge=null,hotRow=null;
       const fmtMin=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
+      const clearHotRow=()=>{if(hotRow){hotRow.classList.remove('droptarget');hotRow=null}};
       const buildRowMap=()=>[...gridlines.querySelectorAll('.gridrow')].map(r=>{
         const slot=r.querySelector('.slotbg');
-        return {minute:slot?+slot.dataset.minute:NaN,top:r.offsetTop,height:r.offsetHeight};
+        return {minute:slot?+slot.dataset.minute:NaN,top:r.offsetTop,height:r.offsetHeight,el:r};
       }).filter(r=>isFinite(r.minute));
       const minutesAtY=(clientY,rows)=>{
         if(!rows.length)return NaN;
         const gy=clientY-gridlines.getBoundingClientRect().top;
-        for(const r of rows){if(gy>=r.top&&gy<r.top+r.height)return r.minute+((gy-r.top)/r.height)*60}
+        for(const r of rows){
+          if(gy>=r.top&&gy<r.top+r.height){
+            if(hotRow!==r.el){clearHotRow();hotRow=r.el;hotRow.classList.add('droptarget')}
+            return r.minute+((gy-r.top)/r.height)*60;
+          }
+        }
+        clearHotRow();
         const first=rows[0],last=rows[rows.length-1];
         if(gy<first.top)return first.minute-((first.top-gy)/first.height)*60;
         return last.minute+((gy-last.top-last.height)/last.height)*60;
@@ -1929,7 +1940,8 @@ function enableTaskDrag(){
         const rows=buildRowMap();
         const rawMin=minutesAtY(me.clientY,rows);
         if(!isFinite(rawMin))return;
-        let snapped=Math.round(rawMin/STEP)*STEP;
+        /* ПРАВКА №4.6: привязка строго к круглым часам */
+        let snapped=Math.round(rawMin/60)*60;
         snapped=Math.max(DAY_START,Math.min(DAY_END,snapped));
         el.dataset.pendingMin=snapped;
         const gy=minuteToY(snapped,rows);
@@ -1946,6 +1958,7 @@ function enableTaskDrag(){
       const onUp=()=>{
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
+        clearHotRow();
         if(!dragging)return;
         el.classList.remove('dragging');
         if(ghost)ghost.remove();
