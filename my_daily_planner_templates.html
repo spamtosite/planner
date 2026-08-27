@@ -383,11 +383,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .dayhead #prev,.dayhead #next,.dayhead #todayBtn{display:none}
 }
 .top{display:none!important}
-/* ПРАВКА №13: сокращённая модалка ТОЛЬКО при создании (overlay получает класс mobile-simple); при редактировании — полное меню */
+/* ПРАВКА №13: сокращённая модалка ТОЛЬКО при создании */
 @media(max-width:800px){#overlay.mobile-simple .mob-hide{display:none!important}}
 /* ПРАВКА №14: раздел «Клиенты» — аккордеон в сайдбаре + рабочая область папки в контенте */
 .sidebarfolders{display:flex;flex-direction:column;gap:2px;flex:0 0 auto}
-.sidebarfolderitem{display:flex;align-items:center;gap:8px;padding:8px 12px 8px 26px;border-radius:8px;cursor:pointer;color:var(--text);font-size:13px;font-weight:600}
+.sidebarfolderitem{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 26px;border-radius:8px;cursor:pointer;color:var(--text);font-size:13px;font-weight:600}
 .sidebarfolderitem:hover{background:var(--line)}
 .sidebarfolderitem.active{background:var(--line);color:var(--accent)}
 .sidebarfolderitem .sfname{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -397,8 +397,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .sidebarfolderadd{display:flex;gap:6px;padding:4px 8px 4px 26px}
 .sidebarfolderadd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:6px;padding:6px 8px;font-size:12px}
 .sidebarfolderadd button{background:var(--accent);color:#fff;border-radius:6px;padding:6px 9px;font-size:11.5px;font-weight:600}
-/* рабочая область папки (контент) */
-/* ПРАВКА №11+15: раздел «Задачи на месяц» */
+/* ПРАВКА №18: переименование папок (кнопка ✎ у папки) */
+.sidebarfolderitem .cheadbtn{flex:0 0 auto}
+.mobilesectionitem[data-mfolder]{cursor:pointer}
+/* ПРАВКА №11+15: раздел «Задачи на месяц» (дублирующийся блок ниже удалён — он ломал вёрстку строк) */
 .mgoalnav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .mgoalnav .iconbtn{padding:8px 12px}
 .mgoaladd{display:flex;gap:8px;margin-bottom:8px}
@@ -411,6 +413,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .mgoalopts textarea{width:100%;min-height:52px;border:1px solid #d9dde2;border-radius:6px;padding:7px 9px;font-size:12.5px;resize:vertical}
 .mgoallist{display:grid;gap:8px}
 .mgoalrow{background:#fff;border:1px solid #dfe3e8;border-radius:10px;box-shadow:0 2px 7px #0000000a;padding:10px 12px}
+.mgoalrow.done{opacity:.8}
 .mgoalrow.done .mgoaltitle{text-decoration:line-through;opacity:.65}
 .mgoalhead{display:flex;align-items:center;gap:9px}
 .mgoaltitle{flex:1;min-width:0;font-weight:600;font-size:13.5px;word-break:break-word}
@@ -444,8 +447,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .ccnotesection{display:grid;gap:8px}
 .ccnotesection .cctitle{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
 .ccnoteadd{display:flex;gap:8px}
-.ccnoteadd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff}
-.ccnoteadd button{background:#7c3aed;color:#fff;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:600}
+.ccnoteadd input{flex:1 1 120px;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box}
+.ccnoteadd button{flex:0 0 auto;white-space:nowrap;background:#7c3aed;color:#fff;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:600}
 .ccnoteitem{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px;display:grid;gap:4px}
 .ccnoteitem .cctext{font-size:13px;white-space:pre-wrap;word-break:break-word}
 .ccnoteitem .ccts{font-size:10.5px;color:var(--muted)}
@@ -460,26 +463,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .folderempty{color:var(--muted);font-size:12.5px;text-align:center;padding:14px 0 6px}
 .folderaddrow{display:flex;gap:8px;margin-bottom:14px}
 .folderaddrow input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
-/* ПРАВКА №11: раздел «Задачи на месяц» */
-.mgoaladd{display:flex;gap:8px;margin-bottom:12px}
-.mgoaladd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
-.mgoallist{display:grid;gap:6px}
-.mgoalrow{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#fff;border:1px solid #dfe3e8;border-radius:8px;box-shadow:0 2px 7px #0000000a}
-.mgoalrow.done{opacity:.65}
-.mgoalrow.done .mgoaltitle{text-decoration:line-through}
-.mgoaltitle{flex:1;min-width:0;font-weight:600;font-size:13.5px;word-break:break-word}
-.mgoaldel{width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;padding:0}
-.mgoaldel:hover{background:#fecaca;color:#991b1b}
-  
- /* ПРАВКА №17.3: инпуты карточки растягиваются по сетке, а не своим дефолтным размером — сетка больше не распирается шире экрана */
+/* ПРАВКА №17.3: инпуты карточки растягиваются по сетке — сетка не распирается шире экрана */
 .ccgrid input{width:100%;min-width:0;box-sizing:border-box}
 .folderclientitem,.clientcard,.ccgrid label,.cityrow{min-width:0}
 .folderclientitem{overflow:hidden}
 .cityrow{display:flex;align-items:center;gap:8px}
 .cityrow input{flex:1 1 auto;min-width:0}
 .cty-time{color:var(--accent);font-weight:700;white-space:nowrap;flex:0 0 auto}
-.ccnoteadd input{flex:1 1 120px;min-width:0;width:auto;box-sizing:border-box}
-.ccnoteadd button{flex:0 0 auto;white-space:nowrap}
 @media(max-width:800px){
   .clientcard .ccgrid{grid-template-columns:1fr 1fr;gap:9px 10px}
   .clientcard .ccgrid label.citylab{grid-column:1/-1}
@@ -539,7 +529,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   </div>
 </div>
 
-<!-- ПРАВКА №13: mob-hide действует только когда у overlay есть класс mobile-simple (создание задачи) -->
+<!-- ПРАВКА №13: mob-hide действует только при создании задачи (класс mobile-simple) -->
 <div class="overlay" id="overlay"><div class="modal"><h2 id="modalTitle">Новая задача</h2><div class="formgrid">
   <div class="field full"><label>Название</label><input id="fTitle"></div>
   <div class="field full objectrow mob-hide">
@@ -610,8 +600,8 @@ data.tasks.forEach(t=>{
   if(t.time&&!/^\d{1,2}:\d{2}$/.test(t.time))t.time=null;
   if(t.endTime&&!/^\d{1,2}:\d{2}$/.test(t.endTime))t.endTime=null;
 });
-/* ПРАВКА №14: foldersExpanded — аккордеон в сайдбаре (ПК), mobileFoldersExpanded — в списке разделов (мобила) */
-let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:false,openFolderId:null,foldersExpanded:false,mobileFoldersExpanded:false,addingFolderSidebar:false,addingFolderMobile:false};
+/* ПРАВКА №18: renamingFolderId — инлайн-переименование папок */
+let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:false,openFolderId:null,foldersExpanded:false,mobileFoldersExpanded:false,addingFolderSidebar:false,addingFolderMobile:false,renamingFolderId:null};
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -1392,11 +1382,7 @@ function renderMonth(){
 /* ================== РАЗДЕЛ «ЗАДАЧИ НА МЕСЯЦ» ================== */
 function monthKeyOf(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}`}
 function monthGoalsOf(d){const k=monthKeyOf(d);data.monthGoals[k]=data.monthGoals[k]||[];return data.monthGoals[k]}
-
-/* ПРАВКА №15: шапка без День/Неделя/Месяц — только ‹ Сегодня › (сегодня = текущий месяц);
-   у задачи-максимум: чекбоксы-счётчики (кол-во + название) и подзадачи как в обычных задачах */
-/* ================== ПРАВКА №17: вспомогательные функции ================== */
-/* Автозакрытие задачи месяца: все счётчики и подзадачи отмечены => done */
+/* ПРАВКА №17: автозакрытие задачи месяца */
 function recomputeGoalDone(t){
   const hasInner=(t.counters||[]).length||(t.subtasks||[]).length;
   if(!hasInner)return;
@@ -1404,14 +1390,14 @@ function recomputeGoalDone(t){
   const sOk=(t.subtasks||[]).every(s=>subDone(s));
   t.done=cOk&&sOk;
 }
-/* Нормализация телефона: 89111111111 / 79111111111 / 9111111111 => +7 (911) 111-11-11 */
+/* ПРАВКА №17: нормализация телефона */
 function normalizePhone(raw){
   let d=String(raw||'').replace(/\D/g,'');
   if(d.length===11&&(d[0]==='8'||d[0]==='7'))d=d.slice(1);
   if(d.length!==10)return null;
   return {val:`+7 (${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,8)}-${d.slice(8,10)}`,digits:d};
 }
-/* Словарь городов => смещение от UTC (для автоподстановки часового пояса) */
+/* ПРАВКА №17: словарь городов => смещение от UTC */
 const CITY_TZ={'калининград':2,'москва':3,'мск':3,'санкт-петербург':3,'спб':3,'питер':3,'казань':3,'нижний новгород':3,'воронеж':3,'ростов-на-дону':3,'ростов':3,'краснодар':3,'сочи':3,'ярославль':3,'владимир':3,'тула':3,'тверь':3,'иваново':3,'брянск':3,'курск':3,'липецк':3,'орёл':3,'орел':3,'смоленск':3,'белгород':3,'псков':3,'великий новгород':3,'вологда':3,'череповец':3,'архангельск':3,'мурманск':3,'кострома':3,'рязань':3,'пенза':3,'саранск':3,'тамбов':3,'самара':4,'тольятти':4,'саратов':4,'волгоград':4,'ижевск':4,'ульяновск':4,'йошкар-ола':4,'чебоксары':4,'киров':4,'астрахань':4,'екатеринбург':5,'пермы':5,'пермь':5,'челябинск':5,'уфа':5,'оренбург':5,'курган':5,'магнитогорск':5,'омск':6,'тюмень':6,'новосибирск':7,'красноярск':7,'барнаул':7,'томск':7,'кемерово':7,'новокузнецк':7,'абакан':7,'кызыл':7,'горно-алтайск':7,'иркутск':8,'братск':8,'улан-удэ':8,'чита':8,'якутск':9,'благовещенск':9,'владивосток':10,'хабаровск':10,'уссурийск':10,'находка':10,'комсомольск-на-амуре':10,'магадан':11,'южно-сахалинск':11,'петропавловск-камчатский':12};
 function lookupCityTz(city){
   const s=String(city||'').toLowerCase().trim();
@@ -1426,13 +1412,11 @@ function parseTzOffset(tz){
   const v=parseFloat(m[1]);
   return isFinite(v)?v:null;
 }
-/* Текущее время клиента: от UTC + смещение клиента (не зависит от ПК) */
 function clientTimeStr(offset){
   const utcMs=Date.now()+new Date().getTimezoneOffset()*60000;
   const t=new Date(utcMs+offset*3600000);
   return `${pad(t.getHours())}:${pad(t.getMinutes())}`;
 }
-/* Копирование в буфер */
 function copyText(s,msg){
   const done=()=>toast(msg||'Скопировано');
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(s).then(done).catch(()=>fallbackCopy(s,done))}
@@ -1443,8 +1427,7 @@ function fallbackCopy(s,done){
   try{document.execCommand('copy');done()}catch(e){}
   ta.remove();
 }
-/* ПРАВКА №17.4: vCard с единым полем имени — iPhone не режет на Имя/Фамилию и не показывает «без имени».
-   N:;Имя;;; — всё имя кладётся в одно поле (family-часть пустая), X-PHONETIC-поля не задаются */
+/* ПРАВКА №17.4: vCard с единым полем имени (iPhone не режет и не показывает «без имени») */
 function downloadVCard(fullName,phoneDigits){
   const escV=s=>String(s).replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
   const name=escV(fullName);
@@ -1456,14 +1439,17 @@ function downloadVCard(fullName,phoneDigits){
   document.body.appendChild(a);a.click();a.remove();
   URL.revokeObjectURL(url);
 }
-/* Живое обновление часов в открытых карточках */
 setInterval(()=>{document.querySelectorAll('[data-citytime]').forEach(el=>{el.textContent=clientTimeStr(+el.dataset.citytime)})},30000);
-/* ================== /вспомогательные ================== */
+
+/* ПРАВКА №19: плавная анимация прогресс-бара в «Задачах на месяц» — как в «Сегодня» */
 function renderMonthGoals(){
   const d=state.date,y=d.getFullYear(),m=d.getMonth();
   const monthName=ruMonths[m];
   const list=monthGoalsOf(d).slice().sort((a,b)=>(a.done?1:0)-(b.done?1:0));
   const done=list.filter(t=>t.done).length,pct=list.length?Math.round(done/list.length*100):0;
+  /* запоминаем старую ширину заливки ДО перерисовки */
+  const oldFill=$('mgProgressFill');
+  const oldWidthPx=oldFill?oldFill.getBoundingClientRect().width:null;
   $('pageTitle').textContent=`Задачи на месяц · ${monthName} ${y}`;
   const items=list.map(t=>{
     const counters=t.counters||[];
@@ -1501,13 +1487,22 @@ function renderMonthGoals(){
         <button class="iconbtn" id="mgNext">›</button>
       </div>
     </div>
-    <div class="progresswrap"><div class="progresslabel">${list.length?`Выполнено ${done}/${list.length}`:'Задач на месяц пока нет'}</div><div class="progressbar"><div class="progressfill" style="width:${pct}%"></div></div><div class="progresslabel">${pct}%</div></div>
+    <div class="progresswrap"><div class="progresslabel">${list.length?`Выполнено ${done}/${list.length}`:'Задач на месяц пока нет'}</div><div class="progressbar"><div class="progressfill" id="mgProgressFill" style="width:${pct}%"></div></div><div class="progresslabel">${pct}%</div></div>
     <div class="mgoaladd"><input id="mgoalInput" placeholder="Новая задача-максимум на месяц"><button class="primary" id="mgoalAddBtn">Добавить</button></div>
     <div class="mgoalopts">
       <div class="mgoalopts-row"><span class="optlabel">☑ Чекбоксы:</span><input type="number" id="mgCntCount" min="1" max="100" placeholder="Кол-во"><input type="text" id="mgCntLabel" placeholder="Название (необязательно), напр. «Показ»"></div>
       <div class="mgoalopts-row" style="flex-direction:column;align-items:stretch"><span class="optlabel">☑ Подзадачи (по одной на строку):</span><textarea id="mgSubs" placeholder="Подготовить материалы&#10;Провести показ"></textarea></div>
     </div>
     <div class="mgoallist">${items||'<div class="folderempty">Пусто. Добавь первую задачу на месяц.</div>'}</div>`;
+  /* плавный рост от старой ширины к новой */
+  const newFill=$('mgProgressFill');
+  if(newFill && oldWidthPx!==null && oldWidthPx>0){
+    newFill.style.transition='none';
+    newFill.style.width=oldWidthPx+'px';
+    void newFill.offsetWidth;
+    newFill.style.transition='';
+    requestAnimationFrame(()=>{newFill.style.width=pct+'%'});
+  }
   $('mgPrev').onclick=()=>{state.date.setMonth(state.date.getMonth()-1);render()};
   $('mgNext').onclick=()=>{state.date.setMonth(state.date.getMonth()+1);render()};
   $('mgToday').onclick=()=>{const n=new Date();state.date=new Date(n.getFullYear(),n.getMonth(),1);render()};
@@ -1523,7 +1518,6 @@ function renderMonthGoals(){
   };
   $('mgoalAddBtn').onclick=add;
   inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}};
-  /* ПРАВКА №17: счётчик — после отметки задача закрывается/открывается автоматически */
   document.querySelectorAll('[data-cnt]').forEach(el=>{
     el.onclick=()=>{
       const [gid,cid]=el.dataset.cnt.split(':');
@@ -1540,7 +1534,6 @@ function renderMonthGoals(){
       }
     };
   });
-  /* ПРАВКА №17: подзадача — то же автозакрытие */
   document.querySelectorAll('[data-msub]').forEach(mb=>{
     mb.onclick=(e)=>{
       e.stopPropagation();
@@ -1559,7 +1552,6 @@ function renderMonthGoals(){
       }
     };
   });
-  /* ПРАВКА №17: главный чекбокс — если есть внутренности, отмечает/снимает ВСЁ внутри; иначе обычный переключатель */
   document.querySelectorAll('[data-mgoal-check]').forEach(b=>{
     b.onclick=()=>{
       const t=monthGoalsOf(d).find(x=>x.id===b.dataset.mgoalCheck);if(!t)return;
@@ -1586,10 +1578,9 @@ function renderMonthGoals(){
 }
 /* ================== /ЗАДАЧИ НА МЕСЯЦ ================== */
 
-/* ================== ПРАВКА №14: РАЗДЕЛ «КЛИЕНТЫ» — аккордеон папок + рабочая область папки ================== */
+/* ================== РАЗДЕЛ «КЛИЕНТЫ» — аккордеон папок + рабочая область папки ================== */
 function folderClientsOf(fid){data.folderClients[fid]=data.folderClients[fid]||[];return data.folderClients[fid]}
 
-/* Открыть папку как рабочую область в контентном окне */
 function openFolderView(fid){
   state.openFolderId=fid;
   state.view='folder';
@@ -1599,10 +1590,25 @@ function openFolderView(fid){
   render();
 }
 
-/* Рабочая область папки: список клиентов + добавление + удаление папки */
-/* ПРАВКА №16: клик по клиенту раскрывает карточку (Город, Часовой пояс, Тип недвижимости, Бюджет, ПВ)
-   + заметки: сохраняются с датой и временем, можно редактировать и удалять */
 function fmtTs(ts){const d=new Date(ts);return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
+
+/* ПРАВКА №18: заметка о клиенте → предложение создать задачу (parseQuickAdd: даты, «в 12», «после 15», диапазоны, шаблоны) */
+function maybeCreateTaskFromNote(text){
+  const p=parseQuickAdd(text);
+  if(!p.time&&!p.template)return;
+  const dObj=parse(p.date);
+  const today=iso(new Date());
+  const tmrD=new Date();tmrD.setDate(tmrD.getDate()+1);
+  const when=(p.date===today?'сегодня':p.date===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)+(p.time?` в ${p.time}`:'');
+  const tpl=p.template?`\nШаблон «${p.template.code}» — подставятся подзадачи.`:'';
+  if(confirm(`Добавить задачу в календарь?\n\n«${p.title}»\n${when}${tpl}`)){
+    const subtasks=p.template?(p.template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
+    data.tasks.push({id:uid(),title:p.title,date:p.date,time:p.time,endTime:null,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0});
+    save();
+    toast(`Задача добавлена: ${when}`);
+    render();
+  }
+}
 
 function renderFolderView(){
   const f=data.clientFolders.find(x=>x.id===state.openFolderId);
@@ -1614,11 +1620,10 @@ function renderFolderView(){
       const open=state.openClientId===c.id;
       const notes=c.notes||[];
       const phones=c.phones||[];
-            /* ПРАВКА №17.2: пояс вычисляется из города при каждом рендере (не зависит от blur) */
+      /* пояс вычисляется из города при каждом рендере */
       const off=open?((lookupCityTz(c.city)!==null)?lookupCityTz(c.city):parseTzOffset(c.tz)):null;
       let cardHtml='';
       if(open){
-        /* ПРАВКА №17.1: время города на одной строке с инпутом; поле «Часовой пояс» убрано (пояс считается сам) */
         const cityTime=(off!==null)?`<span class="cty-time" data-citytime="${off}">${clientTimeStr(off)}</span>`:'';
         const phonesHtml=`<div class="ccnotesection"><div class="cctitle">Телефоны</div>
           ${phones.map(p=>`
@@ -1724,7 +1729,6 @@ function renderFolderView(){
       save();renderFolderView();renderSidebarFolders();
     };
   });
-  /* ПРАВКА №17.1: поля карточки; город сам подтягивает пояс (внутренне), поле пояса больше нет */
   document.querySelectorAll('[data-cf]').forEach(fl=>{
     const applyField=()=>{
       const cl=list.find(x=>x.id===fl.dataset.cid);if(!cl)return;
@@ -1779,6 +1783,8 @@ function renderFolderView(){
     cl.notes=cl.notes||[];
     cl.notes.push({id:uid(),text:v,ts:Date.now()});
     save();renderFolderView();
+    /* ПРАВКА №18: если в заметке распознались дата/время/шаблон — предлагаем создать задачу */
+    maybeCreateTaskFromNote(v);
   };
   document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
   if(noteInput)noteInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addNote(state.openClientId)}};
@@ -1817,7 +1823,7 @@ function renderFolderView(){
   };
 }
 
-/* Аккордеон папок: в сайдбаре (ПК) и в списке разделов (мобила) */
+/* ПРАВКА №18: аккордеон папок + переименование (ПК и мобилка) */
 function renderSidebarFolders(){
   const wrap=$('sidebarFolders');
   if(wrap){
@@ -1826,13 +1832,21 @@ function renderSidebarFolders(){
         const items=(data.clientFolders||[]).map(f=>{
           const cnt=(data.folderClients[f.id]||[]).length;
           const active=state.view==='folder'&&state.openFolderId===f.id;
-          return `<div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}">📁<span class="sfname">${esc(f.name)}</span><span class="fcount">${cnt||''}</span></div>`;
+          const nameHtml=state.renamingFolderId===f.id
+            ?`<input class="cnameedit" data-frenameinput value="${esc(f.name)}">`
+            :`📁<span class="sfname">${esc(f.name)}</span>`;
+          return `<div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}">${nameHtml}<span class="fcount">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" title="Переименовать папку">✎</button></div>`;
         }).join('');
         const addBlock=state.addingFolderSidebar
           ?`<div class="sidebarfolderadd"><input id="sfInput" placeholder="Название папки"><button id="sfOk">OK</button></div>`
           :`<div class="sidebarfolderitem sfadd" id="sfAdd">＋ Новая папка</div>`;
         wrap.innerHTML=items+addBlock;
-        wrap.querySelectorAll('[data-folder]').forEach(el=>{el.onclick=()=>openFolderView(el.dataset.folder)});
+        wrap.querySelectorAll('[data-folder]').forEach(el=>{
+          el.onclick=(e)=>{
+            if(e.target.closest('[data-frename],[data-frenameinput]'))return;
+            openFolderView(el.dataset.folder);
+          };
+        });
         const addBtn=$('sfAdd');
         if(addBtn)addBtn.onclick=()=>{state.addingFolderSidebar=true;renderSidebarFolders()};
         const si=$('sfInput');
@@ -1853,19 +1867,27 @@ function renderSidebarFolders(){
       wrap.innerHTML='';
     }
   }
-  /* мобильный аккордеон внутри списка разделов */
+  /* мобильный аккордеон — рендерится в контейнер сразу под пунктом «Клиенты» */
   const mlist=$('mobileFoldersList');
   if(mlist){
     if(state.mobileFoldersExpanded){
       const items=(data.clientFolders||[]).map(f=>{
         const cnt=(data.folderClients[f.id]||[]).length;
-        return `<button class="mobilesectionitem" data-mfolder="${f.id}" style="padding-left:30px"><span class="mobilesectionicon">📁</span><span class="mobilesectionlabel">${esc(f.name)}</span><span class="mobilesectionarrow">${cnt||''}</span></button>`;
+        const nameHtml=state.renamingFolderId===f.id
+          ?`<input class="cnameedit" data-frenameinput value="${esc(f.name)}">`
+          :`<span class="mobilesectionicon">📁</span><span class="mobilesectionlabel">${esc(f.name)}</span>`;
+        return `<div class="mobilesectionitem" data-mfolder="${f.id}" style="padding-left:30px">${nameHtml}<span class="mobilesectionarrow">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" title="Переименовать папку">✎</button></div>`;
       }).join('');
       const addBlock=state.addingFolderMobile
         ?`<div class="sidebarfolderadd" style="padding:8px 12px 8px 30px"><input id="mfInput" placeholder="Название папки"><button id="mfOk">OK</button></div>`
-        :`<button class="mobilesectionitem" id="mfAdd" style="padding-left:30px;color:var(--accent)"><span class="mobilesectionicon">➕</span><span class="mobilesectionlabel">Новая папка</span></button>`;
+        :`<div class="mobilesectionitem" id="mfAdd" style="padding-left:30px;color:var(--accent);cursor:pointer"><span class="mobilesectionicon">➕</span><span class="mobilesectionlabel">Новая папка</span></div>`;
       mlist.innerHTML=items+addBlock;
-      mlist.querySelectorAll('[data-mfolder]').forEach(el=>{el.onclick=()=>openFolderView(el.dataset.mfolder)});
+      mlist.querySelectorAll('[data-mfolder]').forEach(el=>{
+        el.onclick=(e)=>{
+          if(e.target.closest('[data-frename],[data-frenameinput]'))return;
+          openFolderView(el.dataset.mfolder);
+        };
+      });
       const addBtn=$('mfAdd');
       if(addBtn)addBtn.onclick=()=>{state.addingFolderMobile=true;renderSidebarFolders()};
       const mi=$('mfInput');
@@ -1882,6 +1904,27 @@ function renderSidebarFolders(){
     }else{
       mlist.innerHTML='';
     }
+  }
+  /* ПРАВКА №18: переименование папки — общее для ПК и мобилки */
+  document.querySelectorAll('[data-frename]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      state.renamingFolderId=b.dataset.frename;
+      renderSidebarFolders();
+    };
+  });
+  const fri=document.querySelector('[data-frenameinput]');
+  if(fri){
+    const commitF=()=>{
+      const fo=data.clientFolders.find(x=>x.id===state.renamingFolderId);
+      if(fo&&fri.value.trim()){fo.name=fri.value.trim();save();if(state.view==='folder')renderFolderView()}
+      state.renamingFolderId=null;
+      renderSidebarFolders();
+    };
+    fri.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();commitF()}if(e.key==='Escape'){state.renamingFolderId=null;renderSidebarFolders()}};
+    fri.onblur=commitF;
+    fri.onclick=e=>e.stopPropagation();
+    setTimeout(()=>{fri.focus();fri.select()},30);
   }
 }
 /* ================== /РАЗДЕЛ «КЛИЕНТЫ» ================== */
@@ -2179,12 +2222,12 @@ function mobileNavList(){
   ];
 }
 
+/* ПРАВКА №18: контейнер папок renderится сразу ПОСЛЕ пункта «Клиенты», а не в конце списка */
 function buildMobileSectionsHtml(){
   const items=mobileNavList();
   return `<div class="mobilesections">
     <div class="mobilesectionsbrand">Мой ежедневник</div>
-    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionicon">${it.icon}</span><span class="mobilesectionlabel">${it.label}</span></button>`).join('')}
-    <div id="mobileFoldersList"></div>
+    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionicon">${it.icon}</span><span class="mobilesectionlabel">${it.label}</span></button>${it.id==='clients'?'<div id="mobileFoldersList"></div>':''}`).join('')}
   </div>`;
 }
 
@@ -2201,6 +2244,29 @@ function openMobileSection(sectionId){
 function backToMobileSections(){
   __mobileScreen='sections';
   renderMobileShell();
+}
+
+/* ПРАВКА №18: единый биндинг мобильных разделов (без дублей обработчиков) */
+function bindMobileSections(wrap){
+  wrap.querySelectorAll('.mobilesectionitem[data-section]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(btn.dataset.section==='clients'){
+        state.mobileFoldersExpanded=!state.mobileFoldersExpanded;
+        renderMobileShellSectionsRefresh();
+        return;
+      }
+      if(btn.dataset.section==='settings'){openMobileSettings();return}
+      openMobileSection(btn.dataset.section);
+    });
+  });
+}
+function renderMobileShellSectionsRefresh(){
+  const sidebar=document.querySelector('.sidebar');
+  const wrap=sidebar&&sidebar.querySelector('.mobilesectionswrap');
+  if(!wrap||__mobileScreen!=='sections'||!isMobileLayout())return;
+  wrap.innerHTML=buildMobileSectionsHtml();
+  bindMobileSections(wrap);
+  renderSidebarFolders();
 }
 
 function renderMobileShell(){
@@ -2231,47 +2297,12 @@ function renderMobileShell(){
     if(__mobileScreen==='sections'){
       wrap.style.display='';
       wrap.innerHTML=buildMobileSectionsHtml();
-      wrap.querySelectorAll('.mobilesectionitem[data-section]').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-          /* ПРАВКА №14: «Клиенты» в разделах — аккордеон (раскрыть/свернуть папки), а не переход */
-          if(btn.dataset.section==='clients'){
-            state.mobileFoldersExpanded=!state.mobileFoldersExpanded;
-            wrap.innerHTML=buildMobileSectionsHtml();
-            wrap.querySelectorAll('.mobilesectionitem[data-section]').forEach(b2=>{
-              b2.addEventListener('click',()=>{b2.dispatchEvent(new Event('noop'))});
-            });
-            /* перезакрепляем обработчики простым перезапуском сборки */
-            renderMobileShellSectionsRefresh();
-            return;
-          }
-          if(btn.dataset.section==='settings'){openMobileSettings();return}
-          openMobileSection(btn.dataset.section);
-        });
-      });
+      bindMobileSections(wrap);
       renderSidebarFolders();
     }else{
       wrap.style.display='none';
     }
   }
-}
-/* Пересборка списка разделов (нужна после раскрытия аккордеона «Клиенты») */
-function renderMobileShellSectionsRefresh(){
-  const sidebar=document.querySelector('.sidebar');
-  const wrap=sidebar&&sidebar.querySelector('.mobilesectionswrap');
-  if(!wrap)return;
-  wrap.innerHTML=buildMobileSectionsHtml();
-  wrap.querySelectorAll('.mobilesectionitem[data-section]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      if(btn.dataset.section==='clients'){
-        state.mobileFoldersExpanded=!state.mobileFoldersExpanded;
-        renderMobileShellSectionsRefresh();
-        return;
-      }
-      if(btn.dataset.section==='settings'){openMobileSettings();return}
-      openMobileSection(btn.dataset.section);
-    });
-  });
-  renderSidebarFolders();
 }
 
 function openMobileSettings(){
@@ -2645,7 +2676,6 @@ function createRecurringCopies(baseTask, days, weeks, seriesId){
 }
 /* ================== /ПОВТОР ================== */
 
-/* ПРАВКА №13: класс mobile-simple ставится только при СОЗДАНИИ (id=null) — тогда на мобиле модалка сокращённая; при редактировании — полное меню */
 function openModal(id=null,date=iso(state.date),time='09:00'){
   state.editing=id;
   $('overlay').classList.toggle('mobile-simple', !id);
@@ -2771,7 +2801,8 @@ function onFocusPhaseEnd(skipped){
 
 const WB_B='(?<![a-zA-Zа-яА-Я0-9])',WB_A='(?![a-zA-Zа-яА-Я0-9])';
 const RU_WEEKDAYS={'понедельник':1,'пн':1,'вторник':2,'вт':2,'среда':3,'ср':3,'четверг':4,'чт':4,'пятница':5,'пт':5,'суббота':6,'сб':6,'воскресенье':0,'вс':0};
-const VERB_STRIP_RE=new RegExp('^(звонок|позвонить|перезвонить)\\s+','i');
+/* ПРАВКА №18: добавлены глаголы созвона/ВП для очистки начала заметки */
+const VERB_STRIP_RE=new RegExp('^(звонок|позвонить|перезвонить|созвон|созвониться|видеопоказ)\\s+','i');
 function parseQuickAdd(raw){
   let s=raw.trim();
   let d=new Date();
@@ -2785,6 +2816,8 @@ function parseQuickAdd(raw){
   const rangeRe=/(?:в\s+промежутке\s+)?с\s+(\d{1,2})(?::(\d{2}))?\s+до\s+(\d{1,2})(?::(\d{2}))?/i;
   const dashRangeRe=/(?<!\d)(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})(?!\d)/;
   const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
+  /* ПРАВКА №18: «после 15» / «послезавтра после 15:30» */
+  const afterRe=/(?<![a-zA-Zа-яА-Я0-9])после\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
 
   let mr=s.match(rangeRe);
   if(mr){
@@ -2802,6 +2835,12 @@ function parseQuickAdd(raw){
       if(ms){
         time=pad(Math.min(23,+ms[1]))+':'+pad(Math.min(59,+(ms[2]||0)));
         s=(s.slice(0,ms.index)+' '+s.slice(ms.index+ms[0].length)).trim();
+      }else{
+        let ma=s.match(afterRe);
+        if(ma){
+          time=pad(Math.min(23,+ma[1]))+':'+pad(Math.min(59,+(ma[2]||0)));
+          s=(s.slice(0,ma.index)+' '+s.slice(ma.index+ma[0].length)).trim();
+        }
       }
     }
   }
