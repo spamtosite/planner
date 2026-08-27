@@ -405,8 +405,31 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 }
 /* ==== Убираем верхнюю панель, строка быстрого ввода теперь первая ==== */
 .top{display:none!important}
+/* ПРАВКА №9: упрощённая модалка на мобильном */
+@media(max-width:800px){.mob-hide{display:none!important}}
+/* ПРАВКА №10: раздел «Клиенты» — папки */
+.foldergrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.foldercard{display:flex;align-items:center;gap:10px;padding:14px;background:#fff;border:1.5px solid var(--line);border-radius:12px;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s ease,border-color .2s ease}
+.foldercard:hover{border-color:#c7cdd6;transform:translateY(-1px)}
+.foldericon{font-size:20px;flex:0 0 auto}
+.foldername{flex:1;min-width:0;font-weight:600;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foldercount{font-size:11.5px;color:var(--muted);font-weight:700;background:#f1f3f5;border-radius:10px;padding:2px 8px;flex:0 0 auto}
+.folderaddchip{display:flex;align-items:center;justify-content:center;padding:14px;border-radius:12px;border:1.5px dashed #c7cdd6;color:var(--accent);font-weight:600;font-size:13px;cursor:pointer;background:transparent;transition:background .2s ease,border-color .2s ease}
+.folderaddchip:hover{background:#eef4ff;border-color:var(--accent)}
+.folderaddform{display:flex;gap:8px;align-items:center;padding:14px;border-radius:12px;border:1.5px solid var(--accent);background:#fff}
+.folderaddform input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:9px}
+.folderclientlist{display:grid;gap:6px;margin-bottom:12px}
+.folderclientitem{display:flex;align-items:center;gap:8px;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:#f8f9fb}
+.folderclientitem .cname{flex:1;min-width:0;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.folderclientitem .cdel{width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:11px;display:grid;place-items:center;flex:0 0 auto;padding:0}
+.folderclientitem .cdel:hover{background:#fecaca;color:#991b1b}
+.folderempty{color:var(--muted);font-size:12.5px;text-align:center;padding:10px 0 4px}
+.folderaddrow{display:flex;gap:8px}
+.folderaddrow input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:9px}
+@media(max-width:680px){.foldergrid{grid-template-columns:1fr 1fr}}
 </style></head>
-<body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button></div><div class="sidebarpending" id="sidebarPending"></div>
+<body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div><!-- ПРАВКА №10: новый раздел «Клиенты» -->
+<div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navClients">Клиенты</button></div><div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
   <button class="backupbtn" id="exportBtn">⬇ Экспорт</button>
   <button class="backupbtn" id="importBtn">⬆ Импорт</button>
@@ -450,11 +473,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
     <div><label style="font-size:12px;color:var(--muted);font-weight:600">Объект (ЖК)</label><input id="fObject" placeholder="Например: ЖК Флора"></div>
     <div><label style="font-size:12px;color:var(--muted);font-weight:600">Менеджер продаж</label><input id="fManager" placeholder="Имя, телефон"></div>
   </div>
+  <!-- ПРАВКА №9: на мобильном эти поля скрыты -->
+  <div class="field full objectrow mob-hide">
   <div class="field"><label>Дата</label><input id="fDate" type="date"></div>
   <div class="field"><label>Время начала</label><input id="fTime" type="time"></div>
-  <div class="field full"><label>Время окончания (включительно)</label><input id="fEndTime" type="time"></div>
-  <div class="field full"><label>Заметка / результат</label><textarea id="fNote"></textarea></div>
-  <div class="field full" id="recurField">
+  <div class="field full mob-hide"><label>Время окончания (включительно)</label><input id="fEndTime" type="time"></div>
+  <div class="field full mob-hide"><label>Заметка / результат</label><textarea id="fNote"></textarea></div>
+  <div class="field full mob-hide" id="recurField">
     <label>Повторить — создаёт НЕЗАВИСИМЫЕ копии на выбранные дни</label>
     <div class="recur" id="recurDays">
       <button type="button" class="daypill" data-d="1">Пн</button>
@@ -497,6 +522,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   <div class="modalfoot"><div></div><div class="modalbuttons"><button class="secondary" id="tplCloseBtn">Закрыть</button><button class="primary" id="tplSaveBtn">Сохранить шаблон</button></div></div>
 </div></div>
 
+  <!-- ПРАВКА №10: окно папки с клиентами -->
+<div class="overlay" id="folderOverlay"><div class="modal" style="width:min(480px,100%)">
+  <h2 id="folderTitle">Папка</h2>
+  <div class="folderclientlist" id="folderClientList"></div>
+  <div class="folderaddrow"><input id="folderClientInput" placeholder="Имя клиента"><button class="primary" id="folderClientAdd">Добавить</button></div>
+  <div class="modalfoot"><button class="danger" id="folderDeleteBtn">Удалить папку</button><div class="modalbuttons"><button class="secondary" id="folderCloseBtn">Закрыть</button></div></div>
+</div></div>
 <div class="toast" id="toast"></div>
 <script>
 const KEY='daily_planner_templates_v1';
@@ -504,11 +536,14 @@ let data=JSON.parse(localStorage.getItem(KEY)||'{"tasks":[],"clients":[],"client
 data.tasks=data.tasks||[];
 data.clients=data.clients||[];
 data.clientChecks=data.clientChecks||{};
+  /* ПРАВКА №10: папки клиентов */
+data.clientFolders=data.clientFolders||[];
+data.folderClients=data.folderClients||{};
 data.templates=data.templates||[
   {code:'ВП',name:'Видеопоказ',subtasks:['Подтвердить с клиентом видеопоказ','Договориться с ОП','Провести ВП']}
 ];
 /* ПРАВКА №3: clientsCollapsed теперь false по умолчанию (панель «Ключевые клиенты» стартует развёрнутой и на десктопе, т.к. свёртывание заработало везде) */
-let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:false};
+let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:false,addingFolder:false,openFolderId:null};
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
@@ -657,12 +692,21 @@ function driveMergeClientChecks(localChecks,remoteChecks){
   return merged;
 }
 
+function driveMergeFolderClients(local,remote){
+  /* ПРАВКА №10: merge клиентов по папкам */
+  local=local||{};remote=remote||{};
+  const merged={};
+  new Set([...Object.keys(local),...Object.keys(remote)]).forEach(k=>{merged[k]=driveMergeArraysById(local[k],remote[k])});
+  return merged;
+}
 function driveMergeData(localData,remoteData){
   return {
     tasks:driveMergeArraysById(localData.tasks,remoteData.tasks),
     clients:driveMergeArraysById(localData.clients,remoteData.clients),
     templates:driveMergeArraysById(localData.templates,remoteData.templates),
-    clientChecks:driveMergeClientChecks(localData.clientChecks,remoteData.clientChecks)
+    clientChecks:driveMergeClientChecks(localData.clientChecks,remoteData.clientChecks),
+    clientFolders:driveMergeArraysById(localData.clientFolders||[],remoteData.clientFolders||[]),
+    folderClients:driveMergeFolderClients(localData.folderClients,remoteData.folderClients)
   };
 }
 
@@ -1048,7 +1092,7 @@ function renderClientsBlock(d){
 
 /* ПРАВКА №2: единая шапка любого представления: слева контекстный заголовок, справа День/Неделя/Месяц + ‹ Сегодня › */
 /* ПРАВКА №2 + №7: слева контекстный заголовок (+ на мобиле кнопка «Сегодня»), справа День/Неделя/Месяц + ‹ Сегодня › (ПК) */
-function viewHeadHtml(leftHtml){
+function viewHeadHtml(leftHtml,noNav){
   return `<div class="dayhead">
     <div class="dayheadleft">${leftHtml}<button class="daytodaymob" id="todayBtnM">Сегодня</button></div>
     <div class="dayheadright">
@@ -1057,9 +1101,7 @@ function viewHeadHtml(leftHtml){
         <button data-view="week" class="${state.view==='week'?'sel':''}">Неделя</button>
         <button data-view="month" class="${state.view==='month'?'sel':''}">Месяц</button>
       </div>
-      <button class="iconbtn" id="prev">‹</button>
-      <button class="iconbtn midbtn" id="todayBtn">Сегодня</button>
-      <button class="iconbtn" id="next">›</button>
+      ${noNav?'':'<button class="iconbtn" id="prev">‹</button><button class="iconbtn midbtn" id="todayBtn">Сегодня</button><button class="iconbtn" id="next">›</button>'}
     </div>
   </div>`;
 }
@@ -1289,7 +1331,84 @@ function renderMonth(){
   $('content').innerHTML=viewHeadHtml(`<span class="datebig">${monthName} ${y}</span>`)+h+'</div>';
   document.querySelectorAll('.mcell').forEach(x=>x.onclick=()=>{state.date=parse(x.dataset.date);state.view='day';setTabs();render()});
 }
+/* ================== ПРАВКА №10: РАЗДЕЛ «КЛИЕНТЫ» (папки) ================== */
+function folderClientsOf(fid){data.folderClients[fid]=data.folderClients[fid]||[];return data.folderClients[fid]}
 
+function renderClientsView(){
+  const cards=(data.clientFolders||[]).map(f=>{
+    const cnt=(data.folderClients[f.id]||[]).length;
+    return `<div class="foldercard" data-folder="${f.id}"><span class="foldericon">📁</span><span class="foldername">${esc(f.name)}</span><span class="foldercount">${cnt}</span></div>`;
+  }).join('');
+  const addBlock=state.addingFolder
+    ?`<div class="folderaddform"><input id="folderNameInput" placeholder="Название папки"><button class="primary" id="folderNameOk">Создать</button></div>`
+    :`<button class="folderaddchip" id="folderAddChip">+ Папка</button>`;
+  $('pageTitle').textContent='Клиенты';
+  $('content').innerHTML=viewHeadHtml('<span class="datebig">Клиенты</span>',true)
+    +`<div class="foldergrid">${cards}${addBlock}</div>`;
+  bindViewHead();
+  const addChip=$('folderAddChip');
+  if(addChip)addChip.onclick=()=>{state.addingFolder=true;renderClientsView()};
+  const nameInput=$('folderNameInput');
+  if(nameInput){
+    const commit=()=>{
+      const v=nameInput.value.trim();
+      if(v){data.clientFolders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
+      state.addingFolder=false;renderClientsView();
+    };
+    $('folderNameOk').onclick=commit;
+    nameInput.onkeydown=e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){state.addingFolder=false;renderClientsView()}};
+    nameInput.focus();
+  }
+  document.querySelectorAll('.foldercard').forEach(card=>{card.onclick=()=>openFolderModal(card.dataset.folder)});
+}
+
+function openFolderModal(fid){
+  state.openFolderId=fid;
+  renderFolderModal();
+  $('folderOverlay').style.display='flex';
+  setTimeout(()=>$('folderClientInput').focus(),50);
+}
+function closeFolderModal(){$('folderOverlay').style.display='none';state.openFolderId=null}
+function renderFolderModal(){
+  const fid=state.openFolderId;
+  const f=data.clientFolders.find(x=>x.id===fid);
+  if(!f){closeFolderModal();return}
+  $('folderTitle').textContent=`📁 ${f.name}`;
+  const list=folderClientsOf(fid);
+  $('folderClientList').innerHTML=list.length
+    ?list.map(c=>`<div class="folderclientitem"><span class="cname">${esc(c.name)}</span><button class="cdel" data-del-client="${c.id}" title="Удалить">✕</button></div>`).join('')
+    :'<div class="folderempty">В папке пока никого нет</div>';
+  $('folderClientList').querySelectorAll('[data-del-client]').forEach(btn=>{
+    btn.onclick=()=>{
+      data.folderClients[fid]=list.filter(c=>c.id!==btn.dataset.delClient);
+      save();renderFolderModal();renderClientsView();
+    };
+  });
+}
+ $('folderClientAdd').onclick=()=>{
+  const fid=state.openFolderId;
+  if(!fid)return;
+  const inp=$('folderClientInput');
+  const v=inp.value.trim();
+  if(!v)return;
+  folderClientsOf(fid).push({id:uid(),name:v});
+  save();inp.value='';inp.focus();
+  renderFolderModal();renderClientsView();
+};
+ $('folderClientInput').onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();$('folderClientAdd').click()}};
+ $('folderCloseBtn').onclick=closeFolderModal;
+ $('folderOverlay').onclick=e=>{if(e.target===$('folderOverlay'))closeFolderModal()};
+ $('folderDeleteBtn').onclick=()=>{
+  const fid=state.openFolderId;
+  const f=data.clientFolders.find(x=>x.id===fid);
+  if(!f)return;
+  const cnt=(data.folderClients[fid]||[]).length;
+  if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
+  data.clientFolders=data.clientFolders.filter(x=>x.id!==fid);
+  delete data.folderClients[fid];
+  save();closeFolderModal();renderClientsView();
+};
+/* ================== /РАЗДЕЛ «КЛИЕНТЫ» ================== */
 /* ================== МОБИЛЬНЫЙ СПИСОК ДНЯ ==================
    ПРАВКА №5: задачи с подзадачами раскрываются тапом (аккордеон), у каждой строки есть кнопка ✎ для редактирования
    ПРАВКА №4 (мобайл): длительное нажатие на задачу со временем = перенос времени пальцем (аналог drag&drop) */
@@ -1646,6 +1765,7 @@ function mobileNavList(){
   return [
     {id:'today',icon:'☀️',label:'Сегодня'},
     {id:'calendar',icon:'📅',label:'Календарь'},
+    {id:'clients',icon:'👥',label:'Клиенты'},
     {id:'settings',icon:'⚙️',label:'Настройки'}
   ];
 }
@@ -1661,6 +1781,8 @@ function buildMobileSectionsHtml(){
 function openMobileSection(sectionId){
   if(sectionId==='today'){state.date=new Date();state.view='day'}
   else if(sectionId==='calendar'){state.view='month'}
+  /* ПРАВКА №10: раздел «Клиенты» на мобиле */
+  else if(sectionId==='clients'){state.view='clients'}
   setTabs();
   __mobileScreen='detail';
   renderMobileShell();
@@ -1717,10 +1839,11 @@ function render(){
   renderMobileShell();
   if(state.view==='day')renderDay();
   else if(state.view==='week')renderWeek();
+  /* ПРАВКА №10: вид «Клиенты» */
+  else if(state.view==='clients')renderClientsView();
   else if(isMobileLayout())renderMonthPicker();
   else renderMonth();
   renderSidebarPending();
-  /* ПРАВКА №2: биндинг кнопок шапки после каждого рендера (элементы пересоздаются) */
   bindViewHead();
 }
 
@@ -2139,6 +2262,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     if($('overlay').style.display==='flex')closeModal();
     if($('tplOverlay').style.display==='flex')closeTplModal();
+    if($('folderOverlay').style.display==='flex')closeFolderModal();
   }
 });
 
@@ -2324,6 +2448,8 @@ function quick(){
 /* ПРАВКА №2: старые одиночные биндинги viewtabs/prev/next/todayBtn удалены — теперь всё живёт в шапке представлений (bindViewHead) */
  $('navToday').onclick=()=>{state.date=new Date();state.view='day';setTabs();render()};
  $('navCalendar').onclick=()=>{state.view='month';setTabs();render()};
+  /* ПРАВКА №10: кнопка «Клиенты» в сайдбаре (ПК) */
+ $('navClients').onclick=()=>{state.view='clients';setTabs();render()};
 renderQuickTplBar();
 render();
 attachSwipeNav();
@@ -2364,7 +2490,9 @@ function importBackup(file){
       tasks:parsed.tasks||[],
       clients:parsed.clients||[],
       clientChecks:parsed.clientChecks||{},
-      templates:parsed.templates||[]
+      templates:parsed.templates||[],
+      clientFolders:parsed.clientFolders||[],
+      folderClients:parsed.folderClients||{}
     };
     save();
     delete window.__realHeights;
