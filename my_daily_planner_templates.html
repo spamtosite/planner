@@ -470,12 +470,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .mgoaltitle{flex:1;min-width:0;font-weight:600;font-size:13.5px;word-break:break-word}
 .mgoaldel{width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;padding:0}
 .mgoaldel:hover{background:#fecaca;color:#991b1b}
-  /* ПРАВКА №17: телефоны клиента, vCard, время города, переименование */
-.cty-time{color:var(--accent);font-weight:700;margin-left:6px}
+  /* ПРАВКА №17: телефоны клиента, vCard, время города, переименование *//* 
+  ПРАВКА №17.1: время города — на строке с полем, не ломает сетку */
+.cityrow{display:flex;align-items:center;gap:8px;min-width:0}
+.cty-time{color:var(--accent);font-weight:700;white-space:nowrap;flex:0 0 auto}
 .cheadbtn{width:24px;height:24px;border-radius:6px;background:#f1f3f5;color:#6b7280;font-size:12px;display:grid;place-items:center;flex:0 0 auto;padding:0}
 .cheadbtn:hover{background:#e2e6ea;color:var(--text)}
 .cnameedit{flex:1;min-width:0;border:1.5px solid var(--accent);border-radius:7px;padding:5px 8px;font-size:13.5px;font-weight:600}
-.ccphoneitem{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+/* ПРАВКА №17.1: телефон — номер сверху, префикс+кнопка снизу одной строкой */
+.ccphoneitem{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
+.ccphonetop{display:flex;align-items:center;gap:8px}
+.ccphonebot{display:flex;align-items:center;gap:8px;margin-top:7px}
+.ccphonebot .prefixinput{flex:1;min-width:0;width:auto}
 .ccphoneval{font-weight:700;font-size:13.5px;font-variant-numeric:tabular-nums}
 .ccminibtn{width:20px;height:20px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;padding:0;flex:0 0 auto}
 .ccminibtn:hover{background:#fecaca;color:#991b1b}
@@ -1597,23 +1603,26 @@ function renderFolderView(){
       const off=open?parseTzOffset(c.tz):null;
       let cardHtml='';
       if(open){
+        /* ПРАВКА №17.1: время города на одной строке с инпутом; поле «Часовой пояс» убрано (пояс считается сам) */
         const cityTime=(off!==null)?`<span class="cty-time" data-citytime="${off}">${clientTimeStr(off)}</span>`:'';
         const phonesHtml=`<div class="ccnotesection"><div class="cctitle">Телефоны</div>
           ${phones.map(p=>`
             <div class="ccphoneitem">
-              <span class="ccphoneval">${esc(p.val)}</span>
-              <button class="ccminibtn" data-phonedel="${c.id}:${p.id}" title="Удалить номер">✕</button>
+              <div class="ccphonetop">
+                <span class="ccphoneval">${esc(p.val)}</span>
+                <button class="ccminibtn" data-phonedel="${c.id}:${p.id}" title="Удалить номер">✕</button>
+              </div>
               ${isMobileLayout()?`
-                <button class="cvcbtn" data-vcard="${c.id}:${p.id}">📱 В контакты</button>
-                <input class="prefixinput" data-prefixfor="${c.id}:${p.id}" placeholder="Префикс (необяз.)">
-              `:''}
+                <div class="ccphonebot">
+                  <input class="prefixinput" data-prefixfor="${c.id}:${p.id}" placeholder="Префикс (необяз.)">
+                  <button class="cvcbtn" data-vcard="${c.id}:${p.id}">📱 В контакты</button>
+                </div>`:''}
             </div>`).join('')}
           <div class="ccnoteadd"><input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 79111111111 / 9111111111"><button data-phoneadd="${c.id}">Добавить</button></div>
         </div>`;
         cardHtml+=`<div class="clientcard">
           <div class="ccgrid">
-            <label>Город${cityTime}<input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}"></label>
-            <label>Часовой пояс<input data-cf="tz" data-cid="${c.id}" value="${esc(c.tz||'')}" placeholder="+3"></label>
+            <label>Город<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
             <label>Тип недвижимости<input data-cf="realty" data-cid="${c.id}" value="${esc(c.realty||'')}"></label>
             <label>Бюджет<input data-cf="budget" data-cid="${c.id}" value="${esc(c.budget||'')}"></label>
             <label>ПВ<input data-cf="pv" data-cid="${c.id}" value="${esc(c.pv||'')}"></label>
@@ -1657,7 +1666,6 @@ function renderFolderView(){
   };
   $('fvAdd').onclick=add;
   inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();add()}};
-  /* раскрытие карточки (не по кнопкам и не по полю переименования) */
   document.querySelectorAll('[data-toggle]').forEach(h=>{
     h.onclick=(e)=>{
       if(e.target.closest('button,input'))return;
@@ -1666,7 +1674,6 @@ function renderFolderView(){
       renderFolderView();
     };
   });
-  /* копирование имени */
   document.querySelectorAll('[data-copy]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
@@ -1674,7 +1681,6 @@ function renderFolderView(){
       if(cl)copyText(cl.name,'Имя скопировано');
     };
   });
-  /* переименование */
   document.querySelectorAll('[data-renamebtn]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
@@ -1693,7 +1699,6 @@ function renderFolderView(){
     ri.onblur=commit;
     ri.onclick=e=>e.stopPropagation();
   });
-  /* удаление клиента */
   document.querySelectorAll('.folderclientitem .cdel').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
@@ -1705,23 +1710,24 @@ function renderFolderView(){
       save();renderFolderView();renderSidebarFolders();
     };
   });
-  /* поля карточки: город подставляет часовой пояс, пояс обновляет часы */
+  /* ПРАВКА №17.1: поля карточки; город сам подтягивает пояс (внутренне), поле пояса больше нет */
   document.querySelectorAll('[data-cf]').forEach(fl=>{
     const applyField=()=>{
       const cl=list.find(x=>x.id===fl.dataset.cid);if(!cl)return;
       cl[fl.dataset.cf]=fl.value.trim();
+      let rerender=false;
       if(fl.dataset.cf==='city'){
         const off=lookupCityTz(fl.value);
-        if(off!==null&&cl.tzAuto!==false){cl.tz='+'+off;cl.tzAuto=true}
+        if(off!==null){
+          if(cl.tz!=='+'+off){cl.tz='+'+off;rerender=true}
+        }
       }
-      if(fl.dataset.cf==='tz')cl.tzAuto=false;
       save();
-      if(fl.dataset.cf==='city'||fl.dataset.cf==='tz')renderFolderView();
+      if(rerender)renderFolderView();
     };
     fl.onchange=applyField;
     fl.onblur=applyField;
   });
-  /* телефоны */
   const phoneInput=$('ccPhoneInput');
   const addPhone=(cid)=>{
     const cl=list.find(x=>x.id===cid);if(!cl)return;
@@ -1742,7 +1748,6 @@ function renderFolderView(){
       save();renderFolderView();
     };
   });
-  /* vCard: имя = префикс (если указан) + название карточки */
   document.querySelectorAll('[data-vcard]').forEach(b=>{
     b.onclick=()=>{
       const [cid,pid]=b.dataset.vcard.split(':');
@@ -1753,7 +1758,6 @@ function renderFolderView(){
       downloadVCard((prefix?prefix+' ':'')+cl.name,p.digits);
     };
   });
-  /* заметки */
   const noteInput=$('ccNoteInput');
   const addNote=(cid)=>{
     const cl=list.find(x=>x.id===cid);if(!cl)return;
@@ -1789,7 +1793,6 @@ function renderFolderView(){
       save();renderFolderView();
     };
   });
-  /* удаление папки */
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
