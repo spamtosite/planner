@@ -118,7 +118,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientchip.bump{animation:clientBump .5s cubic-bezier(.34,1.56,.64,1)}
 @keyframes clientBump{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}70%{transform:scale(.96) rotate(1deg)}100%{transform:scale(1)}}
 .clientname{font-size:12.5px;font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.clientremove{width:16px;height:16px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease,background .2s ease}
+/* ПРАВКА №25.1: сброшен padding — крестик по центру кружка */
+.clientremove{padding:0;width:16px;height:16px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease,background .2s ease}
 .clientchip:hover .clientremove{opacity:1}
 .clientremove:hover{background:#fecaca;color:#991b1b}
 .clientaddchip{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:transparent;border:1.5px dashed #c7cdd6;color:var(--accent);font-size:12.5px;font-weight:600;transition:background .2s ease,border-color .2s ease}
@@ -1114,7 +1115,10 @@ function buildClientsHtml(d){
 let __lastAllClientsDone=false;
 
 /* ПРАВКА №25: открыть карточку клиента из чипа ключевых клиентов */
-function openKeyClientCard(kc){
+/* ПРАВКА №25.1: открыть карточку клиента из чипа ключевых клиентов */
+function openKeyClientCard(keyClientId){
+  const kc=data.clients.find(x=>x.id===keyClientId);
+  if(!kc)return;
   let folderId=kc.srcFolder,clientId=kc.srcId;
   if(folderId){
     const lst=data.folderClients[folderId]||[];
@@ -1127,9 +1131,8 @@ function openKeyClientCard(kc){
     }
   }
   if(!folderId){toast('Карточка клиента не найдена');return}
-  openFolderView(folderId);
   state.openClientId=clientId;
-  render();
+  openFolderView(folderId);
 }
   
 function bindClients(d){
@@ -1149,6 +1152,8 @@ function bindClients(d){
             /* ПРАВКА №25: клик по имени — открыть карточку клиента */
       if(e.target.closest('.clientname')){openKeyClientCard(c);return}
       const cid=chip.dataset.clientId;
+      /* ПРАВКА №25.1: клик по имени — открыть карточку (передаём id, а не несуществующую переменную) */
+      if(e.target.closest('.clientname')){openKeyClientCard(cid);return}
       const checks=clientsChecksForDay(d);
       const willBeOn=!checks[cid];
       checks[cid]=willBeOn;save();
@@ -1789,7 +1794,7 @@ function renderFolderView(){
         <div class="folderclienthead" data-toggle="${c.id}">
           <span class="carrow">▸</span>
           ${headInner}
-          <button class="cstar ${data.clients.some(k=>k.name===c.name)?'on':''}" data-star="${c.id}" title="В ключевые клиенты">★</button>
+          <button class="cstar ${data.clients.some(k=>k.srcId===c.id||(!k.srcId&&k.name===extractClientName(c.name)))?'on':''}" data-star="${c.id}" title="В ключевые клиенты">★</button>
           <button class="cheadbtn" data-copy="${c.id}" title="Скопировать имя">📋</button>
           <button class="cheadbtn" data-renamebtn="${c.id}" title="Переименовать">✎</button>
           <button class="cdel" data-cid="${c.id}" title="Удалить клиента">✕</button>
@@ -1820,23 +1825,22 @@ function renderFolderView(){
     };
   });
     /* ПРАВКА №24: звёздочка добавляет/убирает клиента из «Ключевых клиентов» дня */
+  /* ПРАВКА №25.1: звезда-переключатель: тап — добавить, повторный тап — убрать (по srcId, без дублей) */
   document.querySelectorAll('[data-star]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
       const cl=list.find(x=>x.id===b.dataset.star);
       if(!cl)return;
-      const exists=data.clients.find(k=>k.name===cl.name);
+      const exists=data.clients.find(k=>k.srcId===cl.id)||data.clients.find(k=>!k.srcId&&k.name===extractClientName(cl.name));
       if(exists){
         data.clients=data.clients.filter(k=>k.id!==exists.id);
-        save();renderSidebarPending();render();
-        toast(`«${cl.name}» убран из ключевых клиентов`);
-        }else{
-        /* ПРАВКА №25: в ключевые уходит только имя + ссылка на карточку */
+        save();renderSidebarPending();
+        toast(`«${exists.name}» убран из ключевых клиентов`);
+      }else{
         data.clients.push({id:uid(),name:extractClientName(cl.name),srcId:cl.id,srcFolder:f.id});
-        save();
+        save();renderSidebarPending();
         celebrateSubtask(b,true);playTick();
-        render();
-        toast(`«${cl.name}» добавлен в ключевые клиенты`);
+        toast(`«${extractClientName(cl.name)}» добавлен в ключевые клиенты`);
       }
       renderFolderView();
     };
