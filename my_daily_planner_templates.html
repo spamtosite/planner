@@ -1146,11 +1146,9 @@ function bindClients(d){
       wrap.classList.toggle('collapsed',state.clientsCollapsed);
     };
   }
-  wrap.querySelectorAll('.clientchip').forEach(chip=>{
+ wrap.querySelectorAll('.clientchip').forEach(chip=>{
     chip.addEventListener('click',e=>{
       if(e.target.closest('.clientremove'))return;
-            /* ПРАВКА №25: клик по имени — открыть карточку клиента */
-      if(e.target.closest('.clientname')){openKeyClientCard(c);return}
       const cid=chip.dataset.clientId;
       /* ПРАВКА №25.1: клик по имени — открыть карточку (передаём id, а не несуществующую переменную) */
       if(e.target.closest('.clientname')){openKeyClientCard(cid);return}
