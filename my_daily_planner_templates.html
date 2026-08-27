@@ -470,16 +470,20 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .mgoaltitle{flex:1;min-width:0;font-weight:600;font-size:13.5px;word-break:break-word}
 .mgoaldel{width:22px;height:22px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;padding:0}
 .mgoaldel:hover{background:#fecaca;color:#991b1b}
-  /* ПРАВКА №17: телефоны клиента, vCard, время города, /* ПРАВКА №17.2: время города на строке с инпутом; на мобиле карточка «Город» на всю ширину, остальные поля 2×2 без наездов */
-.cityrow{display:flex;align-items:center;gap:8px;min-width:0}
-.cityrow input{flex:1;min-width:0;width:auto}
+  
+ /* ПРАВКА №17.3: инпуты карточки растягиваются по сетке, а не своим дефолтным размером — сетка больше не распирается шире экрана */
+.ccgrid input{width:100%;min-width:0;box-sizing:border-box}
+.folderclientitem,.clientcard,.ccgrid label,.cityrow{min-width:0}
+.folderclientitem{overflow:hidden}
+.cityrow{display:flex;align-items:center;gap:8px}
+.cityrow input{flex:1 1 auto;min-width:0}
 .cty-time{color:var(--accent);font-weight:700;white-space:nowrap;flex:0 0 auto}
+.ccnoteadd input{flex:1 1 120px;min-width:0;width:auto;box-sizing:border-box}
+.ccnoteadd button{flex:0 0 auto;white-space:nowrap}
 @media(max-width:800px){
   .clientcard .ccgrid{grid-template-columns:1fr 1fr;gap:9px 10px}
   .clientcard .ccgrid label.citylab{grid-column:1/-1}
   .clientcard{padding:12px 10px}
-  .ccnoteadd input{min-width:0}
-  .ccnoteadd button{flex:0 0 auto;white-space:nowrap}
 }
 .cheadbtn{width:24px;height:24px;border-radius:6px;background:#f1f3f5;color:#6b7280;font-size:12px;display:grid;place-items:center;flex:0 0 auto;padding:0}
 .cheadbtn:hover{background:#e2e6ea;color:var(--text)}
