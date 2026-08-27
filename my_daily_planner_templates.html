@@ -511,6 +511,20 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientchip .clientname:hover{text-decoration:underline}
   /* ПРАВКА №26: метка даты у просроченных задач прошлых дней */
 .sidebarpending-date{font-size:10.5px;font-weight:700;flex:0 0 auto;color:#dc2626}
+  /* ПРАВКА №27: AI-разбор звонка (OpenRouter) */
+.aibtn{flex:0 0 auto;background:#111827;color:#fff;border-radius:8px;padding:9px 12px;font-size:14px}
+.aibtn:hover{background:#263142}
+.aiask-overlay{position:fixed;inset:0;background:rgba(15,20,30,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
+.aiask{width:min(460px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 25px 70px rgba(0,0,0,.35);padding:22px;display:grid;gap:10px}
+.aiask-title{font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.aiask textarea,.aiask input{width:100%;border:1px solid #d9dde2;border-radius:8px;padding:9px;box-sizing:border-box;font:inherit;background:#fff}
+#aiRawInput{min-height:80px;resize:vertical}
+.aiask-settings{display:none;gap:8px;background:#f8f9fb;border:1px solid var(--line);border-radius:10px;padding:10px}
+.aiask-settings.show{display:grid}
+.aiask-settings textarea{min-height:70px;resize:vertical}
+.aiask-result{background:#f8f9fb;border:1px solid var(--line);border-radius:10px;padding:10px;white-space:pre-wrap;font-size:13px;max-height:220px;overflow:auto}
+.aiask-btns{display:flex;gap:8px;justify-content:flex-end}
+.aiask-btns button{border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;border:0;cursor:pointer}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -1729,6 +1743,80 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     render();
   };
 }
+  /* ================== ПРАВКА №27: AI-разбор звонка (OpenRouter) ================== */
+const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
+function aiSettings(){try{return JSON.parse(localStorage.getItem(AI_SETTINGS_KEY))||{}}catch(e){return{}}}
+function aiSaveSettings(s){localStorage.setItem(AI_SETTINGS_KEY,JSON.stringify(s))}
+
+function openAiPopup(cl){
+  document.querySelectorAll('.aiask-overlay').forEach(o=>o.remove());
+  const st=aiSettings();
+  const pop=document.createElement('div');
+  pop.className='aiask-overlay';
+  pop.innerHTML=`<div class="aiask">
+    <div class="aiask-title">🤖 AI-разбор звонка<button class="cheadbtn" id="aiGear" title="Настройки">⚙</button></div>
+    <div id="aiSettingsRow" class="aiask-settings ${st.apiKey?'':'show'}">
+      <input id="aiKeyInput" type="password" placeholder="API-ключ OpenRouter (sk-or-v1-…)" value="${esc(st.apiKey||'')}">
+      <input id="aiModelInput" placeholder="Модель" value="${esc(st.model||'meta-llama/llama-3.3-70b-instruct:free')}">
+      <textarea id="aiPromptInput" placeholder="Промпт">${esc(st.prompt||'Ты ассистент риелтора. Преврати черновые записи о звонке с клиентом в краткую структурированную заметку: 1) Что произошло. 2) Потребности, объект, бюджет. 3) Следующий шаг (с датой/временем, если указаны). Пиши кратко по-русски, ничего не выдумывай.')}</textarea>
+      <button class="noteask-yes" id="aiSettingsSave" type="button">Сохранить настройки</button>
+    </div>
+    <textarea id="aiRawInput" placeholder="Черновик: о чём говорили, что решил клиент, что дальше…"></textarea>
+    <div class="aiask-result" id="aiResult" style="display:none"></div>
+    <div class="aiask-btns">
+      <button class="noteask-no" type="button" id="aiClose">Закрыть</button>
+      <button class="noteask-yes" type="button" id="aiRun">🤖 Разобрать</button>
+      <button class="noteask-yes" type="button" id="aiSaveNote" style="display:none">💾 Сохранить как заметку</button>
+    </div>
+  </div>`;
+  document.body.appendChild(pop);
+  let aiText='';
+  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove()});
+  $('aiClose').onclick=()=>pop.remove();
+  $('aiGear').onclick=()=>$('aiSettingsRow').classList.toggle('show');
+  $('aiSettingsSave').onclick=()=>{
+    aiSaveSettings({apiKey:$('aiKeyInput').value.trim(),model:$('aiModelInput').value.trim(),prompt:$('aiPromptInput').value});
+    toast('Настройки AI сохранены');
+    $('aiSettingsRow').classList.remove('show');
+  };
+  $('aiRun').onclick=async()=>{
+    const raw=$('aiRawInput').value.trim();
+    if(!raw){toast('Введи черновик звонка');return}
+    const s=aiSettings();
+    if(!s.apiKey){toast('Сначала вставь API-ключ (⚙)');$('aiSettingsRow').classList.add('show');return}
+    const btn=$('aiRun');btn.disabled=true;btn.textContent='⏳ Думаю…';
+    try{
+      const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.apiKey},
+        body:JSON.stringify({model:s.model||'meta-llama/llama-3.3-70b-instruct:free',messages:[
+          {role:'system',content:s.prompt||'Преврати записи в краткую структурированную заметку о клиенте.'},
+          {role:'user',content:raw}
+        ]})
+      });
+      const j=await res.json();
+      if(j.error)throw new Error(j.error.message||'Ошибка API');
+      aiText=((j.choices||[])[0]&&j.choices[0].message?j.choices[0].message.content:'').trim();
+      if(!aiText)throw new Error('Пустой ответ модели');
+      const r=$('aiResult');r.style.display='block';r.textContent=aiText;
+      $('aiSaveNote').style.display='';
+    }catch(err){
+      toast('AI: '+(err.message||'ошибка сети'));
+    }finally{
+      btn.disabled=false;btn.textContent='🤖 Разобрать';
+    }
+  };
+  $('aiSaveNote').onclick=()=>{
+    if(!aiText)return;
+    const nt={id:uid(),text:aiText,ts:Date.now(),ai:true};
+    cl.notes=cl.notes||[];
+    cl.notes.push(nt);
+    save();renderFolderView();pop.remove();
+    toast('AI-заметка сохранена');
+    maybeCreateTaskFromNote(cl.name,aiText,nt);
+  };
+}
+/* ================== /AI-разбор ================== */
 
 function renderFolderView(){
   const f=data.clientFolders.find(x=>x.id===state.openFolderId);
@@ -1761,7 +1849,7 @@ function renderFolderView(){
         </div>`;
         /* ПРАВКА №22: заметки с инлайн-редактором и маркером привязанной задачи */
         const notesHtml=`<div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
-            <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
+           <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button><button class="aibtn" data-ai="${c.id}" title="AI-разбор звонка">🤖</button></div>
             ${notes.length?notes.slice().reverse().map(n=>{
               if(state.editingNoteId===n.id){
                 return `<div class="ccnoteitem">
@@ -1939,6 +2027,13 @@ function renderFolderView(){
     save();renderFolderView();
     maybeCreateTaskFromNote(cl.name, v, nt);
   };
+    document.querySelectorAll('[data-ai]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      const cl=list.find(x=>x.id===b.dataset.ai);
+      if(cl)openAiPopup(cl);
+    };
+  });
   document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
   if(noteInput)noteInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addNote(state.openClientId)}};
   document.querySelectorAll('[data-note-edit]').forEach(b=>{
