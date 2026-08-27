@@ -1372,7 +1372,9 @@ function bindMobileDayList(d){
       if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
       const wasDone=t.done;
       recomputeDone(t);save();
+            /* ПРАВКА №8: перерисовка и при снятии выполненности тоже */
       if(!wasDone&&t.done)setTimeout(()=>render(),600);
+      else if(wasDone&&!t.done)setTimeout(()=>render(),200);
     });
   });
   document.querySelectorAll('.mobiledayrow .subnoteicon').forEach(ic=>{
@@ -1869,6 +1871,10 @@ function bindTasks(){
 
         if(!wasTaskDone&&t.done){
           setTimeout(()=>{const freshEl=document.querySelector(`[data-id="${t.id}"]`);if(freshEl)celebrateTask(freshEl);__widthOverrides={};delete window.__realHeights;setTimeout(()=>render(),520)},900);
+        /* ПРАВКА №8: если задача перестала быть выполненной (снят вердикт с подзадачи) — перерисовываем, чтобы галочка снялась */
+        }else if(wasTaskDone&&!t.done){
+          __widthOverrides={};delete window.__realHeights;
+          setTimeout(()=>render(),200);
         }else{
           const taskEl=btn.closest('.task,.taskblock');
           if(taskEl && taskEl.classList.contains('taskblock')){
