@@ -53,7 +53,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .taskslayer{position:absolute;top:0;left:75px;right:0;bottom:0;pointer-events:none;min-width:1px}
 .taskblock{position:absolute;background:#fff;border:1px solid #dfe3e8;border-left:4px solid var(--accent);border-radius:8px;box-shadow:0 2px 7px #0000000a;padding:6px 8px;overflow:hidden;pointer-events:auto;display:flex;flex-direction:column;box-sizing:border-box;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s ease,border-color .35s ease;cursor:grab}
 .taskblock.dragging{cursor:grabbing;opacity:.85;box-shadow:0 10px 26px #0003;z-index:5;transition:none!important}
-.taskdragghost{position:absolute;left:0;right:0;background:#eef4ff;border:1.5px dashed var(--accent);border-radius:8px;pointer-events:none;z-index:1}
   /* ПРАВКА №4.6: подсветка часового слота-цели при перетаскивании (визуальное «прилипание») */
 .gridrow.droptarget .slotbg{background:#eef4ff;box-shadow:inset 0 0 0 2px var(--accent);border-radius:6px}
 .taskblock.done{opacity:.65}
@@ -1874,10 +1873,10 @@ function willBeOnSafe(t,val){return val}
 /* ПРАВКА №4.4: исправлено чтение минут слота (data-minute на .slotbg, а не на .gridrow) + защита от NaN */
 /* ПРАВКА №4.6: перетаскивание теперь привязывается только к круглым часам (9:00, 10:00, …),
    целевой часовой слот подсвечивается, пока задача «зажата» над ним */
+/* ПРАВКА №4.7: убран пунктирный призрак (ghost) — целевой часовой ряд подсвечивается рамкой, этого достаточно */
 function enableTaskDrag(){
-  const layer=document.querySelector('.taskslayer');
   const gridlines=document.querySelector('.gridlines');
-  if(!layer||!gridlines)return;
+  if(!gridlines)return;
   document.querySelectorAll('.taskblock').forEach(el=>{
     const id=el.dataset.id;
     const t=data.tasks.find(x=>x.id===id);
@@ -1892,7 +1891,7 @@ function enableTaskDrag(){
       const startLeft=parseFloat(el.style.left);
       const origEndMin=t.endTime?timeMin(t.endTime):null;
       const duration=origEndMin!==null?(origEndMin-origStartMin):null;
-      let dragging=false,ghost=null,badge=null,hotRow=null;
+      let dragging=false,badge=null,hotRow=null;
       const fmtMin=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
       const clearHotRow=()=>{if(hotRow){hotRow.classList.remove('droptarget');hotRow=null}};
       const buildRowMap=()=>[...gridlines.querySelectorAll('.gridrow')].map(r=>{
@@ -1913,23 +1912,11 @@ function enableTaskDrag(){
         if(gy<first.top)return first.minute-((first.top-gy)/first.height)*60;
         return last.minute+((gy-last.top-last.height)/last.height)*60;
       };
-      const minuteToY=(m,rows)=>{
-        if(!rows.length)return null;
-        for(const r of rows){if(m>=r.minute&&m<r.minute+60)return r.top+(m-r.minute)/60*r.height}
-        const first=rows[0],last=rows[rows.length-1];
-        if(m<first.minute)return first.top+(m-first.minute)/60*first.height;
-        return last.top+(m-last.minute)/60*last.height;
-      };
       const onMove=me=>{
         const dx=me.clientX-startX,dy=me.clientY-startY;
         if(!dragging&&Math.hypot(dx,dy)>4){
           dragging=true;
           el.classList.add('dragging');
-          ghost=document.createElement('div');
-          ghost.className='taskdragghost';
-          ghost.style.height=el.style.height;
-          ghost.style.width=el.style.width;
-          layer.appendChild(ghost);
           badge=document.createElement('div');
           badge.className='timedragbadge';
           document.body.appendChild(badge);
@@ -1940,15 +1927,9 @@ function enableTaskDrag(){
         const rows=buildRowMap();
         const rawMin=minutesAtY(me.clientY,rows);
         if(!isFinite(rawMin))return;
-        /* ПРАВКА №4.6: привязка строго к круглым часам */
         let snapped=Math.round(rawMin/60)*60;
         snapped=Math.max(DAY_START,Math.min(DAY_END,snapped));
         el.dataset.pendingMin=snapped;
-        const gy=minuteToY(snapped,rows);
-        if(ghost){
-          ghost.style.left=(startLeft+dx)+'px';
-          if(gy!==null)ghost.style.top=gy+'px';
-        }
         if(badge){
           badge.style.left=(me.clientX+14)+'px';
           badge.style.top=(me.clientY-36)+'px';
@@ -1961,7 +1942,6 @@ function enableTaskDrag(){
         clearHotRow();
         if(!dragging)return;
         el.classList.remove('dragging');
-        if(ghost)ghost.remove();
         if(badge)badge.remove();
         const snapped=+el.dataset.pendingMin;
         delete el.dataset.pendingMin;
