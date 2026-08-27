@@ -505,6 +505,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .cstar{width:26px;height:26px;border-radius:8px;border:2px solid #f59e0b;background:#fff;color:transparent;font-size:13px;display:grid;place-items:center;flex:0 0 auto;padding:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .25s ease,border-color .25s ease,color .25s ease}
 .cstar.on{background:#f59e0b;border-color:#f59e0b;color:#fff}
 .cstar:active{transform:scale(.9)}
+  /* ПРАВКА №25: имя в чипе ключевых клиентов кликабельно */
+.clientchip .clientname{cursor:pointer}
+.clientchip .clientname:hover{text-decoration:underline}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -1094,7 +1097,7 @@ function buildClientsHtml(d){
     const on=!!checks[c.id];
     return `<div class="clientchip ${on?'on':''}" data-client-id="${c.id}">
       <div class="cbox">${on?'✓':''}</div>
-      <span class="clientname" title="${esc(c.name)}">${esc(c.name)}</span>
+            <span class="clientname" data-keyname="${c.id}" title="${esc(c.name)} — открыть карточку">${esc(c.name)}</span>
       <button class="clientremove" data-remove-client="${c.id}" title="Удалить">✕</button>
     </div>`;
   }).join('');
@@ -1110,6 +1113,25 @@ function buildClientsHtml(d){
 
 let __lastAllClientsDone=false;
 
+/* ПРАВКА №25: открыть карточку клиента из чипа ключевых клиентов */
+function openKeyClientCard(kc){
+  let folderId=kc.srcFolder,clientId=kc.srcId;
+  if(folderId){
+    const lst=data.folderClients[folderId]||[];
+    if(!lst.some(x=>x.id===clientId)){folderId=null;clientId=null}
+  }
+  if(!folderId){
+    for(const fid in data.folderClients){
+      const found=(data.folderClients[fid]||[]).find(x=>x.name===kc.name);
+      if(found){folderId=fid;clientId=found.id;break}
+    }
+  }
+  if(!folderId){toast('Карточка клиента не найдена');return}
+  openFolderView(folderId);
+  state.openClientId=clientId;
+  render();
+}
+  
 function bindClients(d){
   const wrap=$('clientsWrap');
   if(!wrap)return;
@@ -1124,6 +1146,8 @@ function bindClients(d){
   wrap.querySelectorAll('.clientchip').forEach(chip=>{
     chip.addEventListener('click',e=>{
       if(e.target.closest('.clientremove'))return;
+            /* ПРАВКА №25: клик по имени — открыть карточку клиента */
+      if(e.target.closest('.clientname')){openKeyClientCard(c);return}
       const cid=chip.dataset.clientId;
       const checks=clientsChecksForDay(d);
       const willBeOn=!checks[cid];
@@ -1402,6 +1426,15 @@ function recomputeGoalDone(t){
   const cOk=(t.counters||[]).every(c=>c.done);
   const sOk=(t.subtasks||[]).every(s=>subDone(s));
   t.done=cOk&&sOk;
+}
+  /* ПРАВКА №25: из «2257620 Александр +6 К А Ж С ПВ 4-5 млн» берём «Александр» —
+   первое слово без цифр и без «+» */
+function extractClientName(full){
+  const words=String(full||'').trim().split(/\s+/);
+  for(const w of words){
+    if(!/\d/.test(w)&&!w.includes('+'))return w.replace(/[.,;:]+$/,'');
+  }
+  return words[0]||'';
 }
 function normalizePhone(raw){
   let d=String(raw||'').replace(/\D/g,'');
@@ -1797,8 +1830,9 @@ function renderFolderView(){
         data.clients=data.clients.filter(k=>k.id!==exists.id);
         save();renderSidebarPending();render();
         toast(`«${cl.name}» убран из ключевых клиентов`);
-      }else{
-        data.clients.push({id:uid(),name:cl.name});
+        }else{
+        /* ПРАВКА №25: в ключевые уходит только имя + ссылка на карточку */
+        data.clients.push({id:uid(),name:extractClientName(cl.name),srcId:cl.id,srcFolder:f.id});
         save();
         celebrateSubtask(b,true);playTick();
         render();
