@@ -501,6 +501,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .noteask-no{background:#f1f3f5;color:#4b5563}
 .noteask-yes:active,.noteask-no:active{transform:scale(.97)}
 .task.highlight-link{box-shadow:0 0 0 3px var(--accent),0 10px 30px rgba(37,99,235,.3)!important}
+/* ПРАВКА №24: звёздочка «в ключевые клиенты» в карточке клиента */
+.cstar{width:26px;height:26px;border-radius:8px;border:2px solid #f59e0b;background:#fff;color:transparent;font-size:13px;display:grid;place-items:center;flex:0 0 auto;padding:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .25s ease,border-color .25s ease,color .25s ease}
+.cstar.on{background:#f59e0b;border-color:#f59e0b;color:#fff}
+.cstar:active{transform:scale(.9)}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -1752,6 +1756,7 @@ function renderFolderView(){
         <div class="folderclienthead" data-toggle="${c.id}">
           <span class="carrow">▸</span>
           ${headInner}
+          <button class="cstar ${data.clients.some(k=>k.name===c.name)?'on':''}" data-star="${c.id}" title="В ключевые клиенты">★</button>
           <button class="cheadbtn" data-copy="${c.id}" title="Скопировать имя">📋</button>
           <button class="cheadbtn" data-renamebtn="${c.id}" title="Переименовать">✎</button>
           <button class="cdel" data-cid="${c.id}" title="Удалить клиента">✕</button>
@@ -1778,6 +1783,27 @@ function renderFolderView(){
       if(e.target.closest('button,input'))return;
       state.openClientId=state.openClientId===h.dataset.toggle?null:h.dataset.toggle;
       state.editingNoteId=null;
+      renderFolderView();
+    };
+  });
+    /* ПРАВКА №24: звёздочка добавляет/убирает клиента из «Ключевых клиентов» дня */
+  document.querySelectorAll('[data-star]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      const cl=list.find(x=>x.id===b.dataset.star);
+      if(!cl)return;
+      const exists=data.clients.find(k=>k.name===cl.name);
+      if(exists){
+        data.clients=data.clients.filter(k=>k.id!==exists.id);
+        save();renderSidebarPending();render();
+        toast(`«${cl.name}» убран из ключевых клиентов`);
+      }else{
+        data.clients.push({id:uid(),name:cl.name});
+        save();
+        celebrateSubtask(b,true);playTick();
+        render();
+        toast(`«${cl.name}» добавлен в ключевые клиенты`);
+      }
       renderFolderView();
     };
   });
