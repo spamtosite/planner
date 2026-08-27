@@ -1312,10 +1312,7 @@ function buildMobileDayListHtml(d){
 function bindMobileDayList(d){
   document.querySelectorAll('.mobiledayrow').forEach(row=>{
     const id=row.dataset.id;
-    row.addEventListener('touchend',finishTouch,{passive:false});
-    row.addEventListener('touchcancel',finishTouch,{passive:false});
-
-    /* ПРАВКА №4.2: mobile long-press перенос времени удалён — остаётся только тап (раскрытие подзадач / редактирование) */
+    /* ПРАВКА №4.5: long-press перенос удалён; тап — раскрыть подзадачи или открыть редактирование */
     row.addEventListener('click',e=>{
       if(e.target.closest('[data-check],[data-edit],.markbox,.subnoteicon'))return;
       const t=data.tasks.find(x=>x.id===id);
@@ -1327,6 +1324,75 @@ function bindMobileDayList(d){
       openModal(id);
     });
   });
+  document.querySelectorAll('.mobiledayrow [data-edit]').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();openModal(btn.dataset.edit)});
+  });
+  document.querySelectorAll('.mobiledayrow .markbox').forEach(mb=>{
+    mb.addEventListener('click',e=>{
+      e.stopPropagation();
+      const t=data.tasks.find(x=>x.id===mb.dataset.mid);
+      if(!t)return;
+      const si=+mb.dataset.msi;
+      const sub=t.subtasks[si];
+      if(!sub)return;
+      const v=mb.dataset.verdict;
+      const wasSet=sub.status===v;
+      sub.status=wasSet?'pending':v;
+      mb.classList.toggle('active',sub.status===v);
+      const mrow=mb.closest('.msubrow');
+      if(mrow){
+        mrow.classList.toggle('doneSub',sub.status==='success');
+        mrow.classList.toggle('failedSub',sub.status==='failed');
+      }
+      if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
+      const wasDone=t.done;
+      recomputeDone(t);save();
+      if(!wasDone&&t.done)setTimeout(()=>render(),600);
+    });
+  });
+  document.querySelectorAll('.mobiledayrow .subnoteicon').forEach(ic=>{
+    ic.addEventListener('click',e=>{
+      e.stopPropagation();
+      const t=data.tasks.find(x=>x.id===ic.dataset.mid);
+      if(!t)return;
+      openSubtaskNotePopup(ic,t,+ic.dataset.msi);
+    });
+  });
+  document.querySelectorAll('[data-check]').forEach(box=>{
+    box.addEventListener('click',e=>{
+      e.stopPropagation();
+      const id=box.dataset.check;
+      const t=data.tasks.find(x=>x.id===id);
+      if(!t)return;
+      t.done=!t.done;save();
+      const row=box.closest('.mobiledayrow');
+      row.classList.toggle('done',t.done);
+      box.classList.toggle('on',t.done);
+      if(t.done){celebrateSubtask(box,true);playTick()}
+      const allTs=tasksFor(d);
+      const done=allTs.filter(x=>x.done).length,pct=allTs.length?Math.round(done/allTs.length*100):0;
+      const isComplete=allTs.length>0 && pct===100;
+      const wrap=$('dayProgressWrap');
+      if(wrap){
+        wrap.classList.toggle('complete',isComplete);
+        const fill=$('dayProgressFill');
+        if(fill){fill.style.width=pct+'%';fill.classList.toggle('complete',isComplete)}
+        wrap.querySelectorAll('.progresslabel').forEach((lbl,idx)=>{
+          lbl.classList.toggle('complete',isComplete);
+          if(idx===0)lbl.textContent=allTs.length?`Выполнено ${done}/${allTs.length}`:'На этот день пока нет задач';
+          if(idx===1)lbl.textContent=pct+'%';
+        });
+        const badge=wrap.querySelector('.day-complete-badge');
+        if(badge)badge.classList.toggle('show',isComplete);
+        if(isComplete && pct!==__lastKnownPct && !__lastDayComplete){
+          setTimeout(()=>celebrateDayComplete(wrap),150);
+        }
+        __lastDayComplete=isComplete;
+        __lastKnownPct=pct;
+      }
+    });
+  });
+}
   document.querySelectorAll('.mobiledayrow [data-edit]').forEach(btn=>{
     btn.addEventListener('click',e=>{e.stopPropagation();openModal(btn.dataset.edit)});
   });
@@ -1581,8 +1647,14 @@ function backToMobileSections(){
 }
 
 function renderMobileShell(){
-  if(!isMobileLayout())return;
+  const sidebar=document.querySelector('.sidebar');
   const appEl=document.querySelector('.app');
+  /* ПРАВКА №2.1: на десктопе удаляем мобильные разделы из сайдбара и сбрасываем классы-состояния */
+  if(!isMobileLayout()){
+    if(sidebar){const w=sidebar.querySelector('.mobilesectionswrap');if(w)w.remove()}
+    if(appEl)appEl.classList.remove('mobile-showing-sections','mobile-showing-detail');
+    return;
+  }
   if(!appEl)return;
   if(__mobileScreen==='sections'){
     appEl.classList.add('mobile-showing-sections');
@@ -1591,7 +1663,6 @@ function renderMobileShell(){
     appEl.classList.add('mobile-showing-detail');
     appEl.classList.remove('mobile-showing-sections');
   }
-  const sidebar=document.querySelector('.sidebar');
   if(sidebar && !sidebar.querySelector('.mobilesectionswrap')){
     const wrap=document.createElement('div');
     wrap.className='mobilesectionswrap';
@@ -1799,6 +1870,7 @@ function willBeOnSafe(t,val){return val}
 /* ПРАВКА №4.1: drag&drop переработан — блок свободно двигается мышью в обе стороны,
    время считается по реальной сетке строк (точное попадание в слот, даже занятый другой задачей),
    у курсора — бейдж с целевым временем. После переноса случайный клик подавляется. */
+/* ПРАВКА №4.4: исправлено чтение минут слота (data-minute на .slotbg, а не на .gridrow) + защита от NaN */
 function enableTaskDrag(){
   const layer=document.querySelector('.taskslayer');
   const gridlines=document.querySelector('.gridlines');
@@ -1810,16 +1882,21 @@ function enableTaskDrag(){
     el.addEventListener('mousedown',e=>{
       if(e.target.closest('.check,.vbtn,.markbox,.subnoteicon,.addsub,.subaddform,[data-action],.focusbtn'))return;
       e.preventDefault();
+      const origStartMin=timeMin(t.time);
+      if(!isFinite(origStartMin))return;
       const startX=e.clientX,startY=e.clientY;
       const startTop=parseFloat(el.style.top);
       const startLeft=parseFloat(el.style.left);
-      const origStartMin=timeMin(t.time);
       const origEndMin=t.endTime?timeMin(t.endTime):null;
       const duration=origEndMin!==null?(origEndMin-origStartMin):null;
       let dragging=false,ghost=null,badge=null;
       const fmtMin=m=>`${pad(Math.floor(m/60))}:${pad(m%60)}`;
-      const buildRowMap=()=>[...gridlines.querySelectorAll('.gridrow')].map(r=>({minute:+r.dataset.minute,top:r.offsetTop,height:r.offsetHeight}));
+      const buildRowMap=()=>[...gridlines.querySelectorAll('.gridrow')].map(r=>{
+        const slot=r.querySelector('.slotbg');
+        return {minute:slot?+slot.dataset.minute:NaN,top:r.offsetTop,height:r.offsetHeight};
+      }).filter(r=>isFinite(r.minute));
       const minutesAtY=(clientY,rows)=>{
+        if(!rows.length)return NaN;
         const gy=clientY-gridlines.getBoundingClientRect().top;
         for(const r of rows){if(gy>=r.top&&gy<r.top+r.height)return r.minute+((gy-r.top)/r.height)*60}
         const first=rows[0],last=rows[rows.length-1];
@@ -1827,6 +1904,7 @@ function enableTaskDrag(){
         return last.minute+((gy-last.top-last.height)/last.height)*60;
       };
       const minuteToY=(m,rows)=>{
+        if(!rows.length)return null;
         for(const r of rows){if(m>=r.minute&&m<r.minute+60)return r.top+(m-r.minute)/60*r.height}
         const first=rows[0],last=rows[rows.length-1];
         if(m<first.minute)return first.top+(m-first.minute)/60*first.height;
@@ -1847,17 +1925,18 @@ function enableTaskDrag(){
           document.body.appendChild(badge);
         }
         if(!dragging)return;
-        /* свободное перемещение по обеим осям */
         el.style.left=(startLeft+dx)+'px';
         el.style.top=(startTop+dy)+'px';
         const rows=buildRowMap();
         const rawMin=minutesAtY(me.clientY,rows);
+        if(!isFinite(rawMin))return;
         let snapped=Math.round(rawMin/STEP)*STEP;
         snapped=Math.max(DAY_START,Math.min(DAY_END,snapped));
         el.dataset.pendingMin=snapped;
+        const gy=minuteToY(snapped,rows);
         if(ghost){
           ghost.style.left=(startLeft+dx)+'px';
-          ghost.style.top=minuteToY(snapped,rows)+'px';
+          if(gy!==null)ghost.style.top=gy+'px';
         }
         if(badge){
           badge.style.left=(me.clientX+14)+'px';
@@ -1874,7 +1953,7 @@ function enableTaskDrag(){
         if(badge)badge.remove();
         const snapped=+el.dataset.pendingMin;
         delete el.dataset.pendingMin;
-        /* подавляем клик, чтобы после переноса не открылась модалка */
+        if(!isFinite(snapped))return;
         el.addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault()},{capture:true,once:true});
         t.time=fmtMin(snapped);
         if(duration!==null)t.endTime=fmtMin(snapped+duration);
