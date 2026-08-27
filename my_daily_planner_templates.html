@@ -1092,7 +1092,6 @@ function bindViewHead(){
   if(p)p.onclick=()=>goStep(-1);
   if(n)n.onclick=()=>goStep(1);
   if(tb)tb.onclick=()=>$('navToday').click();
-}
 function goStep(dir){
   __widthOverrides={};delete window.__realHeights;
   if(state.view==='day')state.date.setDate(state.date.getDate()+dir);
