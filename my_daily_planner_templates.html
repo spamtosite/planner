@@ -509,6 +509,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   /* ПРАВКА №25: имя в чипе ключевых клиентов кликабельно */
 .clientchip .clientname{cursor:pointer}
 .clientchip .clientname:hover{text-decoration:underline}
+  /* ПРАВКА №26: метка даты у просроченных задач прошлых дней */
+.sidebarpending-date{font-size:10.5px;font-weight:700;flex:0 0 auto;color:#dc2626}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -2501,14 +2503,29 @@ function render(){
 function renderSidebarPending(){
   const wrap=$('sidebarPending');
   if(!wrap)return;
+  const todayIso=iso(new Date());
   const today=tasksFor(new Date()).filter(t=>!t.done);
-  if(!today.length){
+  /* ПРАВКА №26: невыполненные задачи прошлых дней — не теряются */
+  const past=data.tasks.filter(t=>!t.done&&t.date&&t.date<todayIso)
+    .sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99:99').localeCompare(b.time||'99:99'));
+  if(!today.length&&!past.length){
     wrap.innerHTML=`<div class="sidebarpending-title">Сегодня</div><div class="sidebarpending-empty">Нет незавершённых задач</div>`;
     return;
   }
   const now=new Date();
   const nowMin=now.getHours()*60+now.getMinutes();
-  const items=today.map(t=>{
+  const yestIso=iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1));
+  /* блок просрочки со старых дней */
+  const pastItems=past.map(t=>{
+    const dateLbl=t.date===yestIso?'вчера':`${t.date.slice(8,10)}.${t.date.slice(5,7)}`;
+    return `<div class="sidebarpending-item overdue" data-id="${t.id}" data-date="${t.date}">
+      ${timeLabel(t)?`<span class="sidebarpending-time">${esc(timeLabel(t).split('–')[0].split('-')[0])}</span>`:''}
+      <span class="sidebarpending-date">${dateLbl}</span>
+      <span class="sidebarpending-name" title="${esc(t.title)}">${esc(t.title)}</span>
+    </div>`;
+  }).join('');
+  /* сегодняшний блок — прежняя логика статусов */
+  const todayItems=today.map(t=>{
     const deadline=t.endTime?timeMin(t.endTime):t.time?timeMin(t.time):null;
     const overdue=deadline!==null && nowMin>deadline;
     const startMin=t.time?timeMin(t.time):null;
@@ -2517,16 +2534,20 @@ function renderSidebarPending(){
     const upcomingFar=!overdue && !upcomingSoon && startMin!==null;
     const statusClass=overdue?'overdue':upcomingSoon?'upcoming-soon':upcomingFar?'upcoming-far':'';
         const flareSvg=overdue?`<div class="overdueflare"><svg viewBox="0 0 60 60"><defs><linearGradient id="flareCore" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fff" stop-opacity="0"/><stop offset="45%" stop-color="#fff" stop-opacity=".95"/><stop offset="50%" stop-color="#fecaca" stop-opacity="1"/><stop offset="55%" stop-color="#fff" stop-opacity=".95"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></linearGradient><linearGradient id="flareWing" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444" stop-opacity="0"/><stop offset="40%" stop-color="#f87171" stop-opacity=".55"/><stop offset="50%" stop-color="#fca5a5" stop-opacity=".85"/><stop offset="60%" stop-color="#f87171" stop-opacity=".55"/><stop offset="100%" stop-color="#ef4444" stop-opacity="0"/></linearGradient></defs><path d="M30,2 C33,18 33,42 30,58 C27,42 27,18 30,2 Z" fill="url(#flareWing)" opacity=".7"/><path d="M30,10 C31.6,20 31.6,40 30,50 C28.4,40 28.4,20 30,10 Z" fill="url(#flareCore)"/></svg></div>`:'';
-    return `<div class="sidebarpending-item ${statusClass}" data-id="${t.id}">
+    return `<div class="sidebarpending-item ${statusClass}" data-id="${t.id}" data-date="${todayIso}">
       ${flareSvg}
       ${timeLabel(t)?`<span class="sidebarpending-time">${esc(timeLabel(t).split('–')[0].split('-')[0])}</span>`:''}
       <span class="sidebarpending-name" title="${esc(t.title)}">${esc(t.title)}</span>
     </div>`;
   }).join('');
-  wrap.innerHTML=`<div class="sidebarpending-title">Сегодня · ${today.length}</div>${items}`;
+  let html='';
+  if(past.length)html+=`<div class="sidebarpending-title" style="color:#dc2626">Просрочено · ${past.length}</div>${pastItems}`;
+  if(today.length)html+=`<div class="sidebarpending-title">Сегодня · ${today.length}</div>${todayItems}`;
+  wrap.innerHTML=html;
   wrap.querySelectorAll('.sidebarpending-item').forEach(el=>{
     el.onclick=()=>{
-      state.date=new Date();
+      /* открываем день, к которому относится задача */
+      state.date=parse(el.dataset.date||todayIso);
       state.view='day';
       setTabs();
       render();
