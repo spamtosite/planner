@@ -1813,7 +1813,14 @@ function openAiPopup(cl){
     cl.notes.push(nt);
     save();renderFolderView();pop.remove();
     toast('AI-заметка сохранена');
-    maybeCreateTaskFromNote(cl.name,aiText,nt);
+  /* ПРАВКА №27.1: AI-заметки не предлагают создание задачи */
+  $('aiSaveNote').onclick=()=>{
+    if(!aiText)return;
+    const nt={id:uid(),text:aiText,ts:Date.now(),ai:true};
+    cl.notes=cl.notes||[];
+    cl.notes.push(nt);
+    save();renderFolderView();pop.remove();
+    toast('AI-заметка сохранена');
   };
 }
 /* ================== /AI-разбор ================== */
