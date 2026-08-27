@@ -500,6 +500,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .noteask-yes{background:var(--accent);color:#fff}
 .noteask-no{background:#f1f3f5;color:#4b5563}
 .noteask-yes:active,.noteask-no:active{transform:scale(.97)}
+.task.highlight-link{box-shadow:0 0 0 3px var(--accent),0 10px 30px rgba(37,99,235,.3)!important}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -1729,7 +1730,7 @@ function renderFolderView(){
               return `<div class="ccnoteitem">
                 <div class="cctext">${esc(n.text)}</div>
                 <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}</div>
-                ${n.taskId?'<div class="cctask">🗓 Связанная задача в календаре</div>':''}
+                ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
                 <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
               </div>`;
             }).join(''):'<div class="folderempty">Заметок пока нет</div>'}
@@ -1901,6 +1902,25 @@ function renderFolderView(){
       state.editingNoteId=null;
       renderFolderView();
       maybeUpdateTaskFromNote(cl,nt,newText);
+    };
+  });
+    /* ПРАВКА №23: клик по «Связанная задача» открывает день этой задачи в календаре */
+  document.querySelectorAll('[data-open-task]').forEach(lk=>{
+    lk.onclick=(e)=>{
+      e.stopPropagation();
+      const t=data.tasks.find(x=>x.id===lk.dataset.openTask);
+      if(!t){toast('Задача не найдена (возможно, удалена)');return}
+      state.date=parse(t.date);
+      state.view='day';
+      state.openTaskOnRender=t.id;
+      setTabs();
+      if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
+      render();
+      setTimeout(()=>{
+        const el=document.querySelector(`[data-id="${t.id}"]`);
+        if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('celebrate');setTimeout(()=>el.classList.remove('celebrate'),700)}
+        else toast('Задача без времени — смотри блок «Без времени»');
+      },300);
     };
   });
   document.querySelectorAll('[data-note-del]').forEach(b=>{
