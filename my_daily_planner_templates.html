@@ -450,14 +450,16 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .ccnoteitem{background:#fff;border:1px solid var(--line);border-radius:9px;padding:9px 11px;display:grid;gap:4px}
 .ccnoteitem .cctext{font-size:13px;white-space:pre-wrap;word-break:break-word}
 .ccnoteitem .ccts{font-size:10.5px;color:var(--muted)}
+.ccnoteitem .cctask{font-size:10.5px;color:var(--accent);font-weight:700}
 .ccnoteitem .ccacts{display:flex;gap:8px}
 .ccnoteitem .ccacts button{font-size:11px;color:var(--muted);padding:2px 4px}
 .ccnoteitem .ccacts button:hover{color:var(--accent)}
-.ccnoteedit textarea{width:100%;min-height:60px;border:1px solid #d9dde2;border-radius:8px;padding:8px;font-size:13px;resize:vertical}
-.ccnoteedit .cceditbtns{display:flex;gap:8px;margin-top:6px}
-.ccnoteedit .cceditbtns button{border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
-.ccnoteedit .ccsave{background:#7c3aed;color:#fff}
-.ccnoteedit .cccancel{background:#f1f3f5;color:#4b5563}
+/* ПРАВКА №22: инлайн-редактор заметки */
+.ccnoteedit-ta{width:100%;min-height:60px;border:1.5px solid var(--accent);border-radius:8px;padding:8px;font-size:13px;resize:vertical;box-sizing:border-box;background:#fff}
+.ccnoteedit-btns{display:flex;gap:8px}
+.ccnoteedit-btns button{border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
+.ccnoteedit-btns .ccsave{background:#7c3aed;color:#fff}
+.ccnoteedit-btns .cccancel{background:#f1f3f5;color:#4b5563}
 .folderempty{color:var(--muted);font-size:12.5px;text-align:center;padding:14px 0 6px}
 .folderaddrow{display:flex;gap:8px;margin-bottom:14px}
 .folderaddrow input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
@@ -1591,18 +1593,18 @@ function openFolderView(fid){
 }
 
 function fmtTs(ts){const d=new Date(ts);return `${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`}
-
-/* ПРАВКА №20+21: модалка в стиле календаря по центру;
-   срабатывает при времени, шаблоне ИЛИ явной дате (завтра/послезавтра/через N/день недели) —
-   задачу можно создать на дату без времени */
-function maybeCreateTaskFromNote(clientName,text){
-  const p=parseQuickAdd(text);
-  if(!p.time&&!p.template&&!p.dateFound)return;
-  const dObj=parse(p.date);
+function whenStr(dateIso,time){
   const today=iso(new Date());
   const tmrD=new Date();tmrD.setDate(tmrD.getDate()+1);
-  const when=(p.date===today?'сегодня':p.date===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)
-    +(p.time?`, ${p.time}${p.endTime?'–'+p.endTime:''}`:'');
+  const dObj=parse(dateIso);
+  return (dateIso===today?'сегодня':dateIso===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)+(time?`, ${time}`:'');
+}
+
+/* ПРАВКА №20+21: модалка создания задачи по заметке (по центру, в стиле календаря) */
+function maybeCreateTaskFromNote(clientName,text,note){
+  const p=parseQuickAdd(text);
+  if(!p.time&&!p.template&&!p.dateFound)return;
+  const when=whenStr(p.date,p.time?(p.time+(p.endTime?'–'+p.endTime:'')):null);
   const fullTitle=(clientName?clientName+' ':'')+p.title;
   const pop=document.createElement('div');
   pop.className='noteask-overlay';
@@ -1623,10 +1625,63 @@ function maybeCreateTaskFromNote(clientName,text){
   pop.addEventListener('click',e=>{if(e.target===pop)close()});
   pop.querySelector('.noteask-no').onclick=close;
   pop.querySelector('.noteask-yes').onclick=()=>{
+    const tid=uid();
     const subtasks=p.template?(p.template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
-    data.tasks.push({id:uid(),title:fullTitle,date:p.date,time:p.time,endTime:p.endTime,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0});
-    save();
+    data.tasks.push({id:tid,title:fullTitle,date:p.date,time:p.time,endTime:p.endTime,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0});
+    /* ПРАВКА №22: связываем заметку с задачей для последующих обновлений */
+    if(note){note.taskId=tid;save()}
     toast(`Задача добавлена: ${when}`);
+    close();
+    render();
+  };
+}
+
+/* ПРАВКА №22: при редактировании заметки с привязанной задачей — предлагаем обновить задачу;
+   «-» в тексте = итог задачи: задача закрывается, окно не показываем */
+function maybeUpdateTaskFromNote(cl,note,newText){
+  if(!note.taskId)return;
+  const task=data.tasks.find(t=>t.id===note.taskId);
+  if(!task){delete note.taskId;save();return}
+  if(newText.includes('-')){
+    if(!task.done){
+      task.done=true;
+      (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
+      save();renderSidebarPending();
+      toast('Задача закрыта — в заметке зафиксирован итог');
+    }
+    return;
+  }
+  const p=parseQuickAdd(newText);
+  if(!p.time&&!p.template&&!p.dateFound)return;
+  const when=whenStr(p.date,p.time?(p.time+(p.endTime?'–'+p.endTime:'')):null);
+  const newTitle=(cl.name?cl.name+' ':'')+p.title;
+  const pop=document.createElement('div');
+  pop.className='noteask-overlay';
+  pop.innerHTML=`<div class="noteask">
+    <div class="noteask-title">🔄 Заметка изменена — обновить задачу?</div>
+    <div class="noteask-task">
+      <div class="nt">${esc(newTitle)}</div>
+      <div class="nm">${esc(when)}</div>
+      ${p.template?`<div class="ntpl">Шаблон «${esc(p.template.code)}» — подзадачи обновятся</div>`:''}
+    </div>
+    <div class="noteask-btns">
+      <button class="noteask-no" type="button">Оставить как есть</button>
+      <button class="noteask-yes" type="button">Обновить задачу</button>
+    </div>
+  </div>`;
+  document.body.appendChild(pop);
+  const close=()=>pop.remove();
+  pop.addEventListener('click',e=>{if(e.target===pop)close()});
+  pop.querySelector('.noteask-no').onclick=close;
+  pop.querySelector('.noteask-yes').onclick=()=>{
+    task.date=p.date;
+    task.time=p.time;
+    task.endTime=p.endTime;
+    task.title=newTitle;
+    if(p.template)task.subtasks=(p.template.subtasks||[]).map(x=>({title:x,status:'pending'}));
+    task.done=false;
+    save();
+    toast(`Задача обновлена: ${when}`);
     close();
     render();
   };
@@ -1661,6 +1716,24 @@ function renderFolderView(){
             </div>`).join('')}
           <div class="ccnoteadd"><input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 79111111111 / 9111111111"><button data-phoneadd="${c.id}">Добавить</button></div>
         </div>`;
+        /* ПРАВКА №22: заметки с инлайн-редактором и маркером привязанной задачи */
+        const notesHtml=`<div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
+            <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
+            ${notes.length?notes.slice().reverse().map(n=>{
+              if(state.editingNoteId===n.id){
+                return `<div class="ccnoteitem">
+                  <textarea class="ccnoteedit-ta" data-noteedit-ta="${n.id}">${esc(n.text)}</textarea>
+                  <div class="ccnoteedit-btns"><button class="ccsave" data-notesave="${c.id}:${n.id}">Сохранить</button><button class="cccancel" data-notecancel>Отмена</button></div>
+                </div>`;
+              }
+              return `<div class="ccnoteitem">
+                <div class="cctext">${esc(n.text)}</div>
+                <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}</div>
+                ${n.taskId?'<div class="cctask">🗓 Связанная задача в календаре</div>':''}
+                <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
+              </div>`;
+            }).join(''):'<div class="folderempty">Заметок пока нет</div>'}
+          </div>`;
         cardHtml+=`<div class="clientcard">
           <div class="ccgrid">
             <label class="citylab">Город<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
@@ -1668,14 +1741,7 @@ function renderFolderView(){
             <label>ПВ<input data-cf="pv" data-cid="${c.id}" value="${esc(c.pv||'')}"></label>
           </div>
           ${phonesHtml}
-          <div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
-            <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
-            ${notes.length?notes.slice().reverse().map(n=>`<div class="ccnoteitem">
-              <div class="cctext">${esc(n.text)}</div>
-              <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}</div>
-              <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
-            </div>`).join(''):'<div class="folderempty">Заметок пока нет</div>'}
-          </div>
+          ${notesHtml}
         </div>`;
       }
       const headInner=state.editingClientId===c.id
@@ -1797,14 +1863,16 @@ function renderFolderView(){
       downloadVCard((prefix?prefix+' ':'')+cl.name,p.digits);
     };
   });
+  /* ПРАВКА №22: заметки — создание, инлайн-редактирование, обновление связанной задачи */
   const noteInput=$('ccNoteInput');
   const addNote=(cid)=>{
     const cl=list.find(x=>x.id===cid);if(!cl)return;
     const v=noteInput.value.trim();if(!v)return;
+    const nt={id:uid(),text:v,ts:Date.now()};
     cl.notes=cl.notes||[];
-    cl.notes.push({id:uid(),text:v,ts:Date.now()});
+    cl.notes.push(nt);
     save();renderFolderView();
-    maybeCreateTaskFromNote(cl.name, v);
+    maybeCreateTaskFromNote(cl.name, v, nt);
   };
   document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
   if(noteInput)noteInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addNote(state.openClientId)}};
@@ -1813,18 +1881,28 @@ function renderFolderView(){
       const [cid,nid]=b.dataset.noteEdit.split(':');
       state.openClientId=cid;state.editingNoteId=nid;
       renderFolderView();
+      const ta=document.querySelector(`[data-noteedit-ta="${nid}"]`);
+      if(ta){ta.focus();ta.style.height=ta.scrollHeight+'px'}
     };
   });
-  const editInput=$('ccNoteEditInput');
-  if(editInput){
-    const cl=list.find(x=>x.id===state.openClientId);
-    const nt=cl&&(cl.notes||[]).find(n=>n.id===state.editingNoteId);
-    $('ccNoteSave').onclick=()=>{
-      if(nt&&editInput.value.trim()){nt.text=editInput.value.trim();nt.edited=true;save()}
-      state.editingNoteId=null;renderFolderView();
+  document.querySelectorAll('[data-notecancel]').forEach(b=>{
+    b.onclick=()=>{state.editingNoteId=null;renderFolderView()};
+  });
+  document.querySelectorAll('[data-notesave]').forEach(b=>{
+    b.onclick=()=>{
+      const [cid,nid]=b.dataset.notesave.split(':');
+      const cl=list.find(x=>x.id===cid);if(!cl)return;
+      const nt=(cl.notes||[]).find(n=>n.id===nid);if(!nt)return;
+      const ta=document.querySelector(`[data-noteedit-ta="${nid}"]`);
+      if(!ta)return;
+      const newText=ta.value.trim();
+      if(!newText){toast('Заметка не может быть пустой');return}
+      nt.text=newText;nt.edited=true;save();
+      state.editingNoteId=null;
+      renderFolderView();
+      maybeUpdateTaskFromNote(cl,nt,newText);
     };
-    $('ccNoteCancel').onclick=()=>{state.editingNoteId=null;renderFolderView()};
-  }
+  });
   document.querySelectorAll('[data-note-del]').forEach(b=>{
     b.onclick=()=>{
       const [cid,nid]=b.dataset.noteDel.split(':');
@@ -2896,7 +2974,6 @@ function parseQuickAdd(raw){
   s=s.replace(VERB_STRIP_RE,'');
   s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').trim();
 
-  /* ПРАВКА №20: titleClean — название без даты/времени; dateFound — в тексте была явная дата */
   return {title:s||raw.trim(),titleClean:s,date:iso(d),time,endTime:end,template:matchedTpl,dateFound};
 }
 function quick(){
