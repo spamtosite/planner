@@ -761,9 +761,10 @@ function driveSilentReauth(){
   });
 }
 
+let __driveInitTries=0;
 function driveInit(){
   if(!window.google || !window.google.accounts){
-    setTimeout(driveInit,300);
+    if(++__driveInitTries<100)setTimeout(driveInit,300);
     return;
   }
   const savedToken=sessionStorage.getItem('drive_token');
