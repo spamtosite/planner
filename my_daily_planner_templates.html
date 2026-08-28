@@ -152,7 +152,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .danger{color:var(--danger)}.modalbuttons{display:flex;gap:8px}.hidden{display:none!important}
 .toast{position:fixed;bottom:18px;right:18px;background:#111827;color:#fff;padding:10px 14px;border-radius:8px;display:none;z-index:20}
 .recur{display:flex;gap:6px;flex-wrap:wrap}
-.daypill{padding:7px 11px;border:1.5px solid #d9dde2;border-radius:8px;color:#5b6270;font-size:13px;font-weight:600;transition:background .2s ease,border-color .2s ease,color .2s ease,transform .15s ease}
+.daypill{padding:7px 11px;border:1.5px solid #d9dde2;border-radius:8px;color:#5b6270;font-size:13px;font-weight:600;transition:background .2s ease,border-color .2s ease,color .2s ease}
 .daypill:hover{border-color:#b8bfc9}
 .daypill.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .recurquick{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
@@ -680,6 +680,9 @@ let __driveSyncTimer=null;
 let __drivePollTimer=null;
 let __driveSyncing=false;
 let __driveConnected=false;
+/* ПРАВКА №36: флаги «есть незалито в облако» — не терять правки при повторных кликах и при скрытии вкладки */
+let __drivePendingUpload=false;
+let __driveDirty=false;
 
 function driveSetStatus(text){
   const el=document.getElementById('driveStatus');
@@ -768,6 +771,8 @@ function driveAfterConnect(){
   driveFindOrCreateFile().then(()=>{
     driveDownloadAndMerge().then(()=>{
       driveSetStatus('Синхронизировано');
+      /* ПРАВКА №36: сразу заливаем локальные данные (в т.ч. офлайн-правки и первый синк) */
+      driveUpload();
       driveStartPolling();
     });
   }).catch(err=>{
@@ -840,13 +845,25 @@ function driveMergeArraysById(localArr,remoteArr){
   return localMerged.concat(remoteMerged);
 }
 
+/* ПРАВКА №36: галка = {v:bool, ts:время отметки}. Последнее по времени изменение
+   побеждает на всех устройствах (старые булевы значения поддерживаются) */
+function chkOn(x){return x===true?true:x===false?false:!!(x&&x.v)}
+function chkTs(x){return (x&&typeof x==='object')?(x.ts||0):0}
+function setChk(obj,cid,val){obj[cid]=val?{v:true,ts:Date.now()}:{v:false,ts:Date.now()}}
+
 function driveMergeClientChecks(localChecks,remoteChecks){
   localChecks=localChecks||{};
   remoteChecks=remoteChecks||{};
   const merged={};
   const allDates=new Set([...Object.keys(localChecks),...Object.keys(remoteChecks)]);
   allDates.forEach(date=>{
-    merged[date]=Object.assign({},remoteChecks[date]||{},localChecks[date]||{});
+    const ld=localChecks[date]||{},rd=remoteChecks[date]||{};
+    const day={};
+    /* ПРАВКА №36: last-write-wins — устройства больше не расходятся и не перетирают друг друга */
+    new Set([...Object.keys(ld),...Object.keys(rd)]).forEach(cid=>{
+      day[cid]=chkTs(ld[cid])>=chkTs(rd[cid])?ld[cid]:rd[cid];
+    });
+    merged[date]=day;
   });
   return merged;
 }
@@ -902,8 +919,11 @@ async function driveDownloadAndMerge(){
 }
 
 async function driveUpload(){
-  if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  if(!__driveConnected || !__driveFileId)return;
+  /* ПРАВКА №36: не теряем правку, пришедшую во время идущей заливки */
+  if(__driveSyncing){__driveDirty=true;return}
   __driveSyncing=true;
+  __drivePendingUpload=false;
   driveSetStatus('Сохранение…');
   try{
     const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
@@ -925,14 +945,18 @@ async function driveUpload(){
     driveSetStatus('Ошибка сети');
   }finally{
     __driveSyncing=false;
+    /* ПРАВКА №36: дожимаем изменения, пришедшие во время заливки */
+    if(__driveDirty){__driveDirty=false;driveUpload()}
   }
 }
 
 function driveScheduleUpload(){
+  /* ПРАВКА №36: помечаем «есть незалито» даже офлайн — зальётся при подключении/скрытии вкладки */
+  __drivePendingUpload=true;
   if(!__driveConnected)return;
   clearTimeout(__driveSyncTimer);
   /* ПРАВКА №35: быстрее — 0.8с вместо 2.5с */
-  __driveSyncTimer=setTimeout(driveUpload,800);
+  __driveSyncTimer=setTimeout(()=>{if(__drivePendingUpload||__driveDirty)driveUpload()},800);
 }
 
 function driveStartPolling(){
@@ -940,13 +964,22 @@ function driveStartPolling(){
   __drivePollTimer=setInterval(()=>{
     if(document.visibilityState==='visible')driveCheckForUpdates();
   },10000);
+  /* ПРАВКА №36: слушатель видимости вешаем один раз (раньше плодился при переподключениях) */
+  if(window.__driveVisBound)return;
+  window.__driveVisBound=true;
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible' && __driveConnected)driveCheckForUpdates();
+    /* ПРАВКА №36: при скрытии/закрытии вкладки дожимаем несохранённое в облако */
+    if(document.visibilityState==='hidden' && __driveConnected){
+      if(__drivePendingUpload||__driveDirty)driveUpload();
+    }
   });
 }
 
 async function driveCheckForUpdates(){
   if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  /* ПРАВКА №36: не перерисовываем экран посреди перетаскивания задачи */
+  if(window.__taskDragging)return;
   try{
     const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
     const meta=await metaRes.json();
@@ -1182,10 +1215,11 @@ function clientsChecksForDay(d){const key=iso(d);data.clientChecks[key]=data.cli
 function buildClientsHtml(d){
   const checks=clientsChecksForDay(d);
   const total=data.clients.length;
-  const doneCount=data.clients.filter(c=>checks[c.id]).length;
+  /* ПРАВКА №36: чтение галок через chkOn (новый формат {v,ts}) */
+  const doneCount=data.clients.filter(c=>chkOn(checks[c.id])).length;
   const allDone=total>0 && doneCount===total;
   const chips=data.clients.map(c=>{
-    const on=!!checks[c.id];
+    const on=chkOn(checks[c.id]);
     return `<div class="clientchip ${on?'on':''}" data-client-id="${c.id}">
       <div class="cbox">${on?'✓':''}</div>
       <span class="clientname" data-keyname="${c.id}" title="${esc(c.name)} — открыть карточку">${esc(c.name)}</span>
@@ -1240,14 +1274,15 @@ function bindClients(d){
       const cid=chip.dataset.clientId;
       if(e.target.closest('.clientname')){openKeyClientCard(cid);return}
       const checks=clientsChecksForDay(d);
-      const willBeOn=!checks[cid];
       /* ПРАВКА №35: отметка сразу летит в облако */
-      checks[cid]=willBeOn;saveNow();
+      /* ПРАВКА №36: с меткой времени — последнее изменение побеждает на всех устройствах */
+      const willBeOn=!chkOn(checks[cid]);
+      setChk(checks,cid,willBeOn);saveNow();
       chip.classList.toggle('on',willBeOn);
       chip.querySelector('.cbox').textContent=willBeOn?'✓':'';
       chip.classList.remove('bump');void chip.offsetWidth;chip.classList.add('bump');
       if(willBeOn){celebrateSubtask(chip.querySelector('.cbox'), true);playTick()}
-      const total=data.clients.length;const doneCount=data.clients.filter(c=>checks[c.id]).length;const allDone=total>0 && doneCount===total;
+      const total=data.clients.length;const doneCount=data.clients.filter(c=>chkOn(checks[c.id])).length;const allDone=total>0 && doneCount===total;
       wrap.querySelector('.clientscount').textContent=total?`${doneCount}/${total}`:'нет клиентов';
       wrap.querySelector('.clientscount').classList.toggle('complete',allDone);
       if(allDone && !__lastAllClientsDone)setTimeout(()=>celebrateAllClients(wrap),150);
@@ -1411,7 +1446,8 @@ function renderDay(){
   if(activeInput)activeInput.focus();
   const checks=clientsChecksForDay(d);
   const total=data.clients.length;
-  const doneCount=data.clients.filter(c=>checks[c.id]).length;
+  /* ПРАВКА №36: чтение галок через chkOn */
+  const doneCount=data.clients.filter(c=>chkOn(checks[c.id])).length;
   __lastAllClientsDone=total>0 && doneCount===total;
   if(activeBuilt.isComplete && activeBuilt.pct!==__lastKnownPct && !__lastDayComplete){
     const wrap=$('dayProgressWrap');
@@ -1534,7 +1570,8 @@ function normalizePhone(raw){
   if(d.length!==10)return null;
   return {val:`+7 (${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6,8)}-${d.slice(8,10)}`,digits:d};
 }
-const CITY_TZ={'калининград':2,'москва':3,'мск':3,'санкт-петербург':3,'спб':3,'питер':3,'казань':3,'нижний новгород':3,'воронеж':3,'ростов-на-дону':3,'ростов':3,'краснодар':3,'сочи':3,'ярославль':3,'владимир':3,'тула':3,'тверь':3,'иваново':3,'брянск':3,'курск':3,'липецк':3,'орёл':3,'орел':3,'смоленск':3,'белгород':3,'псков':3,'великий новгород':3,'вологда':3,'череповец':3,'архангельск':3,'мурманск':3,'кострома':3,'рязань':3,'пенза':3,'саранск':3,'тамбов':3,'самара':4,'тольятти':4,'саратов':4,'волгоград':4,'ижевск':4,'ульяновск':4,'йошкар-ола':4,'чебоксары':4,'киров':4,'астрахань':4,'екатеринбург':5,'пермы':5,'пермь':5,'челябинск':5,'уфа':5,'оренбург':5,'курган':5,'магнитогорск':5,'омск':6,'тюмень':6,'новосибирск':7,'красноярск':7,'барнаул':7,'томск':7,'кемерово':7,'новокузнецк':7,'абакан':7,'кызыл':7,'горно-алтайск':7,'иркутск':8,'братск':8,'улан-удэ':8,'чита':8,'якутск':9,'благовещенск':9,'владивосток':10,'хабаровск':10,'уссурийск':10,'находка':10,'комсомольск-на-амуре':10,'магадан':11,'южно-сахалинск':11,'петропавловск-камчатский':12};
+/* ПРАВКА №36: опечатка «пермы» → «перми» */
+const CITY_TZ={'калининград':2,'москва':3,'мск':3,'санкт-петербург':3,'спб':3,'питер':3,'казань':3,'нижний новгород':3,'воронеж':3,'ростов-на-дону':3,'ростов':3,'краснодар':3,'сочи':3,'ярославль':3,'владимир':3,'тула':3,'тверь':3,'иваново':3,'брянск':3,'курск':3,'липецк':3,'орёл':3,'орел':3,'смоленск':3,'белгород':3,'псков':3,'великий новгород':3,'вологда':3,'череповец':3,'архангельск':3,'мурманск':3,'кострома':3,'рязань':3,'пенза':3,'саранск':3,'тамбов':3,'самара':4,'тольятти':4,'саратов':4,'волгоград':4,'ижевск':4,'ульяновск':4,'йошкар-ола':4,'чебоксары':4,'киров':4,'астрахань':4,'екатеринбург':5,'перми':5,'пермь':5,'челябинск':5,'уфа':5,'оренбург':5,'курган':5,'магнитогорск':5,'омск':6,'тюмень':6,'новосибирск':7,'красноярск':7,'барнаул':7,'томск':7,'кемерово':7,'новокузнецк':7,'абакан':7,'кызыл':7,'горно-алтайск':7,'иркутск':8,'братск':8,'улан-удэ':8,'чита':8,'якутск':9,'благовещенск':9,'владивосток':10,'хабаровск':10,'уссурийск':10,'находка':10,'комсомольск-на-амуре':10,'магадан':11,'южно-сахалинск':11,'петропавловск-камчатский':12};
 function lookupCityTz(city){
   const s=String(city||'').toLowerCase().trim();
   if(!s)return null;
@@ -2036,6 +2073,8 @@ function renderFolderView(){
       if(exists){
         data.clients=data.clients.filter(k=>k.id!==exists.id);
         addTombstones([exists]);
+        /* ПРАВКА №36: чистим осиротевшие галки (как при удалении крестиком) */
+        Object.values(data.clientChecks).forEach(dayChecks=>{delete dayChecks[exists.id]});
         saveNow();
         renderSidebarPending();
         toast(`«${exists.name}» убран из ключевых клиентов`);
@@ -2964,6 +3003,8 @@ function enableTaskDrag(){
         const dx=me.clientX-startX,dy=me.clientY-startY;
         if(!dragging&&Math.hypot(dx,dy)>4){
           dragging=true;
+          /* ПРАВКА №36: флаг «идёт drag» — опрос Drive не перерисует экран посреди перетаскивания */
+          window.__taskDragging=true;
           el.classList.add('dragging');
           badge=document.createElement('div');
           badge.className='timedragbadge';
@@ -2987,6 +3028,7 @@ function enableTaskDrag(){
       const onUp=()=>{
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
+        window.__taskDragging=false;
         clearHotRow();
         if(!dragging)return;
         el.classList.remove('dragging');
