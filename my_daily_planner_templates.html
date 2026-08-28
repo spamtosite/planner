@@ -665,6 +665,11 @@ function save(){
   localStorage.setItem(KEY,JSON.stringify(data));
   driveScheduleUpload();
 }
+/* ПРАВКА №35: сразу заливать изменения в облако (на мобиле таймер не успевает) */
+function saveNow(){
+  save();
+  if(__driveConnected)driveUpload();
+}
 const DRIVE_CLIENT_ID='268067507722-g93sh1jcgmd68s5t0jjmh1a1ur90364o.apps.googleusercontent.com';
 const DRIVE_SCOPES='https://www.googleapis.com/auth/drive.appdata';
 const DRIVE_FILE_NAME='daily_planner_data.json';
@@ -926,14 +931,15 @@ async function driveUpload(){
 function driveScheduleUpload(){
   if(!__driveConnected)return;
   clearTimeout(__driveSyncTimer);
-  __driveSyncTimer=setTimeout(driveUpload,2500);
+  /* ПРАВКА №35: быстрее — 0.8с вместо 2.5с */
+  __driveSyncTimer=setTimeout(driveUpload,800);
 }
 
 function driveStartPolling(){
   clearInterval(__drivePollTimer);
   __drivePollTimer=setInterval(()=>{
     if(document.visibilityState==='visible')driveCheckForUpdates();
-  },25000);
+  },10000);
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible' && __driveConnected)driveCheckForUpdates();
   });
@@ -1235,7 +1241,8 @@ function bindClients(d){
       if(e.target.closest('.clientname')){openKeyClientCard(cid);return}
       const checks=clientsChecksForDay(d);
       const willBeOn=!checks[cid];
-      checks[cid]=willBeOn;save();
+      /* ПРАВКА №35: отметка сразу летит в облако */
+      checks[cid]=willBeOn;saveNow();
       chip.classList.toggle('on',willBeOn);
       chip.querySelector('.cbox').textContent=willBeOn?'✓':'';
       chip.classList.remove('bump');void chip.offsetWidth;chip.classList.add('bump');
@@ -1255,8 +1262,7 @@ function bindClients(d){
       data.clients=data.clients.filter(c=>c.id!==cid);
       if(del)addTombstones([del]);
       Object.values(data.clientChecks).forEach(dayChecks=>{delete dayChecks[cid]});
-      save();
-      if(__driveConnected)driveUpload();
+      saveNow();
       renderClientsBlock(d);
     });
   });
@@ -2026,13 +2032,17 @@ function renderFolderView(){
       const cl=list.find(x=>x.id===b.dataset.star);
       if(!cl)return;
       const exists=data.clients.find(k=>k.srcId===cl.id)||data.clients.find(k=>!k.srcId&&k.name===extractClientName(cl.name));
+      /* ПРАВКА №35: снятие звезды — tombstone + мгновенный синк */
       if(exists){
         data.clients=data.clients.filter(k=>k.id!==exists.id);
-        save();renderSidebarPending();
+        addTombstones([exists]);
+        saveNow();
+        renderSidebarPending();
         toast(`«${exists.name}» убран из ключевых клиентов`);
       }else{
         data.clients.push({id:uid(),name:extractClientName(cl.name),srcId:cl.id,srcFolder:f.id});
-        save();renderSidebarPending();
+        saveNow();
+        renderSidebarPending();
         celebrateSubtask(b,true);playTick();
         toast(`«${extractClientName(cl.name)}» добавлен в ключевые клиенты`);
       }
@@ -2198,7 +2208,7 @@ function renderFolderView(){
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
-    /* ПРАВКА №33.1: в надгробия идёт ТОЛЬКО удаляемая папка (был баг: помечались все оставшиеся) */
+    /* ПРАВКА №33.1: в надгробия идёт ТОЛЬКО удаляемая папка */
     addTombstones([f]);
     addTombstones(list);
     data.clientFolders=data.clientFolders.filter(x=>x.id!==f.id);
