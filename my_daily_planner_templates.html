@@ -118,7 +118,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientchip.bump{animation:clientBump .5s cubic-bezier(.34,1.56,.64,1)}
 @keyframes clientBump{0%{transform:scale(1)}40%{transform:scale(1.12) rotate(-2deg)}70%{transform:scale(.96) rotate(1deg)}100%{transform:scale(1)}}
 .clientname{font-size:12.5px;font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-/* ПРАВКА №25.1: сброшен padding — крестик по центру кружка */
 .clientremove{padding:0;width:16px;height:16px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease,background .2s ease}
 .clientchip:hover .clientremove{opacity:1}
 .clientremove:hover{background:#fecaca;color:#991b1b}
@@ -384,9 +383,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .dayhead #prev,.dayhead #next,.dayhead #todayBtn{display:none}
 }
 .top{display:none!important}
-/* ПРАВКА №13: сокращённая модалка ТОЛЬКО при создании */
 @media(max-width:800px){#overlay.mobile-simple .mob-hide{display:none!important}}
-/* ПРАВКА №14: раздел «Клиенты» — аккордеон в сайдбаре + рабочая область папки в контенте */
 .sidebarfolders{display:flex;flex-direction:column;gap:2px;flex:0 0 auto}
 .sidebarfolderitem{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 26px;border-radius:8px;cursor:pointer;color:var(--text);font-size:13px;font-weight:600}
 .sidebarfolderitem:hover{background:var(--line)}
@@ -400,7 +397,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .sidebarfolderadd button{background:var(--accent);color:#fff;border-radius:6px;padding:6px 9px;font-size:11.5px;font-weight:600}
 .sidebarfolderitem .cheadbtn{flex:0 0 auto}
 .mobilesectionitem[data-mfolder]{cursor:pointer}
-/* ПРАВКА №11+15: раздел «Задачи на месяц» */
 .mgoalnav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .mgoalnav .iconbtn{padding:8px 12px}
 .mgoaladd{display:flex;gap:8px;margin-bottom:8px}
@@ -430,7 +426,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .mgoalsub .mstitle{min-width:0}
 .mgoalsub.doneSub .mstitle{color:#166534;text-decoration:line-through}
 .mgoalsub.failedSub .mstitle{color:#991b1b;text-decoration:line-through}
-/* ПРАВКА №14+16: рабочая область папки + карточка клиента */
 .folderclientlist{display:grid;gap:6px;margin-bottom:12px}
 .folderclientitem{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 7px #0000000a;overflow:hidden}
 .folderclienthead{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer}
@@ -455,7 +450,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .ccnoteitem .ccacts{display:flex;gap:8px}
 .ccnoteitem .ccacts button{font-size:11px;color:var(--muted);padding:2px 4px}
 .ccnoteitem .ccacts button:hover{color:var(--accent)}
-/* ПРАВКА №22: инлайн-редактор заметки */
 .ccnoteedit-ta{width:100%;min-height:60px;border:1.5px solid var(--accent);border-radius:8px;padding:8px;font-size:13px;resize:vertical;box-sizing:border-box;background:#fff}
 .ccnoteedit-btns{display:flex;gap:8px}
 .ccnoteedit-btns button{border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
@@ -464,7 +458,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .folderempty{color:var(--muted);font-size:12.5px;text-align:center;padding:14px 0 6px}
 .folderaddrow{display:flex;gap:8px;margin-bottom:14px}
 .folderaddrow input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
-/* ПРАВКА №17.3: инпуты карточки растягиваются по сетке */
 .ccgrid input{width:100%;min-width:0;box-sizing:border-box}
 .folderclientitem,.clientcard,.ccgrid label,.cityrow{min-width:0}
 .folderclientitem{overflow:hidden}
@@ -488,7 +481,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .ccminibtn:hover{background:#fecaca;color:#991b1b}
 .cvcbtn{background:#0a84ff;color:#fff;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:600}
 .prefixinput{width:130px;border:1px solid #d9dde2;border-radius:7px;padding:7px 9px;font-size:12.5px}
-/* ПРАВКА №20: стильная модалка «Добавить задачу в календарь?» по центру экрана */
 .noteask-overlay{position:fixed;inset:0;background:rgba(15,20,30,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
 .noteask{width:min(400px,100%);background:#fff;border-radius:16px;box-shadow:0 25px 70px rgba(0,0,0,.35);padding:22px;font-family:inherit}
 .noteask-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
@@ -502,16 +494,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .noteask-no{background:#f1f3f5;color:#4b5563}
 .noteask-yes:active,.noteask-no:active{transform:scale(.97)}
 .task.highlight-link{box-shadow:0 0 0 3px var(--accent),0 10px 30px rgba(37,99,235,.3)!important}
-/* ПРАВКА №24: звёздочка «в ключевые клиенты» в карточке клиента */
 .cstar{width:26px;height:26px;border-radius:8px;border:2px solid #f59e0b;background:#fff;color:transparent;font-size:13px;display:grid;place-items:center;flex:0 0 auto;padding:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1),background .25s ease,border-color .25s ease,color .25s ease}
 .cstar.on{background:#f59e0b;border-color:#f59e0b;color:#fff}
 .cstar:active{transform:scale(.9)}
-  /* ПРАВКА №25: имя в чипе ключевых клиентов кликабельно */
 .clientchip .clientname{cursor:pointer}
 .clientchip .clientname:hover{text-decoration:underline}
-  /* ПРАВКА №26: метка даты у просроченных задач прошлых дней */
 .sidebarpending-date{font-size:10.5px;font-weight:700;flex:0 0 auto;color:#dc2626}
-  /* ПРАВКА №27: AI-разбор звонка (OpenRouter) */
 .aibtn{flex:0 0 auto;background:#111827;color:#fff;border-radius:8px;padding:9px 12px;font-size:14px}
 .aibtn:hover{background:#263142}
 .aiask-overlay{position:fixed;inset:0;background:rgba(15,20,30,.45);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
@@ -525,6 +513,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .aiask-result{background:#f8f9fb;border:1px solid var(--line);border-radius:10px;padding:10px;white-space:pre-wrap;font-size:13px;max-height:220px;overflow:auto}
 .aiask-btns{display:flex;gap:8px;justify-content:flex-end}
 .aiask-btns button{border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;border:0;cursor:pointer}
+/* ПРАВКА №28: живая диктовка в окне AI */
+.airow{display:flex;gap:8px;align-items:stretch}
+.airow textarea{flex:1}
+#aiMicBtn{flex:0 0 auto;width:52px;border-radius:8px;background:#f1f3f5;font-size:20px}
+#aiMicBtn.rec{background:#fee2e2;color:#dc2626;animation:micPulse 1.2s ease-in-out infinite}
+@keyframes micPulse{0%,100%{box-shadow:0 0 0 0 #dc262633}50%{box-shadow:0 0 0 6px #dc262622}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -1114,7 +1108,7 @@ function buildClientsHtml(d){
     const on=!!checks[c.id];
     return `<div class="clientchip ${on?'on':''}" data-client-id="${c.id}">
       <div class="cbox">${on?'✓':''}</div>
-            <span class="clientname" data-keyname="${c.id}" title="${esc(c.name)} — открыть карточку">${esc(c.name)}</span>
+      <span class="clientname" data-keyname="${c.id}" title="${esc(c.name)} — открыть карточку">${esc(c.name)}</span>
       <button class="clientremove" data-remove-client="${c.id}" title="Удалить">✕</button>
     </div>`;
   }).join('');
@@ -1130,8 +1124,6 @@ function buildClientsHtml(d){
 
 let __lastAllClientsDone=false;
 
-/* ПРАВКА №25: открыть карточку клиента из чипа ключевых клиентов */
-/* ПРАВКА №25.1: открыть карточку клиента из чипа ключевых клиентов */
 function openKeyClientCard(keyClientId){
   const kc=data.clients.find(x=>x.id===keyClientId);
   if(!kc)return;
@@ -1150,7 +1142,7 @@ function openKeyClientCard(keyClientId){
   state.openClientId=clientId;
   openFolderView(folderId);
 }
-  
+
 function bindClients(d){
   const wrap=$('clientsWrap');
   if(!wrap)return;
@@ -1162,11 +1154,10 @@ function bindClients(d){
       wrap.classList.toggle('collapsed',state.clientsCollapsed);
     };
   }
- wrap.querySelectorAll('.clientchip').forEach(chip=>{
+  wrap.querySelectorAll('.clientchip').forEach(chip=>{
     chip.addEventListener('click',e=>{
       if(e.target.closest('.clientremove'))return;
       const cid=chip.dataset.clientId;
-      /* ПРАВКА №25.1: клик по имени — открыть карточку (передаём id, а не несуществующую переменную) */
       if(e.target.closest('.clientname')){openKeyClientCard(cid);return}
       const checks=clientsChecksForDay(d);
       const willBeOn=!checks[cid];
@@ -1446,8 +1437,6 @@ function recomputeGoalDone(t){
   const sOk=(t.subtasks||[]).every(s=>subDone(s));
   t.done=cOk&&sOk;
 }
-  /* ПРАВКА №25: из «2257620 Александр +6 К А Ж С ПВ 4-5 млн» берём «Александр» —
-   первое слово без цифр и без «+» */
 function extractClientName(full){
   const words=String(full||'').trim().split(/\s+/);
   for(const w of words){
@@ -1657,7 +1646,6 @@ function whenStr(dateIso,time){
   return (dateIso===today?'сегодня':dateIso===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)+(time?`, ${time}`:'');
 }
 
-/* ПРАВКА №20+21: модалка создания задачи по заметке (по центру, в стиле календаря) */
 function maybeCreateTaskFromNote(clientName,text,note){
   const p=parseQuickAdd(text);
   if(!p.time&&!p.template&&!p.dateFound)return;
@@ -1685,7 +1673,6 @@ function maybeCreateTaskFromNote(clientName,text,note){
     const tid=uid();
     const subtasks=p.template?(p.template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
     data.tasks.push({id:tid,title:fullTitle,date:p.date,time:p.time,endTime:p.endTime,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0});
-    /* ПРАВКА №22: связываем заметку с задачей для последующих обновлений */
     if(note){note.taskId=tid;save()}
     toast(`Задача добавлена: ${when}`);
     close();
@@ -1693,8 +1680,6 @@ function maybeCreateTaskFromNote(clientName,text,note){
   };
 }
 
-/* ПРАВКА №22: при редактировании заметки с привязанной задачей — предлагаем обновить задачу;
-   «-» в тексте = итог задачи: задача закрывается, окно не показываем */
 function maybeUpdateTaskFromNote(cl,note,newText){
   if(!note.taskId)return;
   const task=data.tasks.find(t=>t.id===note.taskId);
@@ -1743,8 +1728,10 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     render();
   };
 }
-  /* ================== ПРАВКА №27: AI-разбор звонка (OpenRouter) ================== */
+
+/* ================== ПРАВКА №27: AI-разбор звонка (OpenRouter) ================== */
 const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
+const AI_DEFAULT_MODEL='dots-studio/dots-3-note-preview:free';
 function aiSettings(){try{return JSON.parse(localStorage.getItem(AI_SETTINGS_KEY))||{}}catch(e){return{}}}
 function aiSaveSettings(s){localStorage.setItem(AI_SETTINGS_KEY,JSON.stringify(s))}
 
@@ -1757,11 +1744,11 @@ function openAiPopup(cl){
     <div class="aiask-title">🤖 AI-разбор звонка<button class="cheadbtn" id="aiGear" title="Настройки">⚙</button></div>
     <div id="aiSettingsRow" class="aiask-settings ${st.apiKey?'':'show'}">
       <input id="aiKeyInput" type="password" placeholder="API-ключ OpenRouter (sk-or-v1-…)" value="${esc(st.apiKey||'')}">
-      <input id="aiModelInput" placeholder="Модель" value="${esc(st.model||'meta-llama/llama-3.3-70b-instruct:free')}">
+      <input id="aiModelInput" placeholder="Модель" value="${esc(st.model||AI_DEFAULT_MODEL)}">
       <textarea id="aiPromptInput" placeholder="Промпт">${esc(st.prompt||'Ты ассистент риелтора. Преврати черновые записи о звонке с клиентом в краткую структурированную заметку: 1) Что произошло. 2) Потребности, объект, бюджет. 3) Следующий шаг (с датой/временем, если указаны). Пиши кратко по-русски, ничего не выдумывай.')}</textarea>
       <button class="noteask-yes" id="aiSettingsSave" type="button">Сохранить настройки</button>
     </div>
-    <textarea id="aiRawInput" placeholder="Черновик: о чём говорили, что решил клиент, что дальше…"></textarea>
+    <div class="airow"><textarea id="aiRawInput" placeholder="Черновик: о чём говорили, что решил клиент, что дальше…"></textarea><button id="aiMicBtn" type="button" title="Диктовать (или звук с виртуального микрофона)">🎙</button></div>
     <div class="aiask-result" id="aiResult" style="display:none"></div>
     <div class="aiask-btns">
       <button class="noteask-no" type="button" id="aiClose">Закрыть</button>
@@ -1789,7 +1776,7 @@ function openAiPopup(cl){
       const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.apiKey},
-        body:JSON.stringify({model:s.model||'meta-llama/llama-3.3-70b-instruct:free',messages:[
+        body:JSON.stringify({model:s.model||AI_DEFAULT_MODEL,messages:[
           {role:'system',content:s.prompt||'Преврати записи в краткую структурированную заметку о клиенте.'},
           {role:'user',content:raw}
         ]})
@@ -1806,7 +1793,30 @@ function openAiPopup(cl){
       btn.disabled=false;btn.textContent='🤖 Разобрать';
     }
   };
-  $('aiSaveNote').onclick=()=>{
+  /* ПРАВКА №28: живая диктовка (Web Speech API). Обычный микрофон — твоя речь;
+     с pavucontrol → «Monitor of …» — только голос клиента из динамиков */
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const micBtn=$('aiMicBtn');
+  let rec=null,listening=false,aiBase='';
+  if(!SR)micBtn.style.display='none';
+  else micBtn.onclick=()=>{
+    if(listening){rec.stop();return}
+    rec=new SR();
+    rec.lang='ru-RU';rec.continuous=true;rec.interimResults=true;
+    rec.onstart=()=>{listening=true;aiBase=$('aiRawInput').value;micBtn.textContent='⏹';micBtn.classList.add('rec')};
+    rec.onresult=e=>{
+      let fin='',tmp='';
+      for(let i=e.resultIndex;i<e.results.length;i++){
+        if(e.results[i].isFinal)fin+=e.results[i][0].transcript+' ';
+        else tmp+=e.results[i][0].transcript;
+      }
+      if(fin)aiBase=(aiBase+' '+fin).trim();
+      $('aiRawInput').value=(aiBase+' '+tmp).trim();
+    };
+    rec.onend=()=>{listening=false;micBtn.textContent='🎙';micBtn.classList.remove('rec')};
+    rec.onerror=ev=>{listening=false;micBtn.textContent='🎙';micBtn.classList.remove('rec');if(ev.error!=='aborted')toast('Микрофон: '+ev.error)};
+    rec.start();
+  };
   /* ПРАВКА №27.1: AI-заметки не предлагают создание задачи */
   $('aiSaveNote').onclick=()=>{
     if(!aiText)return;
@@ -1848,7 +1858,6 @@ function renderFolderView(){
             </div>`).join('')}
           <div class="ccnoteadd"><input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 79111111111 / 9111111111"><button data-phoneadd="${c.id}">Добавить</button></div>
         </div>`;
-        /* ПРАВКА №22: заметки с инлайн-редактором и маркером привязанной задачи */
         const notesHtml=`<div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
            <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button><button class="aibtn" data-ai="${c.id}" title="AI-разбор звонка">🤖</button></div>
             ${notes.length?notes.slice().reverse().map(n=>{
@@ -1860,7 +1869,7 @@ function renderFolderView(){
               }
               return `<div class="ccnoteitem">
                 <div class="cctext">${esc(n.text)}</div>
-                <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}</div>
+                <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
                 ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
                 <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
               </div>`;
@@ -1913,8 +1922,6 @@ function renderFolderView(){
       renderFolderView();
     };
   });
-    /* ПРАВКА №24: звёздочка добавляет/убирает клиента из «Ключевых клиентов» дня */
-  /* ПРАВКА №25.1: звезда-переключатель: тап — добавить, повторный тап — убрать (по srcId, без дублей) */
   document.querySelectorAll('[data-star]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
@@ -2017,7 +2024,6 @@ function renderFolderView(){
       downloadVCard((prefix?prefix+' ':'')+cl.name,p.digits);
     };
   });
-  /* ПРАВКА №22: заметки — создание, инлайн-редактирование, обновление связанной задачи */
   const noteInput=$('ccNoteInput');
   const addNote=(cid)=>{
     const cl=list.find(x=>x.id===cid);if(!cl)return;
@@ -2028,7 +2034,7 @@ function renderFolderView(){
     save();renderFolderView();
     maybeCreateTaskFromNote(cl.name, v, nt);
   };
-    document.querySelectorAll('[data-ai]').forEach(b=>{
+  document.querySelectorAll('[data-ai]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
       const cl=list.find(x=>x.id===b.dataset.ai);
@@ -2064,7 +2070,6 @@ function renderFolderView(){
       maybeUpdateTaskFromNote(cl,nt,newText);
     };
   });
-    /* ПРАВКА №23: клик по «Связанная задача» открывает день этой задачи в календаре */
   document.querySelectorAll('[data-open-task]').forEach(lk=>{
     lk.onclick=(e)=>{
       e.stopPropagation();
@@ -2601,7 +2606,6 @@ function renderSidebarPending(){
   if(!wrap)return;
   const todayIso=iso(new Date());
   const today=tasksFor(new Date()).filter(t=>!t.done);
-  /* ПРАВКА №26: невыполненные задачи прошлых дней — не теряются */
   const past=data.tasks.filter(t=>!t.done&&t.date&&t.date<todayIso)
     .sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99:99').localeCompare(b.time||'99:99'));
   if(!today.length&&!past.length){
@@ -2611,7 +2615,6 @@ function renderSidebarPending(){
   const now=new Date();
   const nowMin=now.getHours()*60+now.getMinutes();
   const yestIso=iso(new Date(now.getFullYear(),now.getMonth(),now.getDate()-1));
-  /* блок просрочки со старых дней */
   const pastItems=past.map(t=>{
     const dateLbl=t.date===yestIso?'вчера':`${t.date.slice(8,10)}.${t.date.slice(5,7)}`;
     return `<div class="sidebarpending-item overdue" data-id="${t.id}" data-date="${t.date}">
@@ -2620,7 +2623,6 @@ function renderSidebarPending(){
       <span class="sidebarpending-name" title="${esc(t.title)}">${esc(t.title)}</span>
     </div>`;
   }).join('');
-  /* сегодняшний блок — прежняя логика статусов */
   const todayItems=today.map(t=>{
     const deadline=t.endTime?timeMin(t.endTime):t.time?timeMin(t.time):null;
     const overdue=deadline!==null && nowMin>deadline;
@@ -2642,7 +2644,6 @@ function renderSidebarPending(){
   wrap.innerHTML=html;
   wrap.querySelectorAll('.sidebarpending-item').forEach(el=>{
     el.onclick=()=>{
-      /* открываем день, к которому относится задача */
       state.date=parse(el.dataset.date||todayIso);
       state.view='day';
       setTabs();
@@ -3022,6 +3023,7 @@ document.addEventListener('keydown',e=>{
     if($('overlay').style.display==='flex')closeModal();
     if($('tplOverlay').style.display==='flex')closeTplModal();
     document.querySelectorAll('.noteask-overlay').forEach(o=>o.remove());
+    document.querySelectorAll('.aiask-overlay').forEach(o=>o.remove());
   }
 });
 
