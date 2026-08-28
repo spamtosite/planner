@@ -1758,8 +1758,8 @@ function openAiPopup(cl){
   </div>`;
   document.body.appendChild(pop);
   let aiText='';
-  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove()});
-  $('aiClose').onclick=()=>pop.remove();
+  pop.addEventListener('click',e=>{if(e.target===pop){wantStop=true;clearTimeout(restartTimer);pop.remove()}});
+  $('aiClose').onclick=()=>{wantStop=true;clearTimeout(restartTimer);pop.remove()};
   $('aiGear').onclick=()=>$('aiSettingsRow').classList.toggle('show');
   $('aiSettingsSave').onclick=()=>{
     aiSaveSettings({apiKey:$('aiKeyInput').value.trim(),model:$('aiModelInput').value.trim(),prompt:$('aiPromptInput').value});
@@ -1793,14 +1793,14 @@ function openAiPopup(cl){
       btn.disabled=false;btn.textContent='🤖 Разобрать';
     }
   };
-  /* ПРАВКА №28: живая диктовка (Web Speech API). Обычный микрофон — твоя речь;
-     с pavucontrol → «Monitor of …» — только голос клиента из динамиков */
+  /* ПРАВКА №28.1: живая диктовка с автоперезапуском — не прерывается, пока не нажат ⏹ */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const micBtn=$('aiMicBtn');
-  let rec=null,listening=false,aiBase='';
+  let rec=null,listening=false,aiBase='',wantStop=false,restartTimer=null;
   if(!SR)micBtn.style.display='none';
   else micBtn.onclick=()=>{
-    if(listening){rec.stop();return}
+    if(listening){wantStop=true;rec.stop();return}
+    wantStop=false;
     rec=new SR();
     rec.lang='ru-RU';rec.continuous=true;rec.interimResults=true;
     rec.onstart=()=>{listening=true;aiBase=$('aiRawInput').value;micBtn.textContent='⏹';micBtn.classList.add('rec')};
@@ -1813,8 +1813,23 @@ function openAiPopup(cl){
       if(fin)aiBase=(aiBase+' '+fin).trim();
       $('aiRawInput').value=(aiBase+' '+tmp).trim();
     };
-    rec.onend=()=>{listening=false;micBtn.textContent='🎙';micBtn.classList.remove('rec')};
-    rec.onerror=ev=>{listening=false;micBtn.textContent='🎙';micBtn.classList.remove('rec');if(ev.error!=='aborted')toast('Микрофон: '+ev.error)};
+    rec.onend=()=>{
+      listening=false;
+      if(!wantStop){
+        /* сервис сам прервался (тишина/лимит) — перезапускаем через 300 мс */
+        restartTimer=setTimeout(()=>{
+          if(wantStop||!pop.isConnected)return;
+          try{rec.start()}catch(e){}
+        },300);
+      }
+      micBtn.textContent='🎙';micBtn.classList.remove('rec');
+      if(!wantStop&&pop.isConnected){micBtn.textContent='⏹';micBtn.classList.add('rec')}
+    };
+    rec.onerror=ev=>{
+      /* 'no-speech' и 'aborted' — штатные, молча перезапустятся; остальные показываем */
+      if(ev.error!=='no-speech'&&ev.error!=='aborted'&&ev.error!=='network')toast('Микрофон: '+ev.error);
+      if(ev.error==='not-allowed')wantStop=true;
+    };
     rec.start();
   };
   /* ПРАВКА №27.1: AI-заметки не предлагают создание задачи */
