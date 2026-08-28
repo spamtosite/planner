@@ -297,6 +297,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .timedragbadge{position:fixed;z-index:9999;background:#111827;color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;font-weight:700;pointer-events:none;box-shadow:0 6px 18px #0004}
   .mobileeditbtn{flex:0 0 auto;width:30px;height:30px;border-radius:8px;background:#f1f3f5;color:#6b7280;display:grid;place-items:center;font-size:14px;padding:0}
   .mobileeditbtn:active{background:#e2e6ea}
+  .mobiledayrow.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
 }
 @media(max-width:800px){
   .mobileweeklist{display:flex;flex-direction:column;gap:8px}
@@ -2361,9 +2362,10 @@ function renderFolderView(){
       if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
       render();
       setTimeout(()=>{
-        const el=document.querySelector(`[data-id="${t.id}"]`);
-        if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('celebrate');setTimeout(()=>el.classList.remove('celebrate'),700)}
-        else toast('Задача без времени — смотри блок «Без времени»');
+        const el=document.querySelector(`#content .taskblock[data-id="${t.id}"],#content .task[data-id="${t.id}"],#content .mobiledayrow[data-id="${t.id}"]`);
+        if(!el){toast('Задача не найдена на этом дне');return}
+        el.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(()=>{el.classList.add('celebrate');setTimeout(()=>el.classList.remove('celebrate'),700)},400);
       },300);
     };
   });
@@ -2379,9 +2381,11 @@ function renderFolderView(){
       if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
       render();
       setTimeout(()=>{
-        const el=document.querySelector(`[data-id="${t.id}"]`);
-        if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('celebrate');setTimeout(()=>el.classList.remove('celebrate'),700)}
-        else toast('Задача без времени — смотри блок «Без времени»');
+        /* №39.1: ищем только в #content — в сайдбаре у незакрытой задачи такой же data-id */
+        const el=document.querySelector(`#content .taskblock[data-id="${t.id}"],#content .task[data-id="${t.id}"],#content .mobiledayrow[data-id="${t.id}"]`);
+        if(!el){toast('Задача не найдена на этом дне');return}
+        el.scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(()=>{el.classList.add('celebrate');setTimeout(()=>el.classList.remove('celebrate'),700)},400);
       },300);
     };
   });
