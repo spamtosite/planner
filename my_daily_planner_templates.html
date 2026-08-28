@@ -2198,11 +2198,14 @@ function renderFolderView(){
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
+    /* ПРАВКА №33.1: в надгробия идёт ТОЛЬКО удаляемая папка (был баг: помечались все оставшиеся) */
+    addTombstones([f]);
+    addTombstones(list);
     data.clientFolders=data.clientFolders.filter(x=>x.id!==f.id);
     delete data.folderClients[f.id];
-    addTombstones(data.clientFolders);
-    addTombstones(list);
-    save();state.openFolderId=null;state.view='day';setTabs();render();
+    save();
+    if(__driveConnected)driveUpload();
+    state.openFolderId=null;state.view='day';setTabs();render();
     toast(`Папка «${f.name}» удалена`);
   };
 }
