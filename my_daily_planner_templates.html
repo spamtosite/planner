@@ -1831,6 +1831,53 @@ function maybeCreateTaskFromNote(clientName,text,note){
   };
 }
 
+/* ================== ПРАВКА №38: двусторонняя связь «заметка клиента ↔ задача» ================== */
+/* Найти заметку клиента, привязанную к задаче (note.taskId) */
+function findClientNoteByTaskId(taskId){
+  for(const fid in data.folderClients){
+    for(const c of (data.folderClients[fid]||[])){
+      const nt=(c.notes||[]).find(n=>n.taskId===taskId);
+      if(nt)return nt;
+    }
+  }
+  return null;
+}
+/* Найти карточку клиента для задачи (по явной связи, затем по имени) */
+function findClientByTask(task){
+  if(task.clientFolderId&&task.clientId){
+    const c=(data.folderClients[task.clientFolderId]||[]).find(x=>x.id===task.clientId);
+    if(c)return c;
+  }
+  if(task.clientName){
+    for(const fid in data.folderClients){
+      const c=(data.folderClients[fid]||[]).find(x=>x.name===task.clientName);
+      if(c)return c;
+    }
+  }
+  return null;
+}
+/* Закрытая задача с заполненным полем заметок дублирует его в карточку клиента.
+   Есть связанная заметка — к ней дописывается «✅ Итог: …»;
+   нет — создаётся новая заметка с привязкой taskId.
+   Возвращает true, если данные изменились (save делает вызывающий). */
+function pushTaskResultToClient(task){
+  if(!task||!task.done)return false;
+  const result=String(task.note||'').split('\n').filter(Boolean).join('\n').trim();
+  if(!result)return false;
+  const existing=findClientNoteByTaskId(task.id);
+  if(existing){
+    if((existing.text||'').includes(result))return false; /* уже отражено — не дублируем */
+    existing.text=(existing.text.trim()+'\n✅ Итог: '+result).trim();
+    existing.ts=Date.now();
+    return true;
+  }
+  const client=findClientByTask(task);
+  if(!client)return false;
+  client.notes=client.notes||[];
+  client.notes.push({id:uid(),text:result,ts:Date.now(),taskId:task.id});
+  return true;
+}
+
 function maybeUpdateTaskFromNote(cl,note,newText){
   if(!note.taskId)return;
   const task=data.tasks.find(t=>t.id===note.taskId);
@@ -1839,8 +1886,19 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     if(!task.done){
       task.done=true;
       (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
+      /* ПРАВКА №38: результат после «-» попадает в заметки задачи.
+         Берём последний « - » (не спотыкаемся о время вида «15-00»), затем последний «-» */
+      let dashIdx=newText.lastIndexOf(' - ');
+      if(dashIdx<0)dashIdx=newText.lastIndexOf('-');
+      if(dashIdx<0)dashIdx=newText.indexOf('-');
+      const result=newText.slice(dashIdx+1).trim();
+      if(result){
+        const lines=(task.note||'').split('\n').filter(Boolean);
+        if(!lines.includes(result))lines.push(result);
+        task.note=lines.join('\n');
+      }
       save();renderSidebarPending();
-      toast('Задача закрыта — в заметке зафиксирован итог');
+      toast('Задача закрыта — итог записан в заметки задачи');
     }
     return;
   }
@@ -2483,7 +2541,10 @@ function bindMobileDayList(d){
       }
       if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
       const wasDone=t.done;
-      recomputeDone(t);save();
+      recomputeDone(t);
+      /* ПРАВКА №38: авто-закрытие задачи → результат в карточку клиента */
+      if(!wasDone&&t.done)pushTaskResultToClient(t);
+      save();
       if(!wasDone&&t.done)setTimeout(()=>render(),600);
       else if(wasDone&&!t.done)setTimeout(()=>render(),200);
     });
@@ -2502,7 +2563,10 @@ function bindMobileDayList(d){
       const id=box.dataset.check;
       const t=data.tasks.find(x=>x.id===id);
       if(!t)return;
-      t.done=!t.done;save();
+      t.done=!t.done;
+      /* ПРАВКА №38: закрытие задачи → результат в карточку клиента */
+      if(t.done)pushTaskResultToClient(t);
+      save();
       const row=box.closest('.mobiledayrow');
       row.classList.toggle('done',t.done);
       box.classList.toggle('on',t.done);
@@ -2900,8 +2964,9 @@ function bindTasks(){
       openClientCardFromTask(t);
     });
     el.querySelector('.check').onclick=e=>{
-      e.stopPropagation();const willBeDone=!t.done;t.done=willBeOnSafe(t,willBeDone);save();
-      if(willBeDone)celebrateTask(el);
+      e.stopPropagation();const willBeDone=!t.done;t.done=willBeOnSafe(t,willBeDone);
+      if(willBeDone){celebrateTask(el);pushTaskResultToClient(t)}
+      save();
       renderSidebarPending();
       __widthOverrides={};delete window.__realHeights;
       setTimeout(()=>render(),willBeDone?520:0);
@@ -2958,7 +3023,10 @@ function bindTasks(){
         }
 
         const wasTaskDone=t.done;
-        recomputeDone(t);save();
+        recomputeDone(t);
+        /* ПРАВКА №38: авто-закрытие задачи → результат в карточку клиента */
+        if(!wasTaskDone&&t.done)pushTaskResultToClient(t);
+        save();
 
         if(!wasTaskDone&&t.done){
           setTimeout(()=>{const freshEl=document.querySelector(`[data-id="${t.id}"]`);if(freshEl)celebrateTask(freshEl);__widthOverrides={};delete window.__realHeights;setTimeout(()=>render(),520)},900);
