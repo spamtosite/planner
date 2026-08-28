@@ -3670,4 +3670,34 @@ function importBackup(file){
       clients:parsed.clients||[],
       clientChecks:parsed.clientChecks||{},
       templates:parsed.templates||[],
-      clientFolders:parsed.clientFolders||
+      clientFolders:parsed.clientFolders||[],
+      folderClients:parsed.folderClients||{},
+      monthGoals:parsed.monthGoals||{},
+      tombstones:parsed.tombstones||{}
+      };
+  save();
+  delete window.__realHeights;
+  __widthOverrides={};
+  render();
+  renderQuickTplBar();
+  toast(Импортировано: ${count} задач);
+};
+  reader.onerror=()=>toast('Не удалось прочитать файл');
+  reader.readAsText(file);
+}
+ $('exportBtn').onclick=exportBackup;
+ $('importBtn').onclick=()=>$('importFileInput').click();
+ $('importFileInput').addEventListener('change',e=>{
+  const file=e.target.files[0];
+  if(file)importBackup(file);
+  e.target.value='';
+});
+setInterval(()=>renderSidebarPending(),60000);
+driveInit();
+document.getElementById('driveConnectBtn').onclick=driveConnect;
+/* статус Drive кликабелен при отключении */
+document.getElementById('driveStatus').style.cursor='pointer';
+document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
+
+window.addEventListener('resize',()=>{render()});
+</script></body></html>
