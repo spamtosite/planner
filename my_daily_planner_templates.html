@@ -629,6 +629,13 @@ data.clientChecks=data.clientChecks||{};
 data.clientFolders=data.clientFolders||[];
 data.folderClients=data.folderClients||{};
 data.monthGoals=data.monthGoals||{};
+  /* ПРАВКА №33: надгробия удалённых — чтобы merge не воскрешал удалённое */
+data.tombstones=data.tombstones||{};
+function addTombstones(arr){
+  const now=Date.now();
+  (arr||[]).forEach(x=>{if(x&&x.id)data.tombstones[x.id]=now});
+  Object.keys(data.tombstones).forEach(id=>{if(now-data.tombstones[id]>60*24*3600*1000)delete data.tombstones[id]});
+}
 data.templates=data.templates||[
   {code:'ВП',name:'Видеопоказ',subtasks:['Подтвердить с клиентом видеопоказ','Договориться с ОП','Провести ВП']}
 ];
@@ -804,7 +811,11 @@ function driveMergeArraysById(localArr,remoteArr){
   remoteArr=Array.isArray(remoteArr)?remoteArr:[];
   const remoteIds=new Set(remoteArr.map(x=>x.id));
   const localOnly=localArr.filter(x=>x && x.id && !remoteIds.has(x.id));
-  return remoteArr.concat(localOnly);
+  const tom=data.tombstones||{};
+  /* ПРАВКА №33: удалённое локально не воскрешается из облака, удалённое в облаке не воскрешается локально */
+  const localMerged=remoteArr.filter(x=>x && !(tom[x.id]&&(tom[x.id]>0)));
+  const remoteMerged=localOnly.filter(x=>x && !(tom[x.id]));
+  return localMerged.concat(remoteMerged);
 }
 
 function driveMergeClientChecks(localChecks,remoteChecks){
@@ -831,6 +842,9 @@ function driveMergeMonthGoals(local,remote){
   return merged;
 }
 function driveMergeData(localData,remoteData){
+  const lt=localData.tombstones||{},rt=remoteData.tombstones||{};
+  const mergedTom=Object.assign({},rt,lt);
+  localData.tombstones=mergedTom;remoteData.tombstones=mergedTom;
   return {
     tasks:driveMergeArraysById(localData.tasks,remoteData.tasks),
     clients:driveMergeArraysById(localData.clients,remoteData.clients),
@@ -838,7 +852,8 @@ function driveMergeData(localData,remoteData){
     clientChecks:driveMergeClientChecks(localData.clientChecks,remoteData.clientChecks),
     clientFolders:driveMergeArraysById(localData.clientFolders||[],remoteData.clientFolders||[]),
     folderClients:driveMergeFolderClients(localData.folderClients,remoteData.folderClients),
-    monthGoals:driveMergeMonthGoals(localData.monthGoals,remoteData.monthGoals)
+    monthGoals:driveMergeMonthGoals(localData.monthGoals,remoteData.monthGoals),
+    tombstones:mergedTom
   };
 }
 
@@ -2036,6 +2051,7 @@ function renderFolderView(){
       const cl=list.find(x=>x.id===cid);
       if(!confirm(`Удалить клиента «${cl?cl.name:''}»?`))return;
       data.folderClients[f.id]=list.filter(x=>x.id!==cid);
+      addTombstones([cl]);
       if(state.openClientId===cid)state.openClientId=null;
       save();renderFolderView();renderSidebarFolders();
     };
@@ -2164,6 +2180,8 @@ function renderFolderView(){
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
     data.clientFolders=data.clientFolders.filter(x=>x.id!==f.id);
     delete data.folderClients[f.id];
+    addTombstones(data.clientFolders);
+    addTombstones(list);
     save();state.openFolderId=null;state.view='day';setTabs();render();
     toast(`Папка «${f.name}» удалена`);
   };
