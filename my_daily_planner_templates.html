@@ -683,6 +683,8 @@ let __driveConnected=false;
 /* ПРАВКА №36: флаги «есть незалито в облако» — не терять правки при повторных кликах и при скрытии вкладки */
 let __drivePendingUpload=false;
 let __driveDirty=false;
+/* ПРАВКА №37.3: время последнего подтверждения меты файла (опросом или скачиванием) */
+let __lastMetaCheck=0;
 
 function driveSetStatus(text){
   const el=document.getElementById('driveStatus');
@@ -764,19 +766,27 @@ function driveConnect(){
   client.requestAccessToken();
 }
 
+/* ПРАВКА №37.2: кешируем fileId — при подключении пропускаем поиск файла (−1 запрос) */
 function driveAfterConnect(){
   const btn=document.getElementById('driveConnectBtn');
   if(btn)btn.textContent='☁️ Google Drive подключён';
   driveSetStatus('Синхронизация…');
-  driveFindOrCreateFile().then(()=>{
-    driveDownloadAndMerge().then(()=>{
-      driveSetStatus('Синхронизировано');
-      /* ПРАВКА №36: сразу заливаем локальные данные (в т.ч. офлайн-правки и первый синк) */
-      driveUpload();
-      driveStartPolling();
-    });
+  __driveFileId=localStorage.getItem('drive_file_id')||null;
+  const ready=__driveFileId?Promise.resolve():driveFindOrCreateFile();
+  ready.then(()=>driveDownloadAndMerge()).then(()=>{
+    driveSetStatus('Синхронизировано');
+    /* ПРАВКА №36: сразу заливаем локальные данные (в т.ч. офлайн-правки и первый синк) */
+    driveUpload();
+    driveStartPolling();
   }).catch(err=>{
     console.error(err);
+    /* ПРАВКА №37.2: кешированный файл пропал из Drive (404) — сбрасываем кеш и ищем заново (один раз) */
+    if(__driveFileId && err && err.message==='drive-file-404'){
+      __driveFileId=null;
+      localStorage.removeItem('drive_file_id');
+      driveAfterConnect();
+      return;
+    }
     driveSetStatus('Ошибка сети');
   });
 }
@@ -810,12 +820,16 @@ async function driveFindOrCreateFile(){
     const createJson=await createRes.json();
     __driveFileId=createJson.id;
     __driveKnownModTime=createJson.modifiedTime;
+    /* ПРАВКА №37.2: запоминаем id — в следующий раз стартуем без поиска */
+    localStorage.setItem('drive_file_id',__driveFileId);
     return;
   }
   matches.sort((a,b)=>new Date(a.createdTime)-new Date(b.createdTime));
   const primary=matches[0];
   __driveFileId=primary.id;
   __driveKnownModTime=primary.modifiedTime;
+  /* ПРАВКА №37.2: запоминаем id — в следующий раз стартуем без поиска */
+  localStorage.setItem('drive_file_id',__driveFileId);
   if(matches.length>1){
     console.warn('Обнаружено несколько файлов синхронизации, объединяю данные:',matches.length);
     for(let i=1;i<matches.length;i++){
@@ -899,7 +913,11 @@ function driveMergeData(localData,remoteData){
 async function driveDownloadAndMerge(){
   if(!__driveFileId)return;
   const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+  /* ПРАВКА №37.2: кешированный файл удалён из Drive — сигнализируем для сброса кеша */
+  if(metaRes.status===404)throw new Error('drive-file-404');
   const meta=await metaRes.json();
+  /* ПРАВКА №37.3: мета подтверждена — ближайшая заливка может пропустить мета-запрос */
+  __lastMetaCheck=Date.now();
   const remoteModTime=meta.modifiedTime;
   const contentRes=await driveApi(`/drive/v3/files/${__driveFileId}?alt=media`);
   let remoteData={tasks:[],clients:[],clientChecks:{},templates:[]};
@@ -926,10 +944,14 @@ async function driveUpload(){
   __drivePendingUpload=false;
   driveSetStatus('Сохранение…');
   try{
-    const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
-    const meta=await metaRes.json();
-    if(__driveKnownModTime && meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
-      await driveDownloadAndMerge();
+    /* ПРАВКА №37.3: если опрос/скачивание подтвердили мету менее 2 сек назад — мета-запрос пропускаем */
+    if(Date.now()-__lastMetaCheck>2000){
+      const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
+      const meta=await metaRes.json();
+      __lastMetaCheck=Date.now();
+      if(__driveKnownModTime && meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
+        await driveDownloadAndMerge();
+      }
     }
     const body=JSON.stringify(data);
     const uploadRes=await driveApi(`/upload/drive/v3/files/${__driveFileId}?uploadType=media&fields=modifiedTime`,{
@@ -955,15 +977,16 @@ function driveScheduleUpload(){
   __drivePendingUpload=true;
   if(!__driveConnected)return;
   clearTimeout(__driveSyncTimer);
-  /* ПРАВКА №35: быстрее — 0.8с вместо 2.5с */
-  __driveSyncTimer=setTimeout(()=>{if(__drivePendingUpload||__driveDirty)driveUpload()},800);
+  /* ПРАВКА №37.4: 0.5с вместо 0.8с — после №36 таймер страховочный, доставка не зависит от него */
+  __driveSyncTimer=setTimeout(()=>{if(__drivePendingUpload||__driveDirty)driveUpload()},500);
 }
 
 function driveStartPolling(){
   clearInterval(__drivePollTimer);
+  /* ПРАВКА №37.1: опрос каждые 5 сек вместо 10 — потолок задержки между устройствами вдвое меньше */
   __drivePollTimer=setInterval(()=>{
     if(document.visibilityState==='visible')driveCheckForUpdates();
-  },10000);
+  },5000);
   /* ПРАВКА №36: слушатель видимости вешаем один раз (раньше плодился при переподключениях) */
   if(window.__driveVisBound)return;
   window.__driveVisBound=true;
@@ -983,6 +1006,8 @@ async function driveCheckForUpdates(){
   try{
     const metaRes=await driveApi(`/drive/v3/files/${__driveFileId}?fields=modifiedTime`);
     const meta=await metaRes.json();
+    /* ПРАВКА №37.3: мета подтверждена — ближайшая заливка может пропустить мета-запрос */
+    __lastMetaCheck=Date.now();
     if(meta.modifiedTime && meta.modifiedTime!==__driveKnownModTime){
       await driveDownloadAndMerge();
       driveSetStatus('Синхронизировано');
