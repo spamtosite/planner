@@ -3186,7 +3186,7 @@ function parseQuickAdd(raw){
 
   const rangeRe=/(?:в\s+промежутке\s+)?с\s+(\d{1,2})(?::(\d{2}))?\s+до\s+(\d{1,2})(?::(\d{2}))?/i;
   const dashRangeRe=/(?<!\d)(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})(?!\d)/;
-  const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
+  const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?:[.:\-](\d{2}))?(?!\d)/i;
     s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').replace(/\s+[-–]\s*\d{0,2}$/,'').trim();
   /* ПРАВКА №31: «11.30» и «11-30» тоже время */
   const dotTimeRe=/(?<!\d)(\d{1,2})[.\-](\d{2})(?!\d)/;
