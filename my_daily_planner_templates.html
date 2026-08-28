@@ -1251,9 +1251,13 @@ function bindClients(d){
     btn.addEventListener('click',e=>{
       e.stopPropagation();
       const cid=btn.dataset.removeClient;
+      const del=data.clients.find(c=>c.id===cid);
       data.clients=data.clients.filter(c=>c.id!==cid);
+      if(del)addTombstones([del]);
       Object.values(data.clientChecks).forEach(dayChecks=>{delete dayChecks[cid]});
-      save();renderClientsBlock(d);
+      save();
+      if(__driveConnected)driveUpload();
+      renderClientsBlock(d);
     });
   });
   const addChip=$('clientAddChip');
@@ -3346,9 +3350,15 @@ function quick(){
  $('deleteBtn').onclick=()=>{
   if(state.editing){
     delete __widthOverrides[state.editing];
+    const del=data.tasks.find(x=>x.id===state.editing);
     data.tasks=data.tasks.filter(x=>x.id!==state.editing);
-    delete window.__realHeights;save();closeModal();render();
+    if(del)addTombstones([del]);
+    /* ПРАВКА №34: удаление уезжает в облако сразу */
+    delete window.__realHeights;save();
+    if(__driveConnected)driveUpload();
+    closeModal();render();
   }
+};
 };
  $('deleteSeriesBtn').onclick=()=>{
   if(!state.editing)return;
@@ -3357,6 +3367,8 @@ function quick(){
   const seriesId=t.seriesId;
   const count=data.tasks.filter(x=>x.seriesId===seriesId).length;
   if(!confirm(`Удалить все ${count} задач(и) этой серии из календаря?\n\nЭто действие нельзя отменить.`))return;
+  const delSeries=data.tasks.filter(x=>x.seriesId===seriesId);
+  addTombstones(delSeries);
   data.tasks=data.tasks.filter(x=>x.seriesId!==seriesId);
   __widthOverrides={};
   delete window.__realHeights;
