@@ -629,7 +629,7 @@ data.clientChecks=data.clientChecks||{};
 data.clientFolders=data.clientFolders||[];
 data.folderClients=data.folderClients||{};
 data.monthGoals=data.monthGoals||{};
-  /* ПРАВКА №33: надгробия удалённых — чтобы merge не воскрешал удалённое */
+/* ПРАВКА №33: надгробия удалённых — merge не воскрешает удалённое */
 data.tombstones=data.tombstones||{};
 function addTombstones(arr){
   const now=Date.now();
@@ -681,6 +681,37 @@ function driveSetStatus(text){
   if(el)el.textContent=text;
 }
 
+/* ПРАВКА №32: автопереподключение; таймаут 8с, повтор по касанию */
+let __reauthInFlight=false;
+function driveSilentReauth(){
+  return new Promise(resolve=>{
+    if(!window.google||!google.accounts.oauth2){resolve(false);return}
+    if(__reauthInFlight){resolve(false);return}
+    __reauthInFlight=true;
+    let done=false;
+    const finish=ok=>{
+      if(done)return;done=true;__reauthInFlight=false;
+      clearTimeout(t);resolve(ok);
+    };
+    const t=setTimeout(()=>finish(false),8000);
+    try{
+      const client=google.accounts.oauth2.initTokenClient({
+        client_id:DRIVE_CLIENT_ID,
+        scope:DRIVE_SCOPES,
+        callback:(r)=>{
+          if(r.error){driveSetStatus('Автоподключение не удалось — нажмите «Подключить»');finish(false);return}
+          __driveToken=r.access_token;
+          __driveConnected=true;
+          sessionStorage.setItem('drive_token',__driveToken);
+          localStorage.setItem('drive_auto','1');
+          finish(true);
+        }
+      });
+      client.requestAccessToken({prompt:''});
+    }catch(e){finish(false)}
+  });
+}
+
 function driveInit(){
   if(!window.google || !window.google.accounts){
     setTimeout(driveInit,300);
@@ -693,15 +724,21 @@ function driveInit(){
     driveAfterConnect();
     return;
   }
-  /* ПРАВКА №32: автопереподключение после первого ручного входа */
   if(localStorage.getItem('drive_auto')==='1'){
     driveSetStatus('Автоподключение…');
     driveSilentReauth().then(ok=>{
       if(ok)driveAfterConnect();
-      else driveSetStatus('Нажмите «Подключить Google Drive»');
+      else driveSetStatus('Нет связи с Drive — коснитесь, чтобы подключить');
     });
   }
 }
+
+/* ПРАВКА №32.1: если автоподключение не удалось — пробуем ещё раз по первому касанию */
+document.addEventListener('touchstart',function onTouchReauth(){
+  if(__driveConnected||localStorage.getItem('drive_auto')!=='1')return;
+  document.removeEventListener('touchstart',onTouchReauth);
+  driveSilentReauth().then(ok=>{if(ok)driveAfterConnect()});
+},{passive:true});
 
 function driveConnect(){
   const client=google.accounts.oauth2.initTokenClient({
@@ -717,26 +754,6 @@ function driveConnect(){
     }
   });
   client.requestAccessToken();
-}
-
-/* тихое переподключение через активную Google-сессию (без окон) */
-function driveSilentReauth(){
-  return new Promise(resolve=>{
-    if(!window.google||!google.accounts.oauth2){resolve(false);return}
-    const client=google.accounts.oauth2.initTokenClient({
-      client_id:DRIVE_CLIENT_ID,
-      scope:DRIVE_SCOPES,
-      callback:(r)=>{
-        if(r.error){resolve(false);return}
-        __driveToken=r.access_token;
-        __driveConnected=true;
-        sessionStorage.setItem('drive_token',__driveToken);
-        localStorage.setItem('drive_auto','1');
-        resolve(true);
-      }
-    });
-    client.requestAccessToken({prompt:''});
-  });
 }
 
 function driveAfterConnect(){
@@ -812,8 +829,8 @@ function driveMergeArraysById(localArr,remoteArr){
   const remoteIds=new Set(remoteArr.map(x=>x.id));
   const localOnly=localArr.filter(x=>x && x.id && !remoteIds.has(x.id));
   const tom=data.tombstones||{};
-  /* ПРАВКА №33: удалённое локально не воскрешается из облака, удалённое в облаке не воскрешается локально */
-  const localMerged=remoteArr.filter(x=>x && !(tom[x.id]&&(tom[x.id]>0)));
+  /* ПРАВКА №33: удалённое не воскрешается ниоткуда */
+  const localMerged=remoteArr.filter(x=>x && !(tom[x.id]));
   const remoteMerged=localOnly.filter(x=>x && !(tom[x.id]));
   return localMerged.concat(remoteMerged);
 }
@@ -872,7 +889,7 @@ async function driveDownloadAndMerge(){
   data.tasks=data.tasks||[];data.clients=data.clients||[];
   data.clientChecks=data.clientChecks||{};data.templates=data.templates||[];
   data.clientFolders=data.clientFolders||[];data.folderClients=data.folderClients||{};
-  data.monthGoals=data.monthGoals||{};
+  data.monthGoals=data.monthGoals||{};data.tombstones=data.tombstones||{};
   __driveKnownModTime=remoteModTime;
   localStorage.setItem(KEY,JSON.stringify(data));
   delete window.__realHeights;
@@ -1729,7 +1746,6 @@ function maybeCreateTaskFromNote(clientName,text,note){
   pop.querySelector('.noteask-yes').onclick=()=>{
     const tid=uid();
     const subtasks=p.template?(p.template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
-    /* ПРАВКА №30: задача из заметки автоматически связывается с клиентом */
     let _cf=null,_cid=null;
     for(const fid in data.folderClients){
       const found=(data.folderClients[fid]||[]).find(x=>x.name===clientName);
@@ -1856,7 +1872,7 @@ function openAiPopup(cl){
       btn.disabled=false;btn.textContent='🤖 Разобрать';
     }
   };
-  /* ПРАВКА №28.1: живая диктовка с автоперезапуском — не прерывается, пока не нажат ⏹ */
+  /* ПРАВКА №28.1: живая диктовка с автоперезапуском */
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const micBtn=$('aiMicBtn');
   let rec=null,listening=false,aiBase='',wantStop=false,restartTimer=null;
@@ -3082,7 +3098,6 @@ function openModal(id=null,date=iso(state.date),time='09:00'){
   $('fTitle').value=t?.title||'';$('fDate').value=t?.date||date;$('fTime').value=t?.time||time;$('fEndTime').value=t?.endTime||'';$('fNote').value=t?.note||'';
   $('fObject').value=t?.object||'';$('fManager').value=t?.manager||'';
   $('fSubtasks').value=(t?.subtasks||[]).map(s=>s.title).join('\n');
-  /* ПРАВКА №30: поле «Клиент» + подсказки из всех папок */
   $('fClient').value=t?.clientName||'';
   const dl=$('clientList');
   dl.innerHTML='';
@@ -3237,9 +3252,8 @@ function parseQuickAdd(raw){
   const rangeRe=/(?:в\s+промежутке\s+)?с\s+(\d{1,2})(?::(\d{2}))?\s+до\s+(\d{1,2})(?::(\d{2}))?/i;
   const dashRangeRe=/(?<!\d)(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})(?!\d)/;
   const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?:[.:\-](\d{2}))?(?!\d)/i;
-    s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').replace(/\s+[-–]\s*\d{0,2}$/,'').trim();
-  /* ПРАВКА №31: «11.30» и «11-30» тоже время */
-  const dotTimeRe=/(?<!\d)(\d{1,2})[.\-](\d{2})(?!\d)/;
+  const afterRe=/(?<![a-zA-Zа-яА-Я0-9])после\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
+  const dotTimeRe=/(?<!\d)([0-1]?\d|2[0-3])[.\-]([0-5]\d)(?!\d)(?!\s*[.\-]\s*\d)/;
 
   let mr=s.match(rangeRe);
   if(mr){
@@ -3263,9 +3277,7 @@ function parseQuickAdd(raw){
           time=pad(Math.min(23,+ma[1]))+':'+pad(Math.min(59,+(ma[2]||0)));
           s=(s.slice(0,ma.index)+' '+s.slice(ma.index+ma[0].length)).trim();
         }else{
-          /* ПРАВКА №31.1: «11.30» / «11-30» = 11:30. Только если до этого слова стоит время-подобный контекст:
-             число часов 0–23, минуты 00–59, и это не похоже на дату (за числом с точкой следует ещё число с точкой/год) */
-          let md2=s.match(/(?<!\d)([0-1]?\d|2[0-3])[.\-]([0-5]\d)(?!\d)(?!\s*[.\-]\s*\d)/);
+          let md2=s.match(dotTimeRe);
           if(md2){
             time=pad(+md2[1])+':'+pad(+md2[2]);
             s=(s.slice(0,md2.index)+' '+s.slice(md2.index+md2[0].length)).trim();
@@ -3309,7 +3321,7 @@ function parseQuickAdd(raw){
   }
 
   s=s.replace(VERB_STRIP_RE,'');
-  s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').trim();
+  s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').replace(/\s+[-–]\s*\d{0,2}$/,'').trim();
 
   return {title:s||raw.trim(),titleClean:s,date:iso(d),time,endTime:end,template:matchedTpl,dateFound};
 }
@@ -3434,7 +3446,8 @@ function importBackup(file){
       templates:parsed.templates||[],
       clientFolders:parsed.clientFolders||[],
       folderClients:parsed.folderClients||{},
-      monthGoals:parsed.monthGoals||{}
+      monthGoals:parsed.monthGoals||{},
+      tombstones:parsed.tombstones||{}
     };
     save();
     delete window.__realHeights;
@@ -3457,6 +3470,9 @@ function importBackup(file){
 setInterval(()=>renderSidebarPending(),60000);
 driveInit();
 document.getElementById('driveConnectBtn').onclick=driveConnect;
+/* статус Drive кликабелен при отключении */
+document.getElementById('driveStatus').style.cursor='pointer';
+document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
 
 window.addEventListener('resize',()=>{render()});
 </script></body></html>
