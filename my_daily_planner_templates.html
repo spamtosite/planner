@@ -3648,7 +3648,6 @@ function exportBackup(){
   URL.revokeObjectURL(url);
   toast('Бэкап сохранён');
 }
-
 function importBackup(file){
   const reader=new FileReader();
   reader.onload=e=>{
@@ -3674,17 +3673,18 @@ function importBackup(file){
       folderClients:parsed.folderClients||{},
       monthGoals:parsed.monthGoals||{},
       tombstones:parsed.tombstones||{}
-      };
-  save();
-  delete window.__realHeights;
-  __widthOverrides={};
-  render();
-  renderQuickTplBar();
-  toast(Импортировано: ${count} задач);
-};
+    };
+    save();
+    delete window.__realHeights;
+    __widthOverrides={};
+    render();
+    renderQuickTplBar();
+    toast(`Импортировано: ${count} задач`);
+  };
   reader.onerror=()=>toast('Не удалось прочитать файл');
   reader.readAsText(file);
 }
+
  $('exportBtn').onclick=exportBackup;
  $('importBtn').onclick=()=>$('importFileInput').click();
  $('importFileInput').addEventListener('change',e=>{
