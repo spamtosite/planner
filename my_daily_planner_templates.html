@@ -684,6 +684,15 @@ function driveInit(){
     __driveToken=savedToken;
     __driveConnected=true;
     driveAfterConnect();
+    return;
+  }
+  /* ПРАВКА №32: автопереподключение после первого ручного входа */
+  if(localStorage.getItem('drive_auto')==='1'){
+    driveSetStatus('Автоподключение…');
+    driveSilentReauth().then(ok=>{
+      if(ok)driveAfterConnect();
+      else driveSetStatus('Нажмите «Подключить Google Drive»');
+    });
   }
 }
 
@@ -696,10 +705,31 @@ function driveConnect(){
       __driveToken=resp.access_token;
       __driveConnected=true;
       sessionStorage.setItem('drive_token',__driveToken);
+      localStorage.setItem('drive_auto','1');
       driveAfterConnect();
     }
   });
   client.requestAccessToken();
+}
+
+/* тихое переподключение через активную Google-сессию (без окон) */
+function driveSilentReauth(){
+  return new Promise(resolve=>{
+    if(!window.google||!google.accounts.oauth2){resolve(false);return}
+    const client=google.accounts.oauth2.initTokenClient({
+      client_id:DRIVE_CLIENT_ID,
+      scope:DRIVE_SCOPES,
+      callback:(r)=>{
+        if(r.error){resolve(false);return}
+        __driveToken=r.access_token;
+        __driveConnected=true;
+        sessionStorage.setItem('drive_token',__driveToken);
+        localStorage.setItem('drive_auto','1');
+        resolve(true);
+      }
+    });
+    client.requestAccessToken({prompt:''});
+  });
 }
 
 function driveAfterConnect(){
@@ -717,12 +747,14 @@ function driveAfterConnect(){
   });
 }
 
-async function driveApi(path,options={}){
+async function driveApi(path,options={},retry=true){
   const res=await fetch('https://www.googleapis.com'+path,{
     ...options,
     headers:{...(options.headers||{}),'Authorization':'Bearer '+__driveToken}
   });
-  if(res.status===401){
+  if(res.status===401 && retry){
+    const ok=await driveSilentReauth();
+    if(ok)return driveApi(path,options,false);
     __driveConnected=false;
     sessionStorage.removeItem('drive_token');
     driveSetStatus('Нужна повторная авторизация');
