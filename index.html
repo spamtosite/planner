@@ -3883,4 +3883,8 @@ document.getElementById('driveStatus').style.cursor='pointer';
 document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
 
 window.addEventListener('resize',()=>{render()});
+/* ПРАВКА №45: регистрация service worker (на file:// молча пропустится) */
+if('serviceWorker' in navigator){
+  try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+}
 </script></body></html>
