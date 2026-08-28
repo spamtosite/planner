@@ -519,8 +519,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 #aiMicBtn{flex:0 0 auto;width:52px;border-radius:8px;background:#f1f3f5;font-size:20px}
 #aiMicBtn.rec{background:#fee2e2;color:#dc2626;animation:micPulse 1.2s ease-in-out infinite}
 @keyframes micPulse{0%,100%{box-shadow:0 0 0 0 #dc262633}50%{box-shadow:0 0 0 6px #dc262622}}
+  /* ПРАВКА №29: перетаскиваемый сайдбар */
+.sidebar{position:relative}
+.sidebar-resizer{position:absolute;top:0;right:-3px;width:6px;height:100%;cursor:col-resize;z-index:60;background:transparent;transition:background .15s ease}
+.sidebar-resizer:hover,.sidebar-resizer.active{background:var(--accent)}
+body.resizing{cursor:col-resize;user-select:none}
+body.resizing iframe{pointer-events:none}
+@media(max-width:800px){.sidebar-resizer{display:none}}
 </style></head>
-<body><div class="app"><aside class="sidebar"><div class="brand">Мой ежедневник</div>
+<body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
 <div class="sidebarfolders" id="sidebarFolders"></div>
 <div class="sidebarpending" id="sidebarPending"></div>
@@ -2886,6 +2893,42 @@ function enableTaskDrag(){
     });
   });
 }
+  /* ================== ПРАВКА №29: перетаскиваемый сайдбар ================== */
+const SIDEBAR_W_KEY='daily_planner_sidebar_w';
+const SIDEBAR_MIN=190,SIDEBAR_MAX=480;
+(function(){
+  const sb=document.querySelector('.sidebar');
+  const rz=$('sidebarResizer');
+  if(!sb||!rz)return;
+  /* восстановить сохранённую ширину */
+  const saved=parseInt(localStorage.getItem(SIDEBAR_W_KEY),10);
+  if(saved&&!isNaN(saved)){
+    const w=Math.max(SIDEBAR_MIN,Math.min(SIDEBAR_MAX,saved));
+    sb.style.width=w+'px';
+  }
+  let startX=0,startW=0;
+  rz.addEventListener('mousedown',e=>{
+    if(isMobileLayout())return;
+    e.preventDefault();
+    startX=e.clientX;startW=sb.getBoundingClientRect().width;
+    rz.classList.add('active');
+    document.body.classList.add('resizing');
+    const onMove=me=>{
+      const w=Math.max(SIDEBAR_MIN,Math.min(SIDEBAR_MAX,Math.round(startW+(me.clientX-startX))));
+      sb.style.width=w+'px';
+    };
+    const onUp=()=>{
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      rz.classList.remove('active');
+      document.body.classList.remove('resizing');
+      localStorage.setItem(SIDEBAR_W_KEY,String(parseInt(sb.style.width,10)));
+    };
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+})();
+/* ================== /сайдбар ================== */
 function renderQuickTplBar(){
   const bar=$('quickTplBar');
   bar.innerHTML=data.templates.map(tp=>`<button type="button" class="tplchip" data-code="${esc(tp.code)}">${esc(tp.code)} — ${esc(tp.name)}</button>`).join('');
