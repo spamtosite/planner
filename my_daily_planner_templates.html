@@ -457,7 +457,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .ccnoteedit-btns button{border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
 .ccnoteedit-btns .ccsave{background:#7c3aed;color:#fff}
 .ccnoteedit-btns .cccancel{background:#f1f3f5;color:#4b5563}
-/* ПРАВКА №39: список задач клиента в карточке */
 .cctasklist{display:grid;gap:4px}
 .cctaskrow{display:flex;align-items:baseline;gap:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;min-width:0}
 .cctaskrow:hover{border-color:var(--accent)}
@@ -535,6 +534,29 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 body.resizing{cursor:col-resize;user-select:none}
 body.resizing iframe{pointer-events:none}
 @media(max-width:800px){.sidebar-resizer{display:none}}
+/* ПРАВКА №40: анкета «Первый звонок» */
+.fcreq-overlay{position:fixed;inset:0;background:rgba(15,20,30,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:600}
+.fcreq{width:min(780px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:20px 22px;display:grid;gap:12px}
+.fcreq-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800}
+.fcreq-title .cheadbtn{margin-left:auto;width:28px;height:28px;font-size:14px}
+.fcsec{display:grid;gap:6px}
+.fcsec-t{font-size:11px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+.fcgrid3{display:grid;grid-template-columns:2fr 1.4fr 1fr;gap:8px}
+.fcgrid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fcgrid2 input,.fcgrid3 input{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;width:100%;box-sizing:border-box;font:inherit}
+.fcchips{display:flex;flex-wrap:wrap;gap:6px}
+.fcchip{padding:7px 12px;border-radius:18px;background:#f1f3f5;border:1.5px solid transparent;color:#4b5563;font-size:12.5px;font-weight:600;transition:background .15s ease,color .15s ease,box-shadow .15s ease;user-select:none}
+.fcchip:hover{background:#e8ebef}
+.fcchip.on{background:var(--accent);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.3)}
+.fcchip .fcl{opacity:.6;font-size:10px;margin-left:4px}
+.fcrow2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fcfoot{display:flex;gap:8px;justify-content:flex-end;margin-top:2px}
+.fcfoot button{padding:10px 18px;border-radius:10px;font-weight:700;font-size:13.5px}
+#fcSave{background:var(--accent);color:#fff}
+#fcCancel{background:#f1f3f5;color:#4b5563}
+#fcFolderSel{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;width:100%;font:inherit}
+.cheadbtn.fc-has{background:#ede9fe;color:#7c3aed}
+@media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div><div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
@@ -546,6 +568,7 @@ body.resizing iframe{pointer-events:none}
 </div>
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
 <div class="sidebottom">
+  <button id="firstCallBtn" style="width:100%;background:var(--accent);color:#fff;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;margin-bottom:6px">📞 Первый звонок</button>
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
 </div></aside>
@@ -1509,8 +1532,10 @@ function fixupActualSizes(d){
     if(neededWidth>currentWidth+1){__widthOverrides[id]=Math.ceil(neededWidth);changed=true}
   });
   if(changed){
+    /* №41: возвращаем шапку (День/Неделя/Месяц + навигация) — раньше она здесь терялась */
     const built=buildDayHtml(d);
-    content.innerHTML=built.html;
+    content.innerHTML=viewHeadHtml(dayLeftTitle(d))+built.html;
+    bindViewHead();
     bindTasks();bindClients(d);
     enableTaskDrag();
   }
@@ -1972,6 +1997,145 @@ function maybeUpdateTaskFromNote(cl,note,newText){
   };
 }
 
+/* ================== ПРАВКА №40: анкета «Первый звонок» ================== */
+const FC_REALTY=[['kv','Квартира','К'],['ap','Апартаменты','А'],['dom','Дом','Д'],['zem','Земля','З']];
+const FC_PLANS=[['otd','Отдых','О'],['sd','Сдача','С'],['per','Переезд (на постоянку)','Ж']];
+const FC_INFRA=['Школа','Дет.сад','Магазины','Аптеки','Больница'];
+const FC_VISITED=['Сочи','Адлер','Хоста','Анапа','Геленджик'];
+const FC_SEA=[['near','Рядом (10 мин, 1–2 км)'],['far','Более 10 минут']];
+const FC_DPR=[['self','Сам'],['husband','Муж'],['wife','Жена']];
+const FC_ACTIVITY=[['active','Активный'],['passive','Пассивный']];
+const FC_NEW_FOLDER='Новые';
+const FC_SINGLE=['sea','kids','kids7','dpr','activity'];
+
+function fcEnsureNewFolder(){
+  let f=data.clientFolders.find(x=>x.name===FC_NEW_FOLDER);
+  if(!f){f={id:uid(),name:FC_NEW_FOLDER};data.clientFolders.push(f)}
+  return f;
+}
+/* шапка карточки: Имя Город К А Д З О С Ж 20 млн., 10 млн. */
+function fcBuildName(fc){
+  const codes=[];
+  FC_REALTY.forEach(([k,,c])=>{if((fc.realty||[]).includes(k))codes.push(c)});
+  FC_PLANS.forEach(([k,,c])=>{if((fc.plans||[]).includes(k))codes.push(c)});
+  const b=String(fc.budget||'').trim(),p=String(fc.pv||'').trim();
+  let money='';
+  if(b&&p)money=`${b} млн., ${p} млн.`;
+  else if(b)money=`${b} млн.`;
+  else if(p)money=`ПВ ${p} млн.`;
+  return [fc.name,fc.city,codes.join(' '),money].filter(Boolean).join(' ');
+}
+function fcMoveClient(client,fromFid,toFid){
+  if(fromFid===toFid)return;
+  data.folderClients[fromFid]=(data.folderClients[fromFid]||[]).filter(x=>x.id!==client.id);
+  addTombstones([client]);
+  const copy=JSON.parse(JSON.stringify(client));copy.id=uid();
+  (data.folderClients[toFid]=data.folderClients[toFid]||[]).push(copy);
+  data.tasks.forEach(t=>{if(t.clientId===client.id&&t.clientFolderId===fromFid){t.clientId=copy.id;t.clientFolderId=toFid}});
+}
+function openFirstCallModal(existing){ /* existing={client,folderId} — режим редактирования */
+  document.querySelectorAll('.fcreq-overlay').forEach(o=>o.remove());
+  const fc=existing?JSON.parse(JSON.stringify(existing.client.firstCall||{})):{};
+  fc.name=fc.name||(existing?extractClientName(existing.client.name):'');
+  fc.phone=fc.phone||'';fc.city=fc.city||(existing?existing.client.city||'':'');
+  fc.realty=fc.realty||[];fc.plans=fc.plans||[];fc.infra=fc.infra||[];fc.visited=fc.visited||[];
+  fc.kids=fc.kids||'';fc.kids7=fc.kids7||'';fc.sea=fc.sea||'';fc.dpr=fc.dpr||'';fc.activity=fc.activity||'';
+  fc.budget=fc.budget||(existing?existing.client.budget||'':'');
+  fc.pv=fc.pv||(existing?existing.client.pv||'':'');
+  const chips=(grp,items,single,codeOf)=>items.map(it=>{
+    const k=Array.isArray(it)?it[0]:it, lbl=Array.isArray(it)?it[1]:it, cd=codeOf?(Array.isArray(it)?it[2]:''):'';
+    const on=(fc[grp]||[]).includes(k);
+    return `<button type="button" class="fcchip ${on?'on':''}" data-grp="${grp}" data-val="${esc(k)}">${esc(lbl)}${cd?`<span class="fcl">${cd}</span>`:''}</button>`;
+  }).join('');
+  const seg=(grp,items)=>chips(grp,items,true);
+  let folderOpts=`<option value="__new__" ${!existing?'selected':''}>📁 ${FC_NEW_FOLDER} (авто)</option>`;
+  data.clientFolders.forEach(f=>{folderOpts+=`<option value="${f.id}" ${existing&&existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`});
+  const pop=document.createElement('div');
+  pop.className='fcreq-overlay';
+  pop.innerHTML=`<div class="fcreq">
+    <div class="fcreq-title">📞 Первый звонок<button class="cheadbtn" id="fcX" title="Закрыть">✕</button></div>
+    <div class="fcsec"><div class="fcsec-t">Клиент</div>
+      <div class="fcgrid3"><input id="fcName" placeholder="Имя клиента *" value="${esc(fc.name)}"><input id="fcPhone" inputmode="tel" placeholder="Телефон" value="${esc(fc.phone)}"><input id="fcCity" placeholder="Город" value="${esc(fc.city)}"></div>
+    </div>
+    <div class="fcsec"><div class="fcsec-t">Недвижимость</div><div class="fcchips" data-grp="realty">${chips('realty',FC_REALTY,false,true)}</div></div>
+    <div class="fcrow2">
+      <div class="fcsec"><div class="fcsec-t">Есть ли дети</div><div class="fcchips" data-grp="kids">${seg('kids',[['yes','Да'],['no','Нет']])}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Дети до 7 лет</div><div class="fcchips" data-grp="kids7">${seg('kids7',[['yes','Да'],['no','Нет']])}</div></div>
+    </div>
+    <div class="fcrow2">
+      <div class="fcsec"><div class="fcsec-t">Море</div><div class="fcchips" data-grp="sea">${seg('sea',FC_SEA)}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Отдых</div><div class="fcchips" data-grp="activity">${seg('activity',FC_ACTIVITY)}</div></div>
+    </div>
+    <div class="fcsec"><div class="fcsec-t">Инфраструктура</div><div class="fcchips" data-grp="infra">${chips('infra',FC_INFRA)}</div></div>
+    <div class="fcsec"><div class="fcsec-t">Планы на недвижимость</div><div class="fcchips" data-grp="plans">${chips('plans',FC_PLANS,false,true)}</div></div>
+    <div class="fcrow2">
+      <div class="fcsec"><div class="fcsec-t">Решение принимает</div><div class="fcchips" data-grp="dpr">${seg('dpr',FC_DPR)}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Был на Черноморском побережье</div><div class="fcchips" data-grp="visited">${chips('visited',FC_VISITED)}</div></div>
+    </div>
+    <div class="fcrow2">
+      <div class="fcsec"><div class="fcsec-t">Бюджет, млн</div><input id="fcBudget" inputmode="decimal" placeholder="20" value="${esc(fc.budget)}"></div>
+      <div class="fcsec"><div class="fcsec-t">ПВ (первоначальный взнос), млн</div><input id="fcPv" inputmode="decimal" placeholder="10" value="${esc(fc.pv)}"></div>
+    </div>
+    <div class="fcsec"><div class="fcsec-t">Сохранить в папку</div><select id="fcFolderSel">${folderOpts}</select></div>
+    <div class="fcfoot"><button id="fcCancel">Отмена</button><button id="fcSave">Сохранить</button></div>
+  </div>`;
+  document.body.appendChild(pop);
+  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove()});
+  $('fcX').onclick=()=>pop.remove();
+  $('fcCancel').onclick=()=>pop.remove();
+  pop.addEventListener('click',e=>{
+    const ch=e.target.closest('.fcchip');if(!ch)return;
+    const grp=ch.dataset.grp;
+    if(FC_SINGLE.includes(grp)){
+      pop.querySelectorAll(`.fcchip[data-grp="${grp}"]`).forEach(x=>{if(x!==ch)x.classList.remove('on')});
+      ch.classList.toggle('on');
+    }else ch.classList.toggle('on');
+  });
+  $('fcSave').onclick=()=>{
+    const name=$('fcName').value.trim();
+    if(!name){toast('Введите имя клиента');return}
+    const readChips=grp=>[...pop.querySelectorAll(`.fcchip[data-grp="${grp}"].on`)].map(x=>x.dataset.val);
+    fc.name=name;
+    fc.phone=$('fcPhone').value.trim();
+    fc.city=$('fcCity').value.trim();
+    fc.budget=$('fcBudget').value.trim();
+    fc.pv=$('fcPv').value.trim();
+    fc.realty=readChips('realty');fc.plans=readChips('plans');fc.infra=readChips('infra');fc.visited=readChips('visited');
+    fc.kids=readChips('kids')[0]||'';fc.kids7=readChips('kids7')[0]||'';
+    fc.sea=readChips('sea')[0]||'';fc.dpr=readChips('dpr')[0]||'';fc.activity=readChips('activity')[0]||'';
+    const selVal=$('fcFolderSel').value;
+    let targetId=selVal==='__new__'?fcEnsureNewFolder().id:selVal;
+    if(existing){
+      existing.client.firstCall=fc;
+      existing.client.name=fcBuildName(fc);
+      existing.client.city=fc.city;existing.client.budget=fc.budget;existing.client.pv=fc.pv;
+      if(fc.phone&&!((existing.client.phones||[]).some(p=>fc.phone.replace(/\D/g,'')===p.digits))){
+        const norm=normalizePhone(fc.phone);
+        existing.client.phones=existing.client.phones||[];
+        existing.client.phones.push({id:uid(),val:norm?norm.val:fc.phone,digits:norm?norm.digits:fc.phone.replace(/\D/g,'')});
+      }
+      let moved=null;
+      if(existing.folderId!==targetId){moved=data.clientFolders.find(x=>x.id===targetId);fcMoveClient(existing.client,existing.folderId,targetId)}
+      save();
+      renderFolderView();renderSidebarFolders();
+      toast(moved?`Клиент перемещён в папку «${moved.name}»`:'Анкета сохранена');
+    }else{
+      const cl={id:uid(),name:fcBuildName(fc),city:fc.city,budget:fc.budget,pv:fc.pv,tz:'',phones:[],notes:[],firstCall:fc};
+      if(fc.phone){const norm=normalizePhone(fc.phone);cl.phones.push({id:uid(),val:norm?norm.val:fc.phone,digits:norm?norm.digits:fc.phone.replace(/\D/g,'')})}
+      folderClientsOf(targetId).push(cl);
+      save();
+      const target=data.clientFolders.find(x=>x.id===targetId);
+      state.openClientId=cl.id;
+      openFolderView(targetId);
+      toast(`«${fc.name}» добавлен в папку «${target?target.name:''}»`);
+    }
+    pop.remove();
+  };
+  setTimeout(()=>$('fcName').focus(),50);
+}
+document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
+/* ================== /ПРАВКА №40 ================== */
+
 /* ================== ПРАВКА №27: AI-разбор звонка (OpenRouter) ================== */
 const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
 const AI_DEFAULT_MODEL='dots-studio/dots-3-note-preview:free';
@@ -2166,6 +2330,7 @@ function renderFolderView(){
           <span class="carrow">▸</span>
           ${headInner}
           <button class="cstar ${data.clients.some(k=>k.srcId===c.id||(!k.srcId&&k.name===extractClientName(c.name)))?'on':''}" data-star="${c.id}" title="В ключевые клиенты">★</button>
+          <button class="cheadbtn ${c.firstCall?'fc-has':''}" data-fcall="${c.id}" title="Анкета первого звонка">📞</button>
           <button class="cheadbtn" data-copy="${c.id}" title="Скопировать имя">📋</button>
           <button class="cheadbtn" data-renamebtn="${c.id}" title="Переименовать">✎</button>
           <button class="cdel" data-cid="${c.id}" title="Удалить клиента">✕</button>
@@ -2218,6 +2383,13 @@ function renderFolderView(){
         toast(`«${extractClientName(cl.name)}» добавлен в ключевые клиенты`);
       }
       renderFolderView();
+    };
+  });
+  document.querySelectorAll('[data-fcall]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      const cl=list.find(x=>x.id===b.dataset.fcall);
+      if(cl)openFirstCallModal({client:cl,folderId:f.id});
     };
   });
   document.querySelectorAll('[data-copy]').forEach(b=>{
@@ -3652,6 +3824,7 @@ function exportBackup(){
   URL.revokeObjectURL(url);
   toast('Бэкап сохранён');
 }
+
 function importBackup(file){
   const reader=new FileReader();
   reader.onload=e=>{
@@ -3686,8 +3859,9 @@ function importBackup(file){
     toast(`Импортировано: ${count} задач`);
   };
   reader.onerror=()=>toast('Не удалось прочитать файл');
-  reader.readAsText(file);};
-  
+  reader.readAsText(file);
+}
+
  $('exportBtn').onclick=exportBackup;
  $('importBtn').onclick=()=>$('importFileInput').click();
  $('importFileInput').addEventListener('change',e=>{
