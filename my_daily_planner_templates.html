@@ -3682,9 +3682,8 @@ function importBackup(file){
     toast(`Импортировано: ${count} задач`);
   };
   reader.onerror=()=>toast('Не удалось прочитать файл');
-  reader.readAsText(file);
-}
-
+  reader.readAsText(file);};
+  
  $('exportBtn').onclick=exportBackup;
  $('importBtn').onclick=()=>$('importFileInput').click();
  $('importFileInput').addEventListener('change',e=>{
