@@ -3187,7 +3187,7 @@ function parseQuickAdd(raw){
   const rangeRe=/(?:в\s+промежутке\s+)?с\s+(\d{1,2})(?::(\d{2}))?\s+до\s+(\d{1,2})(?::(\d{2}))?/i;
   const dashRangeRe=/(?<!\d)(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})(?!\d)/;
   const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
-  const afterRe=/(?<![a-zA-Zа-яА-Я0-9])после\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
+    s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').replace(/\s+[-–]\s*\d{0,2}$/,'').trim();
   /* ПРАВКА №31: «11.30» и «11-30» тоже время */
   const dotTimeRe=/(?<!\d)(\d{1,2})[.\-](\d{2})(?!\d)/;
 
@@ -3213,13 +3213,12 @@ function parseQuickAdd(raw){
           time=pad(Math.min(23,+ma[1]))+':'+pad(Math.min(59,+(ma[2]||0)));
           s=(s.slice(0,ma.index)+' '+s.slice(ma.index+ma[0].length)).trim();
         }else{
-          let md2=s.match(dotTimeRe);
+          /* ПРАВКА №31.1: «11.30» / «11-30» = 11:30. Только если до этого слова стоит время-подобный контекст:
+             число часов 0–23, минуты 00–59, и это не похоже на дату (за числом с точкой следует ещё число с точкой/год) */
+          let md2=s.match(/(?<!\d)([0-1]?\d|2[0-3])[.\-]([0-5]\d)(?!\d)(?!\s*[.\-]\s*\d)/);
           if(md2){
-            const hh=+md2[1],mm=+md2[2];
-            if(hh>=0&&hh<=23&&mm>=0&&mm<=59){
-              time=pad(hh)+':'+pad(mm);
-              s=(s.slice(0,md2.index)+' '+s.slice(md2.index+md2[0].length)).trim();
-            }
+            time=pad(+md2[1])+':'+pad(+md2[2]);
+            s=(s.slice(0,md2.index)+' '+s.slice(md2.index+md2[0].length)).trim();
           }
         }
       }
