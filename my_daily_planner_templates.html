@@ -456,6 +456,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .ccnoteedit-btns button{border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600}
 .ccnoteedit-btns .ccsave{background:#7c3aed;color:#fff}
 .ccnoteedit-btns .cccancel{background:#f1f3f5;color:#4b5563}
+/* ПРАВКА №39: список задач клиента в карточке */
+.cctasklist{display:grid;gap:4px}
+.cctaskrow{display:flex;align-items:baseline;gap:8px;background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px;cursor:pointer;min-width:0}
+.cctaskrow:hover{border-color:var(--accent)}
+.cctaskrow.done{opacity:.65}
+.cctaskrow.done .cctaskname{text-decoration:line-through}
+.cctaskst{flex:0 0 auto;font-size:12px}
+.cctaskdate{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--accent);white-space:nowrap}
+.cctaskname{flex:1 1 auto;min-width:0;font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .folderempty{color:var(--muted);font-size:12.5px;text-align:center;padding:14px 0 6px}
 .folderaddrow{display:flex;gap:8px;margin-bottom:14px}
 .folderaddrow input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:8px;padding:10px 12px}
@@ -1831,7 +1840,7 @@ function maybeCreateTaskFromNote(clientName,text,note){
   };
 }
 
-/* ================== ПРАВКА №38: двусторонняя связь «заметка клиента ↔ задача» ================== */
+/* ================== ПРАВКА №38/39: двусторонняя связь «заметка клиента ↔ задача» ================== */
 /* Найти заметку клиента, привязанную к задаче (note.taskId) */
 function findClientNoteByTaskId(taskId){
   for(const fid in data.folderClients){
@@ -1856,13 +1865,37 @@ function findClientByTask(task){
   }
   return null;
 }
-/* Закрытая задача с заполненным полем заметок дублирует его в карточку клиента.
+/* Все задачи, привязанные к карточке клиента (для раздела «Задачи клиента») */
+function tasksOfClient(client,folderId){
+  return data.tasks.filter(t=>{
+    if(t.clientId&&t.clientFolderId&&t.clientId===client.id&&t.clientFolderId===folderId)return true;
+    if(t.clientName&&t.clientName===client.name)return true;
+    return false;
+  });
+}
+/* ПРАВКА №39: итог задачи = текстовое поле заметок + сводка вердиктов подзадач.
+   Работает, даже если текстовые результаты не вводились (только галочки ✓/✕) */
+function buildTaskResultText(task){
+  const noteLines=(task.note||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const parts=noteLines.slice();
+  /* заголовки подзадач, уже отражённые в заметке задачи в формате «[Название] …» */
+  const covered=new Set();
+  noteLines.forEach(l=>{const m=l.match(/^\[(.+?)\]/);if(m)covered.add(m[1])});
+  (task.subtasks||[]).forEach(s=>{
+    if(!subDone(s))return;
+    if(covered.has(s.title))return;
+    const mark=s.status==='success'?'✓':'✕';
+    parts.push(s.resultNote?`${mark} ${s.title}: ${s.resultNote}`:`${mark} ${s.title}`);
+  });
+  return parts.join('\n').trim();
+}
+/* Закрытая задача дублирует свой итог в карточку клиента.
    Есть связанная заметка — к ней дописывается «✅ Итог: …»;
    нет — создаётся новая заметка с привязкой taskId.
    Возвращает true, если данные изменились (save делает вызывающий). */
 function pushTaskResultToClient(task){
   if(!task||!task.done)return false;
-  const result=String(task.note||'').split('\n').filter(Boolean).join('\n').trim();
+  const result=buildTaskResultText(task);
   if(!result)return false;
   const existing=findClientNoteByTaskId(task.id);
   if(existing){
@@ -2067,6 +2100,20 @@ function renderFolderView(){
       let cardHtml='';
       if(open){
         const cityTime=(off!==null)?`<span class="cty-time" data-citytime="${off}">${clientTimeStr(off)}</span>`:'';
+        /* ПРАВКА №39: задачи клиента — открытые сверху, закрытые ниже */
+        const linkedTasks=tasksOfClient(c,f.id).sort((a,b)=>{
+          if(!!a.done!==!!b.done)return a.done?1:-1;
+          return (b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||'');
+        });
+        const TASKS_LIMIT=8;
+        const shownTasks=linkedTasks.slice(0,TASKS_LIMIT);
+        const tasksHtml=linkedTasks.length?`<div class="ccnotesection"><div class="cctitle">Задачи клиента${linkedTasks.length>TASKS_LIMIT?` · ${shownTasks.length} из ${linkedTasks.length}`:''}</div>
+          <div class="cctasklist">${shownTasks.map(t=>`
+            <div class="cctaskrow ${t.done?'done':''}" data-copentask="${t.id}" title="Открыть задачу в календаре">
+              <span class="cctaskst">${t.done?'✅':'⬜'}</span>
+              <span class="cctaskdate">${t.date?`${t.date.slice(8,10)}.${t.date.slice(5,7)}`:''}${t.time?' '+esc(t.time):''}</span>
+              <span class="cctaskname">${esc(t.title)}</span>
+            </div>`).join('')}</div></div>`:'';
         const phonesHtml=`<div class="ccnotesection"><div class="cctitle">Телефоны</div>
           ${phones.map(p=>`
             <div class="ccphoneitem">
@@ -2105,6 +2152,7 @@ function renderFolderView(){
             <label>Бюджет<input data-cf="budget" data-cid="${c.id}" value="${esc(c.budget||'')}"></label>
             <label>ПВ<input data-cf="pv" data-cid="${c.id}" value="${esc(c.pv||'')}"></label>
           </div>
+          ${tasksHtml}
           ${phonesHtml}
           ${notesHtml}
         </div>`;
@@ -2309,6 +2357,24 @@ function renderFolderView(){
       state.date=parse(t.date);
       state.view='day';
       state.openTaskOnRender=t.id;
+      setTabs();
+      if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
+      render();
+      setTimeout(()=>{
+        const el=document.querySelector(`[data-id="${t.id}"]`);
+        if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('celebrate');setTimeout(()=>el.classList.remove('celebrate'),700)}
+        else toast('Задача без времени — смотри блок «Без времени»');
+      },300);
+    };
+  });
+  /* ПРАВКА №39: клик по задаче из раздела «Задачи клиента» → переход в календарь */
+  document.querySelectorAll('[data-copentask]').forEach(row=>{
+    row.onclick=(e)=>{
+      e.stopPropagation();
+      const t=data.tasks.find(x=>x.id===row.dataset.copentask);
+      if(!t){toast('Задача не найдена (возможно, удалена)');return}
+      state.date=parse(t.date||iso(new Date()));
+      state.view='day';
       setTabs();
       if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
       render();
@@ -3604,35 +3670,4 @@ function importBackup(file){
       clients:parsed.clients||[],
       clientChecks:parsed.clientChecks||{},
       templates:parsed.templates||[],
-      clientFolders:parsed.clientFolders||[],
-      folderClients:parsed.folderClients||{},
-      monthGoals:parsed.monthGoals||{},
-      tombstones:parsed.tombstones||{}
-    };
-    save();
-    delete window.__realHeights;
-    __widthOverrides={};
-    render();
-    renderQuickTplBar();
-    toast(`Импортировано: ${count} задач`);
-  };
-  reader.onerror=()=>toast('Не удалось прочитать файл');
-  reader.readAsText(file);
-}
-
- $('exportBtn').onclick=exportBackup;
- $('importBtn').onclick=()=>$('importFileInput').click();
- $('importFileInput').addEventListener('change',e=>{
-  const file=e.target.files[0];
-  if(file)importBackup(file);
-  e.target.value='';
-});
-setInterval(()=>renderSidebarPending(),60000);
-driveInit();
-document.getElementById('driveConnectBtn').onclick=driveConnect;
-/* статус Drive кликабелен при отключении */
-document.getElementById('driveStatus').style.cursor='pointer';
-document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
-
-window.addEventListener('resize',()=>{render()});
-</script></body></html>
+      clientFolders:parsed.clientFolders||
