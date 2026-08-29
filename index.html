@@ -2032,7 +2032,15 @@ function syncTaskResultToClient(task){
   if(existing){
     const head=existing.text.split('\n✅ Итог:')[0].trim();
     if(result){
-      const merged=(head?head+'\n':'')+'✅ Итог: '+result;
+      /* №65: в «Итог» не тащим строки, которые уже есть в шапке заметки — без дублей */
+      const headLines=new Set(head.split('\n').map(x=>x.trim()));
+      const fresh=result.split('\n').map(x=>x.trim()).filter(Boolean).filter(l=>!headLines.has(l));
+      if(fresh.length===0){
+        /* всё уже отражено — блок «Итог» не нужен */
+        if(head!==existing.text){existing.text=head;existing.ts=Date.now();return true}
+        return false;
+      }
+      const merged=(head?head+'\n':'')+'✅ Итог: '+fresh.join('\n');
       if(merged!==existing.text){existing.text=merged;existing.ts=Date.now();return true}
     }
     return false;
@@ -2096,11 +2104,13 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     task.time=p.time;
     task.endTime=p.endTime;
     task.title=newTitle;
-    /* №64.1: весь новый текст заметки — в заметки задачи */
+    /* №65: не дублируем в заметки задачи то, что уже лежит в заметке клиента */
     if(newText){
-      const lines=(task.note||'').split('\n').filter(Boolean);
-      if(!lines.includes(newText)){
-        lines.push(newText);
+      const nt=String(newText||'').trim();
+      const already=(task.note||'').includes(nt)||((findClientNoteByTaskId(task.id)||{}).text||'').includes(nt);
+      if(!already){
+        const lines=(task.note||'').split('\n').filter(Boolean);
+        lines.push(nt);
         task.note=lines.join('\n');
       }
     }
