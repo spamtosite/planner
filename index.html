@@ -2026,23 +2026,25 @@ function maybeUpdateTaskFromNote(cl,note,newText){
   };
 }
 
-/* ================== ПРАВКА №40: анкета «Первый звонок» ================== */
+/* ================== ПРАВКА №50: анкета «Первый звонок» (пересобранная) ================== */
 const FC_REALTY=[['kv','Квартира','К'],['ap','Апартаменты','А'],['dom','Дом','Д'],['zem','Земля','З']];
-const FC_PLANS=[['otd','Отдых','О'],['sd','Сдача','С'],['per','Переезд (на постоянку)','Ж']];
-const FC_INFRA=['Школа','Дет.сад','Магазины','Аптеки','Больница'];
-const FC_VISITED=['Сочи','Адлер','Хоста','Анапа','Геленджик'];
-const FC_SEA=[['near','Рядом (10 мин, 1–2 км)'],['far','Более 10 минут']];
-const FC_DPR=[['self','Сам'],['husband','Муж'],['wife','Жена']];
+const FC_PLANS=[['otd','Отдых','О'],['sd','Сдача','С'],['zh','Жизнь','Ж'],['inv','Инвестиции','И']];
+const FC_INFRA=['Школа','Дет.сад','Магазины','Аптеки','Больница','ТЦ','Рестораны','Доп.образование','Спорт'];
+const FC_VISITED=['Сочи','Адлер','Хоста','Лоо','Красная Поляна','Тупсе','Ольгинка','Джубга','Новороссийск','Геленджик','Анапа'];
+const FC_SEA=[['near','Рядом'],['far','Более 10 минут']];
+const FC_DPR=[['self','Лично'],['joint','Совместно'],['family','Семья']];
 const FC_ACTIVITY=[['active','Активный'],['passive','Пассивный']];
 const FC_NEW_FOLDER='Новые';
-const FC_SINGLE=['sea','kids','kids7','dpr','activity'];
+const FC_SINGLE=['kids','kids7'];
+const FC_MULTI_SEA=true, FC_MULTI_ACTIVITY=true;
+const FC_SCRIPT_KEY='daily_planner_fc_script';
 
 function fcEnsureNewFolder(){
   let f=data.clientFolders.find(x=>x.name===FC_NEW_FOLDER);
   if(!f){f={id:uid(),name:FC_NEW_FOLDER};data.clientFolders.push(f)}
   return f;
 }
-/* шапка карточки: Имя Город К А Д З О С Ж 20 млн., 10 млн. */
+/* шапка карточки: Имя Город К А Д З О С Ж И 20 млн., 10 млн. */
 function fcBuildName(fc){
   const codes=[];
   FC_REALTY.forEach(([k,,c])=>{if((fc.realty||[]).includes(k))codes.push(c)});
@@ -2062,48 +2064,69 @@ function fcMoveClient(client,fromFid,toFid){
   (data.folderClients[toFid]=data.folderClients[toFid]||[]).push(copy);
   data.tasks.forEach(t=>{if(t.clientId===client.id&&t.clientFolderId===fromFid){t.clientId=copy.id;t.clientFolderId=toFid}});
 }
+/* №50: автоформат «15» → «15 000 000 ₽» рядом с полем */
+function fcMoneyHint(v){
+  const n=parseFloat(String(v||'').replace(',','.').replace(/[^\d.]/g,''));
+  if(!isFinite(n)||n<=0)return '';
+  return (n*1e6).toLocaleString('ru-RU').replace(/\u00A0/g,' ')+' 000 000 ₽'.replace(' 000 000','') ;
+}
+function fcMoneyFull(v){
+  const n=parseFloat(String(v||'').replace(',','.').replace(/[^\d.]/g,''));
+  if(!isFinite(n)||n<=0)return '';
+  return (n*1e6).toLocaleString('ru-RU').replace(/\u00A0/g,' ')+' ₽';
+}
 function openFirstCallModal(existing){ /* existing={client,folderId} — режим редактирования */
   document.querySelectorAll('.fcreq-overlay').forEach(o=>o.remove());
   const fc=existing?JSON.parse(JSON.stringify(existing.client.firstCall||{})):{};
   fc.name=fc.name||(existing?extractClientName(existing.client.name):'');
   fc.phone=fc.phone||'';fc.city=fc.city||(existing?existing.client.city||'':'');
   fc.realty=fc.realty||[];fc.plans=fc.plans||[];fc.infra=fc.infra||[];fc.visited=fc.visited||[];
-  fc.kids=fc.kids||'';fc.kids7=fc.kids7||'';fc.sea=fc.sea||'';fc.dpr=fc.dpr||'';fc.activity=fc.activity||'';
+  fc.kids=fc.kids||'';fc.kids7=fc.kids7||'';fc.sea=fc.sea||[];fc.dpr=fc.dpr||'';fc.activity=fc.activity||[];
   fc.budget=fc.budget||(existing?existing.client.budget||'':'');
   fc.pv=fc.pv||(existing?existing.client.pv||'':'');
-  const chips=(grp,items,single,codeOf)=>items.map(it=>{
+  const chips=(grp,items,codeOf)=>items.map(it=>{
     const k=Array.isArray(it)?it[0]:it, lbl=Array.isArray(it)?it[1]:it, cd=codeOf?(Array.isArray(it)?it[2]:''):'';
     const on=(fc[grp]||[]).includes(k);
     return `<button type="button" class="fcchip ${on?'on':''}" data-grp="${grp}" data-val="${esc(k)}">${esc(lbl)}${cd?`<span class="fcl">${cd}</span>`:''}</button>`;
   }).join('');
-  const seg=(grp,items)=>chips(grp,items,true);
+  const segSingle=(grp,items)=>chips(grp,items);
+  const scriptSaved=localStorage.getItem(FC_SCRIPT_KEY)||'';
   let folderOpts=`<option value="__new__" ${!existing?'selected':''}>📁 ${FC_NEW_FOLDER} (авто)</option>`;
   data.clientFolders.forEach(f=>{folderOpts+=`<option value="${f.id}" ${existing&&existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`});
   const pop=document.createElement('div');
   pop.className='fcreq-overlay';
   pop.innerHTML=`<div class="fcreq">
     <div class="fcreq-title">📞 Первый звонок<button class="cheadbtn" id="fcX" title="Закрыть">✕</button></div>
+    <div class="fcsec"><div class="fcsec-t">Мой скрипт разговора</div>
+      <textarea id="fcScript" placeholder="Свой скрипт первого звонка — пишется один раз, хранится на этом устройстве" style="width:100%;min-height:64px;resize:vertical;border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;box-sizing:border-box;background:#fff">${esc(scriptSaved)}</textarea>
+      <div style="display:flex;gap:8px">
+        <button type="button" id="fcScriptSave" style="background:#f1f3f5;color:#4b5563;border:0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600">💾 Сохранить скрипт</button>
+        <button type="button" id="fcScriptCopy" style="background:#f1f3f5;color:#4b5563;border:0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600">📋 Скопировать</button>
+      </div>
+    </div>
     <div class="fcsec"><div class="fcsec-t">Клиент</div>
       <div class="fcgrid3"><input id="fcName" placeholder="Имя клиента *" value="${esc(fc.name)}"><input id="fcPhone" inputmode="tel" placeholder="Телефон" value="${esc(fc.phone)}"><input id="fcCity" placeholder="Город" value="${esc(fc.city)}"></div>
     </div>
-    <div class="fcsec"><div class="fcsec-t">Недвижимость</div><div class="fcchips" data-grp="realty">${chips('realty',FC_REALTY,false,true)}</div></div>
+    <div class="fcsec"><div class="fcsec-t">Деньги</div>
+      <div class="fcrow2">
+        <div><input id="fcBudget" inputmode="decimal" placeholder="Бюджет, млн" value="${esc(fc.budget)}" style="width:100%;box-sizing:border-box;border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"><div id="fcBudgetHint" style="font-size:11.5px;color:var(--muted);margin-top:3px;min-height:15px"></div></div>
+        <div><input id="fcPv" inputmode="decimal" placeholder="ПВ, млн" value="${esc(fc.pv)}" style="width:100%;box-sizing:border-box;border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;background:#fff"><div id="fcPvHint" style="font-size:11.5px;color:var(--muted);margin-top:3px;min-height:15px"></div></div>
+      </div>
+    </div>
+    <div class="fcsec"><div class="fcsec-t">Недвижимость</div><div class="fcchips" data-grp="realty">${chips('realty',FC_REALTY,true)}</div></div>
     <div class="fcrow2">
-      <div class="fcsec"><div class="fcsec-t">Есть ли дети</div><div class="fcchips" data-grp="kids">${seg('kids',[['yes','Да'],['no','Нет']])}</div></div>
-      <div class="fcsec"><div class="fcsec-t">Дети до 7 лет</div><div class="fcchips" data-grp="kids7">${seg('kids7',[['yes','Да'],['no','Нет']])}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Есть ли дети</div><div class="fcchips" data-grp="kids">${segSingle('kids',[['yes','Да'],['no','Нет']])}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Дети до 7 лет</div><div class="fcchips" data-grp="kids7">${segSingle('kids7',[['yes','Да'],['no','Нет']])}</div></div>
     </div>
     <div class="fcrow2">
-      <div class="fcsec"><div class="fcsec-t">Море</div><div class="fcchips" data-grp="sea">${seg('sea',FC_SEA)}</div></div>
-      <div class="fcsec"><div class="fcsec-t">Отдых</div><div class="fcchips" data-grp="activity">${seg('activity',FC_ACTIVITY)}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Море (можно оба)</div><div class="fcchips" data-grp="sea">${chips('sea',FC_SEA)}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Отдых (можно оба)</div><div class="fcchips" data-grp="activity">${chips('activity',FC_ACTIVITY)}</div></div>
     </div>
     <div class="fcsec"><div class="fcsec-t">Инфраструктура</div><div class="fcchips" data-grp="infra">${chips('infra',FC_INFRA)}</div></div>
-    <div class="fcsec"><div class="fcsec-t">Планы на недвижимость</div><div class="fcchips" data-grp="plans">${chips('plans',FC_PLANS,false,true)}</div></div>
+    <div class="fcsec"><div class="fcsec-t">Планы на недвижимость</div><div class="fcchips" data-grp="plans">${chips('plans',FC_PLANS,true)}</div></div>
     <div class="fcrow2">
-      <div class="fcsec"><div class="fcsec-t">Решение принимает</div><div class="fcchips" data-grp="dpr">${seg('dpr',FC_DPR)}</div></div>
+      <div class="fcsec"><div class="fcsec-t">Решение принимает</div><div class="fcchips" data-grp="dpr">${chips('dpr',FC_DPR)}</div></div>
       <div class="fcsec"><div class="fcsec-t">Был на Черноморском побережье</div><div class="fcchips" data-grp="visited">${chips('visited',FC_VISITED)}</div></div>
-    </div>
-    <div class="fcrow2">
-      <div class="fcsec"><div class="fcsec-t">Бюджет, млн</div><input id="fcBudget" inputmode="decimal" placeholder="20" value="${esc(fc.budget)}"></div>
-      <div class="fcsec"><div class="fcsec-t">ПВ (первоначальный взнос), млн</div><input id="fcPv" inputmode="decimal" placeholder="10" value="${esc(fc.pv)}"></div>
     </div>
     <div class="fcsec"><div class="fcsec-t">Сохранить в папку</div><select id="fcFolderSel">${folderOpts}</select></div>
     <div class="fcfoot"><button id="fcCancel">Отмена</button><button id="fcSave">Сохранить</button></div>
@@ -2112,6 +2135,15 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
   pop.addEventListener('click',e=>{if(e.target===pop)pop.remove()});
   $('fcX').onclick=()=>pop.remove();
   $('fcCancel').onclick=()=>pop.remove();
+  /* №50: деньги — автоподсказка в рублях */
+  const bindMoney=(inpId,hintId)=>{
+    const upd=()=>{$(hintId).textContent=fcMoneyFull($(inpId).value)};
+    $(inpId).addEventListener('input',upd);
+    upd();
+  };
+  bindMoney('fcBudget','fcBudgetHint');
+  bindMoney('fcPv','fcPvHint');
+  /* чипы: дети — одиночный выбор, всё остальное — мультивыбор */
   pop.addEventListener('click',e=>{
     const ch=e.target.closest('.fcchip');if(!ch)return;
     const grp=ch.dataset.grp;
@@ -2120,6 +2152,11 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
       ch.classList.toggle('on');
     }else ch.classList.toggle('on');
   });
+  $('fcScriptSave').onclick=()=>{
+    localStorage.setItem(FC_SCRIPT_KEY,$('fcScript').value);
+    toast('Скрипт сохранён на этом устройстве');
+  };
+  $('fcScriptCopy').onclick=()=>copyText($('fcScript').value||'','Скрипт скопирован');
   $('fcSave').onclick=()=>{
     const name=$('fcName').value.trim();
     if(!name){toast('Введите имя клиента');return}
@@ -2131,7 +2168,8 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
     fc.pv=$('fcPv').value.trim();
     fc.realty=readChips('realty');fc.plans=readChips('plans');fc.infra=readChips('infra');fc.visited=readChips('visited');
     fc.kids=readChips('kids')[0]||'';fc.kids7=readChips('kids7')[0]||'';
-    fc.sea=readChips('sea')[0]||'';fc.dpr=readChips('dpr')[0]||'';fc.activity=readChips('activity')[0]||'';
+    fc.sea=readChips('sea');fc.activity=readChips('activity');
+    fc.dpr=readChips('dpr')[0]||'';
     const selVal=$('fcFolderSel').value;
     let targetId=selVal==='__new__'?fcEnsureNewFolder().id:selVal;
     if(existing){
@@ -2160,10 +2198,10 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
     }
     pop.remove();
   };
-  setTimeout(()=>$('fcName').focus(),50);
+  setTimeout(()=>$('fcScript').focus(),50);
 }
 document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
-/* ================== /ПРАВКА №40 ================== */
+/* ================== /ПРАВКА №50 ================== */
 
 /* ================== ПРАВКА №27: AI-разбор звонка (OpenRouter) ================== */
 const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
