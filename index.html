@@ -1865,11 +1865,14 @@ function whenStr(dateIso,time){
   return (dateIso===today?'сегодня':dateIso===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)+(time?`, ${time}`:'');
 }
 
+/* №56: задача из заметки — название = полное имя карточки клиента,
+   полный текст заметки дублируется в поле заметок задачи */
 function maybeCreateTaskFromNote(clientName,text,note){
   const p=parseQuickAdd(text);
   if(!p.time&&!p.template&&!p.dateFound)return;
   const when=whenStr(p.date,p.time?(p.time+(p.endTime?'–'+p.endTime:'')):null);
-  const fullTitle=(clientName?clientName+' ':'')+p.title;
+  /* №56: название задачи — имя карточки как есть (Артем Саратов+1 К О С 8-10 млн., ПВ 2 мл.) */
+  const fullTitle=String(clientName||p.title).trim();
   const pop=document.createElement('div');
   pop.className='noteask-overlay';
   pop.innerHTML=`<div class="noteask">
@@ -1877,6 +1880,7 @@ function maybeCreateTaskFromNote(clientName,text,note){
     <div class="noteask-task">
       <div class="nt">${esc(fullTitle)}</div>
       <div class="nm">${esc(when)}</div>
+      <div class="ntpl" style="color:var(--muted);font-weight:500">${esc(text)}</div>
       ${p.template?`<div class="ntpl">Шаблон «${esc(p.template.code)}» — подставятся подзадачи</div>`:''}
     </div>
     <div class="noteask-btns">
@@ -1896,7 +1900,10 @@ function maybeCreateTaskFromNote(clientName,text,note){
       const found=(data.folderClients[fid]||[]).find(x=>x.name===clientName);
       if(found){_cf=fid;_cid=found.id;break}
     }
-    data.tasks.push({id:tid,title:fullTitle,date:p.date,time:p.time,endTime:p.endTime,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0,clientName:clientName||null,clientId:_cid,clientFolderId:_cf});
+    data.tasks.push({id:tid,title:fullTitle,date:p.date,time:p.time,endTime:p.endTime,
+      /* №56: полный текст заметки — в заметки задачи, чтобы не потерять причину */
+      note:text||'',subtasks,done:false,focusSessions:0,focusMinutes:0,
+      clientName:clientName||null,clientId:_cid,clientFolderId:_cf});
     if(note){note.taskId=tid;save()}
     toast(`Задача добавлена: ${when}`);
     close();
