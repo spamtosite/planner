@@ -2067,16 +2067,18 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     }
     return;
   }
+  /* №64.1: как в создании задачи — название = имя карточки, текст заметки = остальное */
   const p=parseQuickAdd(newText);
   if(!p.time&&!p.template&&!p.dateFound)return;
   const when=whenStr(p.date,p.time?(p.time+(p.endTime?'–'+p.endTime:'')):null);
-  const newTitle=(cl.name?cl.name+' ':'')+p.title;
+  const newTitle=cl.name||p.title;
   const pop=document.createElement('div');
   pop.className='noteask-overlay';
   pop.innerHTML=`<div class="noteask">
     <div class="noteask-title">🔄 Заметка изменена — обновить задачу?</div>
     <div class="noteask-task">
-      <div class="nt">${esc(newTitle)}</div>
+      <div class="nt">${esc(cl.name||'Задача')}</div>
+      <div class="ntpl" style="color:var(--muted);font-weight:500">${esc(newText)}</div>
       <div class="nm">${esc(when)}</div>
       ${p.template?`<div class="ntpl">Шаблон «${esc(p.template.code)}» — подзадачи обновятся</div>`:''}
     </div>
@@ -2094,6 +2096,14 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     task.time=p.time;
     task.endTime=p.endTime;
     task.title=newTitle;
+    /* №64.1: весь новый текст заметки — в заметки задачи */
+    if(newText){
+      const lines=(task.note||'').split('\n').filter(Boolean);
+      if(!lines.includes(newText)){
+        lines.push(newText);
+        task.note=lines.join('\n');
+      }
+    }
     if(p.template)task.subtasks=(p.template.subtasks||[]).map(x=>({title:x,status:'pending'}));
     task.done=false;
     syncTaskResultToClient(task);
