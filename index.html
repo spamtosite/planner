@@ -540,7 +540,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 body.resizing{cursor:col-resize;user-select:none}
 body.resizing iframe{pointer-events:none}
 @media(max-width:800px){.sidebar-resizer{display:none}}
-/* ПРАВКА №40: анкета «Первый звонок» */
+/* ПРАВКА №40+: анкета «Первый звонок» */
 .fcreq-overlay{position:fixed;inset:0;background:rgba(15,20,30,.5);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:600}
 .fcreq{width:min(780px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 30px 80px rgba(0,0,0,.4);padding:20px 22px;display:grid;gap:12px}
 .fcreq-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:800}
@@ -560,6 +560,7 @@ body.resizing iframe{pointer-events:none}
 .fcfoot button{padding:10px 18px;border-radius:10px;font-weight:700;font-size:13.5px}
 #fcSave{background:var(--accent);color:#fff}
 #fcCancel{background:#f1f3f5;color:#4b5563}
+#fcEdit{background:#fff;color:var(--accent);border:1.5px solid var(--accent)}
 #fcFolderSel{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;width:100%;font:inherit}
 .cheadbtn.fc-has{background:#ede9fe;color:#7c3aed}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
@@ -698,6 +699,7 @@ const MIN_BLOCK_WIDTH=160;
 const TITLE_ROW_CHROME=18+6+28+6+20+6+16;
 const SUB_ROW_CHROME=19*2+3+6+16+10+18;
 const COL_GAP=8;
+const CRM_BASE='https://crm.elitesochi.com/crm/deal/show/';
 let __widthOverrides={};
 let __lastKnownPct=null;
 function save(){
@@ -1701,6 +1703,13 @@ function downloadVCard(fullName,phoneDigits){
   URL.revokeObjectURL(url);
 }
 setInterval(()=>{document.querySelectorAll('[data-citytime]').forEach(el=>{el.textContent=clientTimeStr(+el.dataset.citytime)})},30000);
+/* №54: **жирный** и __курсив__ в заметках — сначала экранируем, потом размечаем */
+function fmtNote(s){
+  let t=esc(String(s||''));
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/__(.+?)__/g,'<em>$1</em>');
+  return t;
+}
 
 function renderMonthGoals(){
   const d=state.date,y=d.getFullYear(),m=d.getMonth();
@@ -1855,13 +1864,6 @@ function whenStr(dateIso,time){
   const dObj=parse(dateIso);
   return (dateIso===today?'сегодня':dateIso===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)+(time?`, ${time}`:'');
 }
-  /* №54: **жирный** и __курсив__ в заметках — сначала экранируем, потом размечаем */
-function fmtNote(s){
-  let t=esc(String(s||''));
-  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  t=t.replace(/__(.+?)__/g,'<em>$1</em>');
-  return t;
-}
 
 function maybeCreateTaskFromNote(clientName,text,note){
   const p=parseQuickAdd(text);
@@ -1903,7 +1905,6 @@ function maybeCreateTaskFromNote(clientName,text,note){
 }
 
 /* ================== ПРАВКА №38/39: двусторонняя связь «заметка клиента ↔ задача» ================== */
-/* Найти заметку клиента, привязанную к задаче (note.taskId) */
 function findClientNoteByTaskId(taskId){
   for(const fid in data.folderClients){
     for(const c of (data.folderClients[fid]||[])){
@@ -1913,7 +1914,6 @@ function findClientNoteByTaskId(taskId){
   }
   return null;
 }
-/* Найти карточку клиента для задачи (по явной связи, затем по имени) */
 function findClientByTask(task){
   if(task.clientFolderId&&task.clientId){
     const c=(data.folderClients[task.clientFolderId]||[]).find(x=>x.id===task.clientId);
@@ -1927,7 +1927,6 @@ function findClientByTask(task){
   }
   return null;
 }
-/* Все задачи, привязанные к карточке клиента (для раздела «Задачи клиента») */
 function tasksOfClient(client,folderId){
   return data.tasks.filter(t=>{
     if(t.clientId&&t.clientFolderId&&t.clientId===client.id&&t.clientFolderId===folderId)return true;
@@ -1935,12 +1934,10 @@ function tasksOfClient(client,folderId){
     return false;
   });
 }
-/* ПРАВКА №39: итог задачи = текстовое поле заметок + сводка вердиктов подзадач.
-   Работает, даже если текстовые результаты не вводились (только галочки ✓/✕) */
+/* №39: итог задачи = заметки + сводка вердиктов подзадач */
 function buildTaskResultText(task){
   const noteLines=(task.note||'').split('\n').map(x=>x.trim()).filter(Boolean);
   const parts=noteLines.slice();
-  /* заголовки подзадач, уже отражённые в заметке задачи в формате «[Название] …» */
   const covered=new Set();
   noteLines.forEach(l=>{const m=l.match(/^\[(.+?)\]/);if(m)covered.add(m[1])});
   (task.subtasks||[]).forEach(s=>{
@@ -1951,17 +1948,13 @@ function buildTaskResultText(task){
   });
   return parts.join('\n').trim();
 }
-/* Закрытая задача дублирует свой итог в карточку клиента.
-   Есть связанная заметка — к ней дописывается «✅ Итог: …»;
-   нет — создаётся новая заметка с привязкой taskId.
-   Возвращает true, если данные изменились (save делает вызывающий). */
 function pushTaskResultToClient(task){
   if(!task||!task.done)return false;
   const result=buildTaskResultText(task);
   if(!result)return false;
   const existing=findClientNoteByTaskId(task.id);
   if(existing){
-    if((existing.text||'').includes(result))return false; /* уже отражено — не дублируем */
+    if((existing.text||'').includes(result))return false;
     existing.text=(existing.text.trim()+'\n✅ Итог: '+result).trim();
     existing.ts=Date.now();
     return true;
@@ -1981,8 +1974,6 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     if(!task.done){
       task.done=true;
       (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
-      /* ПРАВКА №38: результат после «-» попадает в заметки задачи.
-         Берём последний « - » (не спотыкаемся о время вида «15-00»), затем последний «-» */
       let dashIdx=newText.lastIndexOf(' - ');
       if(dashIdx<0)dashIdx=newText.lastIndexOf('-');
       if(dashIdx<0)dashIdx=newText.indexOf('-');
@@ -2033,7 +2024,7 @@ function maybeUpdateTaskFromNote(cl,note,newText){
   };
 }
 
-/* ================== ПРАВКА №51: анкета «Первый звонок» (компактная) ================== */
+/* ================== ПРАВКА №50/51/55: анкета «Первый звонок» ================== */
 const FC_REALTY=[['kv','Квартира','К'],['ap','Апартаменты','А'],['dom','Дом','Д'],['zem','Земля','З']];
 const FC_PLANS=[['otd','Отдых','О'],['sd','Сдача','С'],['zh','Жизнь','Ж'],['inv','Инвестиции','И']];
 const FC_INFRA=['Школа','Дет.сад','Магазины','Аптеки','Больница','ТЦ','Рестораны','Доп.образование','Спорт'];
@@ -2042,7 +2033,6 @@ const FC_SEA=[['near','Рядом'],['far','Более 10 минут']];
 const FC_DPR=[['self','Лично'],['joint','Совместно'],['family','Семья']];
 const FC_ACTIVITY=[['active','Активный'],['passive','Пассивный']];
 const FC_NEW_FOLDER='Новые';
-/* №51: dpr — одиночный выбор; море и отдых — мульти */
 const FC_SINGLE=['kids','kids7','dpr'];
 const FC_SCRIPT_KEY='daily_planner_fc_script';
 
@@ -2070,7 +2060,7 @@ function fcMoveClient(client,fromFid,toFid){
   (data.folderClients[toFid]=data.folderClients[toFid]||[]).push(copy);
   data.tasks.forEach(t=>{if(t.clientId===client.id&&t.clientFolderId===fromFid){t.clientId=copy.id;t.clientFolderId=toFid}});
 }
-/* №51: «15» ↔ «15 000 000 ₽» — парсинг и формат */
+/* №51: «15» ↔ «15 000 000 ₽» */
 function fcParseMillions(v){
   const s=String(v||'').replace(/\s|\u00A0/g,'').replace('₽','').replace('млн','');
   const n=parseFloat(s.replace(',','.'));
@@ -2083,8 +2073,12 @@ function fcMoneyFull(v){
   if(!m)return '';
   return (parseFloat(m)*1e6).toLocaleString('ru-RU')+' ₽';
 }
-function openFirstCallModal(existing){ /* existing={client,folderId} — режим редактирования */
+/* existing={client,folderId,readonly:true} — просмотр анкеты из карточки;
+   existing без readonly — старое поведение (правка карточки). null — новая анкета */
+function openFirstCallModal(existing,forceEdit){
   document.querySelectorAll('.fcreq-overlay').forEach(o=>o.remove());
+  /* №55: анкета из карточки открывается в режиме ПРОСМОТРА */
+  const viewMode=!!(existing&&!forceEdit);
   const fc=existing?JSON.parse(JSON.stringify(existing.client.firstCall||{})):{};
   fc.name=fc.name||(existing?extractClientName(existing.client.name):'');
   fc.phone=fc.phone||'';fc.city=fc.city||(existing?existing.client.city||'':'');
@@ -2092,10 +2086,11 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
   fc.kids=fc.kids||'';fc.kids7=fc.kids7||'';fc.sea=fc.sea||[];fc.dpr=fc.dpr||'';fc.activity=fc.activity||[];
   fc.budget=fc.budget||(existing?existing.client.budget||'':'');
   fc.pv=fc.pv||(existing?existing.client.pv||'':'');
+  const dis=viewMode?'disabled':'';
   const chips=(grp,items,codeOf)=>items.map(it=>{
     const k=Array.isArray(it)?it[0]:it, lbl=Array.isArray(it)?it[1]:it, cd=codeOf?(Array.isArray(it)?it[2]:''):'';
     const on=(fc[grp]||[]).includes(k);
-    return `<button type="button" class="fcchip ${on?'on':''}" data-grp="${grp}" data-val="${esc(k)}">${esc(lbl)}${cd?`<span class="fcl">${cd}</span>`:''}</button>`;
+    return `<button type="button" class="fcchip ${on?'on':''}" data-grp="${grp}" data-val="${esc(k)}" ${dis}>${esc(lbl)}${cd?`<span class="fcl">${cd}</span>`:''}</button>`;
   }).join('');
   const scriptSaved=localStorage.getItem(FC_SCRIPT_KEY)||'';
   let folderOpts=`<option value="__new__" ${!existing?'selected':''}>📁 ${FC_NEW_FOLDER} (авто)</option>`;
@@ -2103,9 +2098,9 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
   const pop=document.createElement('div');
   pop.className='fcreq-overlay';
   pop.innerHTML=`<div class="fcreq">
-    <div class="fcreq-title">📞 Первый звонок<button class="cheadbtn" id="fcX" title="Закрыть">✕</button></div>
+    <div class="fcreq-title">📞 Первый звонок${viewMode?' <span style="font-size:11px;color:var(--muted);font-weight:600">· просмотр</span>':''}<button class="cheadbtn" id="fcX" title="Закрыть">✕</button></div>
     <div class="fcsec"><div class="fcsec-t">Мой скрипт разговора</div>
-            <div id="fcScriptView" style="cursor:pointer;background:#f1f3f5;border:1.5px solid transparent;border-radius:18px;padding:10px 14px;font-size:12.5px;font-weight:500;color:#374151;line-height:1.55;white-space:pre-wrap;word-break:break-word;box-sizing:border-box;transition:background .15s ease;overflow:hidden"></div>
+      <div id="fcScriptView" style="cursor:${viewMode?'default':'pointer'};background:#f1f3f5;border:1.5px solid transparent;border-radius:18px;padding:10px 14px;font-size:12.5px;font-weight:500;color:#374151;line-height:1.55;white-space:pre-wrap;word-break:break-word;box-sizing:border-box;transition:background .15s ease;overflow:hidden"></div>
       <textarea id="fcScript" placeholder="Тапни и напиши скрипт. [Имя клиента] — подставится автоматически" style="display:none;width:100%;min-height:90px;resize:vertical;border:1px solid var(--accent);border-radius:9px;padding:9px 11px;font:inherit;box-sizing:border-box;background:#fff"></textarea>
       <div id="fcScriptBtns" style="display:none;gap:8px">
         <button type="button" id="fcScriptSave" style="background:#f1f3f5;color:#4b5563;border:0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600">💾 Сохранить</button>
@@ -2113,11 +2108,11 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
       </div>
     </div>
     <div class="fcsec"><div class="fcsec-t">Клиент</div>
-      <div class="fcgrid3"><input id="fcName" placeholder="Имя клиента *" value="${esc(fc.name)}"><input id="fcPhone" inputmode="tel" placeholder="Телефон" value="${esc(fc.phone)}"><input id="fcCity" placeholder="Город" value="${esc(fc.city)}"></div>
+      <div class="fcgrid3"><input id="fcName" placeholder="Имя клиента *" value="${esc(fc.name)}" ${dis}><input id="fcPhone" inputmode="tel" placeholder="Телефон" value="${esc(fc.phone)}" ${dis}><input id="fcCity" placeholder="Город" value="${esc(fc.city)}" ${dis}></div>
     </div>
     <div class="fcrow2">
       <div class="fcsec"><div class="fcsec-t">Деньги</div>
-        <div class="fcrow2"><input id="fcBudget" inputmode="decimal" placeholder="Бюджет, млн" value="${esc(fc.budget)}" style="border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;background:#fff;width:100%;box-sizing:border-box"><input id="fcPv" inputmode="decimal" placeholder="ПВ, млн" value="${esc(fc.pv)}" style="border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;background:#fff;width:100%;box-sizing:border-box"></div>
+        <div class="fcrow2"><input id="fcBudget" inputmode="decimal" placeholder="Бюджет, млн" value="${fc.budget?fcMoneyFull(fc.budget):''}" ${dis} style="border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;background:#fff;width:100%;box-sizing:border-box"><input id="fcPv" inputmode="decimal" placeholder="ПВ, млн" value="${fc.pv?fcMoneyFull(fc.pv):''}" ${dis} style="border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;background:#fff;width:100%;box-sizing:border-box"></div>
       </div>
     </div>
     <div class="fcrow2">
@@ -2138,123 +2133,112 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
     </div>
     <div class="fcrow2">
       <div class="fcsec"><div class="fcsec-t">Решение принимает</div><div class="fcchips" data-grp="dpr">${chips('dpr',FC_DPR)}</div></div>
-      <div class="fcsec"><div class="fcsec-t">Сохранить в папку</div><select id="fcFolderSel">${folderOpts}</select></div>
+      <div class="fcsec"><div class="fcsec-t">Сохранить в папку</div><select id="fcFolderSel" ${viewMode?'disabled':''}>${folderOpts}</select></div>
     </div>
-    <div class="fcfoot"><button id="fcCancel">Отмена</button><button id="fcSave">Сохранить</button></div>
+    <div class="fcfoot"><button id="fcCancel">${viewMode?'Закрыть':'Отмена'}</button><button id="fcSave" class="${viewMode?'':'fc-primary'}" style="${viewMode?'background:#fff;color:var(--accent);border:1.5px solid var(--accent)':''}">${viewMode?'✏️ Редактировать':'Сохранить'}</button></div>
   </div>`;
   document.body.appendChild(pop);
   pop.addEventListener('click',e=>{if(e.target===pop)pop.remove()});
   $('fcX').onclick=()=>pop.remove();
   $('fcCancel').onclick=()=>pop.remove();
-  /* №51: деньги — формат в поле при blur, возврат числа при focus */
-  [['fcBudget'],['fcPv']].forEach(([id])=>{
-    const inp=$(id);
-    inp.addEventListener('focus',()=>{inp.value=fcParseMillions(inp.value)});
-    inp.addEventListener('blur',()=>{inp.value=fcMoneyFull(inp.value)||''});
-    if(inp.value)inp.value=fcMoneyFull(inp.value);
-  });
-  /* №51.1: при вводе имени обновляем поле скрипта (если не в режиме редактирования) */
-  $('fcName').addEventListener('input',()=>{if(!scEditing)scApply()});
-  /* чипы: FC_SINGLE — одиночный выбор, остальное — мульти */
-  pop.addEventListener('click',e=>{
-    const ch=e.target.closest('.fcchip');if(!ch)return;
-    const grp=ch.dataset.grp;
-    if(FC_SINGLE.includes(grp)){
-      pop.querySelectorAll(`.fcchip[data-grp="${grp}"]`).forEach(x=>{if(x!==ch)x.classList.remove('on')});
-      ch.classList.toggle('on');
-    }else ch.classList.toggle('on');
-  });
-  /* №51.2: скрипт показывается чипами по предложениям; тап — редактирование в textarea */
-  const scView=$('fcScriptView'), scEl=$('fcScript'), scBtns=$('fcScriptBtns');
-  let scEditing=false;
-  const scSentences=t=>(t||'').split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean);
-  const scRender=()=>{
-    const nm=$('fcName').value.trim();
-    const tpl=localStorage.getItem(FC_SCRIPT_KEY)||'';
-    const shown=nm?tpl.split('[Имя клиента]').join(nm):tpl;
-    if(!shown.trim()){
-      scView.innerHTML='<span style="color:#9ca3af;font-size:13px">Тапни, чтобы написать скрипт</span>';
-    }else{
-      scView.textContent=shown;
-    }
-    /* высота поля подбирается под содержимое — скролла нет */
-    scView.style.height='auto';
-    scView.style.height=Math.max(scView.scrollHeight,42)+'px';
-  };
-  const scEdit=()=>{
-    if(scEditing)return;
-    scEditing=true;
-    scView.style.display='none';
-    scEl.value=localStorage.getItem(FC_SCRIPT_KEY)||'';
-    scEl.style.display='block';
-    scBtns.style.display='flex';
-    setTimeout(()=>{scEl.focus();scEl.style.height='auto';scEl.style.height=(scEl.scrollHeight+4)+'px'},30);
-  };
-  const scDone=()=>{
-    scEditing=false;
-    scEl.style.display='none';
-    scBtns.style.display='none';
-    scView.style.display='block';
-    scRender();
-  };
-  scView.addEventListener('click',scEdit);
-  scEl.addEventListener('input',()=>{scEl.style.height='auto';scEl.style.height=(scEl.scrollHeight+4)+'px'});
-  scEl.addEventListener('blur',()=>{setTimeout(()=>{if(!scBtns.contains(document.activeElement)&&!scEl.contains(document.activeElement))scDone()},150)});
-  $('fcScriptSave').onclick=()=>{
-    localStorage.setItem(FC_SCRIPT_KEY,scEl.value);
-    scDone();
-    toast('Скрипт сохранён на этом устройстве');
-  };
-  $('fcScriptCopy').onclick=()=>copyText(localStorage.getItem(FC_SCRIPT_KEY)||'','Скрипт скопирован');
-  scRender();
-  $('fcName').addEventListener('input',()=>{if(!scEditing)scRender()});
-  scApply();
-  $('fcSave').onclick=()=>{
-    const name=$('fcName').value.trim();
-    if(!name){toast('Введите имя клиента');return}
-    const readChips=grp=>[...pop.querySelectorAll(`.fcchip[data-grp="${grp}"].on`)].map(x=>x.dataset.val);
-    fc.name=name;
-    fc.phone=$('fcPhone').value.trim();
-    fc.city=$('fcCity').value.trim();
-    /* №51: из «15 000 000 ₽» обратно в «15» для имени карточки */
-    fc.budget=fcParseMillions($('fcBudget').value);
-    fc.pv=fcParseMillions($('fcPv').value);
-    fc.realty=readChips('realty');fc.plans=readChips('plans');fc.infra=readChips('infra');fc.visited=readChips('visited');
-    fc.kids=readChips('kids')[0]||'';fc.kids7=readChips('kids7')[0]||'';
-    fc.sea=readChips('sea');fc.activity=readChips('activity');
-    fc.dpr=readChips('dpr')[0]||'';
-    const selVal=$('fcFolderSel').value;
-    let targetId=selVal==='__new__'?fcEnsureNewFolder().id:selVal;
-    if(existing){
-      existing.client.firstCall=fc;
-      existing.client.name=fcBuildName(fc);
-      existing.client.city=fc.city;existing.client.budget=fc.budget;existing.client.pv=fc.pv;
-      if(fc.phone&&!((existing.client.phones||[]).some(p=>fc.phone.replace(/\D/g,'')===p.digits))){
-        const norm=normalizePhone(fc.phone);
-        existing.client.phones=existing.client.phones||[];
-        existing.client.phones.push({id:uid(),val:norm?norm.val:fc.phone,digits:norm?norm.digits:fc.phone.replace(/\D/g,'')});
+  /* №55: в режиме просмотра кнопка — «Редактировать»: разблокирует форму, менять карточку не будет */
+  if(viewMode){
+    $('fcSave').onclick=()=>{openFirstCallModal(existing,true)};
+  }else{
+    /* №51: деньги — формат в поле при blur, возврат числа при focus */
+    [['fcBudget'],['fcPv']].forEach(([id])=>{
+      const inp=$(id);
+      inp.addEventListener('focus',()=>{inp.value=fcParseMillions(inp.value)});
+      inp.addEventListener('blur',()=>{inp.value=fcMoneyFull(inp.value)||''});
+      if(inp.value)inp.value=fcMoneyFull(inp.value);
+    });
+    pop.addEventListener('click',e=>{
+      const ch=e.target.closest('.fcchip');if(!ch)return;
+      const grp=ch.dataset.grp;
+      if(FC_SINGLE.includes(grp)){
+        pop.querySelectorAll(`.fcchip[data-grp="${grp}"]`).forEach(x=>{if(x!==ch)x.classList.remove('on')});
+        ch.classList.toggle('on');
+      }else ch.classList.toggle('on');
+    });
+    /* №51.2: скрипт — единое красивое поле; тап — редактирование */
+    const scView=$('fcScriptView'), scEl=$('fcScript'), scBtns=$('fcScriptBtns');
+    let scEditing=false;
+    const scRender=()=>{
+      const nm=$('fcName').value.trim();
+      const tpl=localStorage.getItem(FC_SCRIPT_KEY)||'';
+      const shown=nm?tpl.split('[Имя клиента]').join(nm):tpl;
+      if(!shown.trim()){
+        scView.innerHTML='<span style="color:#9ca3af;font-size:13px">Тапни, чтобы написать скрипт</span>';
+      }else{
+        scView.textContent=shown;
       }
-      let moved=null;
-      if(existing.folderId!==targetId){moved=data.clientFolders.find(x=>x.id===targetId);fcMoveClient(existing.client,existing.folderId,targetId)}
-      save();
-      renderFolderView();renderSidebarFolders();
-      toast(moved?`Клиент перемещён в папку «${moved.name}»`:'Анкета сохранена');
-    }else{
-      const cl={id:uid(),name:fcBuildName(fc),city:fc.city,budget:fc.budget,pv:fc.pv,tz:'',phones:[],notes:[],firstCall:fc};
-      if(fc.phone){const norm=normalizePhone(fc.phone);cl.phones.push({id:uid(),val:norm?norm.val:fc.phone,digits:norm?norm.digits:fc.phone.replace(/\D/g,'')})}
-      folderClientsOf(targetId).push(cl);
-      save();
-      const target=data.clientFolders.find(x=>x.id===targetId);
-      state.openClientId=cl.id;
-      openFolderView(targetId);
-      toast(`«${fc.name}» добавлен в папку «${target?target.name:''}»`);
-    }
-    pop.remove();
-  };
-  setTimeout(()=>$('fcName').focus(),50);
+      scView.style.height='auto';
+      scView.style.height=Math.max(scView.scrollHeight,42)+'px';
+    };
+    const scEdit=()=>{
+      if(scEditing)return;
+      scEditing=true;
+      scView.style.display='none';
+      scEl.value=localStorage.getItem(FC_SCRIPT_KEY)||'';
+      scEl.style.display='block';
+      scBtns.style.display='flex';
+      setTimeout(()=>{scEl.focus();scEl.style.height='auto';scEl.style.height=(scEl.scrollHeight+4)+'px'},30);
+    };
+    const scDone=()=>{
+      scEditing=false;
+      scEl.style.display='none';
+      scBtns.style.display='none';
+      scView.style.display='block';
+      scRender();
+    };
+    scView.addEventListener('click',scEdit);
+    scEl.addEventListener('input',()=>{scEl.style.height='auto';scEl.style.height=(scEl.scrollHeight+4)+'px'});
+    scEl.addEventListener('blur',()=>{setTimeout(()=>{if(!scBtns.contains(document.activeElement)&&!scEl.contains(document.activeElement))scDone()},150)});
+    $('fcScriptSave').onclick=()=>{
+      localStorage.setItem(FC_SCRIPT_KEY,scEl.value);
+      scDone();
+      toast('Скрипт сохранён на этом устройстве');
+    };
+    $('fcScriptCopy').onclick=()=>copyText(localStorage.getItem(FC_SCRIPT_KEY)||'','Скрипт скопирован');
+    scRender();
+    $('fcName').addEventListener('input',()=>{if(!scEditing)scRender()});
+    $('fcSave').onclick=()=>{
+      const name=$('fcName').value.trim();
+      if(!name){toast('Введите имя клиента');return}
+      const readChips=grp=>[...pop.querySelectorAll(`.fcchip[data-grp="${grp}"].on`)].map(x=>x.dataset.val);
+      fc.name=name;
+      fc.phone=$('fcPhone').value.trim();
+      fc.city=$('fcCity').value.trim();
+      fc.budget=fcParseMillions($('fcBudget').value);
+      fc.pv=fcParseMillions($('fcPv').value);
+      fc.realty=readChips('realty');fc.plans=readChips('plans');fc.infra=readChips('infra');fc.visited=readChips('visited');
+      fc.kids=readChips('kids')[0]||'';fc.kids7=readChips('kids7')[0]||'';
+      fc.sea=readChips('sea');fc.activity=readChips('activity');
+      fc.dpr=readChips('dpr')[0]||'';
+      /* №55: при правке существующей анкеты карточка НЕ меняется */
+      if(existing){
+        existing.client.firstCall=fc;
+        save();
+        toast('Анкета сохранена (карточка не изменена)');
+      }else{
+        const selVal=$('fcFolderSel').value;
+        let targetId=selVal==='__new__'?fcEnsureNewFolder().id:selVal;
+        const cl={id:uid(),name:fcBuildName(fc),city:fc.city,budget:fc.budget,pv:fc.pv,tz:'',phones:[],notes:[],firstCall:fc};
+        if(fc.phone){const norm=normalizePhone(fc.phone);cl.phones.push({id:uid(),val:norm?norm.val:fc.phone,digits:norm?norm.digits:fc.phone.replace(/\D/g,'')})}
+        folderClientsOf(targetId).push(cl);
+        save();
+        const target=data.clientFolders.find(x=>x.id===targetId);
+        state.openClientId=cl.id;
+        openFolderView(targetId);
+        toast(`«${fc.name}» добавлен в папку «${target?target.name:''}»`);
+      }
+      pop.remove();
+    };
+  }
+  setTimeout(()=>{if($('fcName'))$('fcName').focus()},50);
 }
 document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
-/* ================== /ПРАВКА №51 ================== */
+/* ================== /ПРАВКА №50/51/55: анкета ================== */
 
 /* ================== ПРАВКА №27: AI-разбор звонка (OpenRouter) ================== */
 const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
@@ -2359,7 +2343,6 @@ function openAiPopup(cl){
   };
   $('aiClose').onclick=()=>{wantStop=true;clearTimeout(restartTimer);pop.remove()};
   pop.addEventListener('click',e=>{if(e.target===pop){wantStop=true;clearTimeout(restartTimer);pop.remove()}});
-  /* ПРАВКА №27.1: AI-заметки не предлагают создание задачи */
   $('aiSaveNote').onclick=()=>{
     if(!aiText)return;
     const nt={id:uid(),text:aiText,ts:Date.now(),ai:true};
@@ -2385,7 +2368,6 @@ function renderFolderView(){
       let cardHtml='';
       if(open){
         const cityTime=(off!==null)?`<span class="cty-time" data-citytime="${off}">${clientTimeStr(off)}</span>`:'';
-        /* ПРАВКА №39: задачи клиента — открытые сверху, закрытые ниже */
         const linkedTasks=tasksOfClient(c,f.id).sort((a,b)=>{
           if(!!a.done!==!!b.done)return a.done?1:-1;
           return (b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||'');
@@ -2404,6 +2386,7 @@ function renderFolderView(){
             <div class="ccphoneitem">
               <div class="ccphonetop">
                 <span class="ccphoneval">${esc(p.val)}</span>
+                <button class="ccminibtn" data-phonecopy="${c.id}:${p.id}" title="Скопировать номер">📋</button>
                 <button class="ccminibtn" data-phonedel="${c.id}:${p.id}" title="Удалить номер">✕</button>
               </div>
               ${isMobileLayout()?`
@@ -2414,8 +2397,10 @@ function renderFolderView(){
             </div>`).join('')}
           <div class="ccnoteadd"><input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 79111111111 / 9111111111"><button data-phoneadd="${c.id}">Добавить</button></div>
         </div>`;
+        /* №55: заметка — Enter отправляет, Shift+Enter — новая строка, поле растёт */
         const notesHtml=`<div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
-           <div class="ccnoteadd"><input id="ccNoteInput" placeholder="Новая заметка (Enter — сохранить)"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button><button class="aibtn" data-ai="${c.id}" title="AI-разбор звонка">🤖</button></div>
+           <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
+           <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button><button class="aibtn" data-ai="${c.id}" title="AI-разбор звонка">🤖</button></div>
             ${notes.length?notes.slice().reverse().map(n=>{
               if(state.editingNoteId===n.id){
                 return `<div class="ccnoteitem">
@@ -2424,18 +2409,20 @@ function renderFolderView(){
                 </div>`;
               }
               return `<div class="ccnoteitem">
+                <div class="ccts" style="order:-1">${fmtTs(n.ts)}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
                 <div class="cctext">${fmtNote(n.text)}</div>
-                <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
                 ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
                 <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
               </div>`;
             }).join(''):'<div class="folderempty">Заметок пока нет</div>'}
           </div>`;
+        /* №55: поле ID сделки в CRM */
         cardHtml+=`<div class="clientcard">
           <div class="ccgrid">
             <label class="citylab">Город<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
-            <label>Бюджет<input data-cf="budget" data-cid="${c.id}" value="${esc(c.budget||'')}"></label>
-            <label>ПВ<input data-cf="pv" data-cid="${c.id}" value="${esc(c.pv||'')}"></label>
+            <label>Бюджет<input data-cf="budget" data-cid="${c.id}" data-money="1" value="${c.budget?fcMoneyFull(c.budget):''}" placeholder="Бюджет, млн"></label>
+            <label>ПВ<input data-cf="pv" data-cid="${c.id}" data-money="1" value="${c.pv?fcMoneyFull(c.pv):''}" placeholder="ПВ, млн"></label>
+            <label>ID сделки в CRM<input data-cf="crmid" data-cid="${c.id}" value="${esc(c.crmid||'')}" inputmode="numeric" placeholder="напр. 2525138"></label>
           </div>
           ${tasksHtml}
           ${phonesHtml}
@@ -2451,6 +2438,7 @@ function renderFolderView(){
           ${headInner}
           <button class="cstar ${data.clients.some(k=>k.srcId===c.id||(!k.srcId&&k.name===extractClientName(c.name)))?'on':''}" data-star="${c.id}" title="В ключевые клиенты">★</button>
           <button class="cheadbtn ${c.firstCall?'fc-has':''}" data-fcall="${c.id}" title="Анкета первого звонка">📞</button>
+          <button class="cheadbtn" data-crm="${c.id}" title="Открыть сделку в CRM">🏢</button>
           <button class="cheadbtn" data-copy="${c.id}" title="Скопировать имя">📋</button>
           <button class="cheadbtn" data-renamebtn="${c.id}" title="Переименовать">✎</button>
           <button class="cdel" data-cid="${c.id}" title="Удалить клиента">✕</button>
@@ -2486,11 +2474,9 @@ function renderFolderView(){
       const cl=list.find(x=>x.id===b.dataset.star);
       if(!cl)return;
       const exists=data.clients.find(k=>k.srcId===cl.id)||data.clients.find(k=>!k.srcId&&k.name===extractClientName(cl.name));
-      /* ПРАВКА №35: снятие звезды — tombstone + мгновенный синк */
       if(exists){
         data.clients=data.clients.filter(k=>k.id!==exists.id);
         addTombstones([exists]);
-        /* ПРАВКА №36: чистим осиротевшие галки (как при удалении крестиком) */
         Object.values(data.clientChecks).forEach(dayChecks=>{delete dayChecks[exists.id]});
         saveNow();
         renderSidebarPending();
@@ -2509,7 +2495,18 @@ function renderFolderView(){
     b.onclick=(e)=>{
       e.stopPropagation();
       const cl=list.find(x=>x.id===b.dataset.fcall);
-      if(cl)openFirstCallModal({client:cl,folderId:f.id});
+      if(cl)openFirstCallModal({client:cl,folderId:f.id,readonly:true});
+    };
+  });
+  /* №55: кнопка CRM — открыть сделку по ID в новой вкладке */
+  document.querySelectorAll('[data-crm]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      const cl=list.find(x=>x.id===b.dataset.crm);
+      if(!cl)return;
+      const id=String(cl.crmid||'').trim();
+      if(!id){toast('Впишите ID сделки в карточке (поле «ID сделки в CRM»)');return}
+      window.open(CRM_BASE+encodeURIComponent(id)+'/','_blank');
     };
   });
   document.querySelectorAll('[data-copy]').forEach(b=>{
@@ -2552,7 +2549,14 @@ function renderFolderView(){
   document.querySelectorAll('[data-cf]').forEach(fl=>{
     const applyField=()=>{
       const cl=list.find(x=>x.id===fl.dataset.cid);if(!cl)return;
-      cl[fl.dataset.cf]=fl.value.trim();
+      /* №55: деньги — парсим «15 000 000 ₽» обратно в «15» */
+      if(fl.dataset.money){
+        const m=fcParseMillions(fl.value);
+        cl[fl.dataset.cf]=m;
+        fl.value=m?fcMoneyFull(m):'';
+      }else{
+        cl[fl.dataset.cf]=fl.value.trim();
+      }
       let rerender=false;
       if(fl.dataset.cf==='city'){
         const off=lookupCityTz(fl.value);
@@ -2563,6 +2567,10 @@ function renderFolderView(){
       save();
       if(rerender)renderFolderView();
     };
+    /* №55: деньги — при фокусе возвращаем чистое число для правки */
+    if(fl.dataset.money){
+      fl.addEventListener('focus',()=>{fl.value=fcParseMillions(fl.value)});
+    }
     fl.onchange=applyField;
     fl.onblur=applyField;
   });
@@ -2586,6 +2594,15 @@ function renderFolderView(){
       save();renderFolderView();
     };
   });
+  document.querySelectorAll('[data-phonecopy]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      const [cid,pid]=b.dataset.phonecopy.split(':');
+      const cl=list.find(x=>x.id===cid);if(!cl)return;
+      const p=(cl.phones||[]).find(x=>x.id===pid);if(!p)return;
+      copyText(p.val,'Номер скопирован');
+    };
+  });
   document.querySelectorAll('[data-vcard]').forEach(b=>{
     b.onclick=()=>{
       const [cid,pid]=b.dataset.vcard.split(':');
@@ -2596,7 +2613,18 @@ function renderFolderView(){
       downloadVCard((prefix?prefix+' ':'')+cl.name,p.digits);
     };
   });
+  /* №55: заметка — Enter отправляет, Shift+Enter перенос, поле растёт */
   const noteInput=$('ccNoteInput');
+  if(noteInput){
+    const autoGrow=()=>{noteInput.style.height='auto';noteInput.style.height=Math.min(noteInput.scrollHeight,200)+'px'};
+    noteInput.addEventListener('input',autoGrow);
+    noteInput.addEventListener('keydown',e=>{
+      if(e.key==='Enter'&&!e.shiftKey){
+        e.preventDefault();
+        addNote(state.openClientId);
+      }
+    });
+  }
   const addNote=(cid)=>{
     const cl=list.find(x=>x.id===cid);if(!cl)return;
     const v=noteInput.value.trim();if(!v)return;
@@ -2614,7 +2642,6 @@ function renderFolderView(){
     };
   });
   document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
-  if(noteInput)noteInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();addNote(state.openClientId)}};
   document.querySelectorAll('[data-note-edit]').forEach(b=>{
     b.onclick=()=>{
       const [cid,nid]=b.dataset.noteEdit.split(':');
@@ -2661,7 +2688,6 @@ function renderFolderView(){
       },300);
     };
   });
-  /* ПРАВКА №39: клик по задаче из раздела «Задачи клиента» → переход в календарь */
   document.querySelectorAll('[data-copentask]').forEach(row=>{
     row.onclick=(e)=>{
       e.stopPropagation();
@@ -2673,7 +2699,6 @@ function renderFolderView(){
       if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
       render();
       setTimeout(()=>{
-        /* №39.1: ищем только в #content — в сайдбаре у незакрытой задачи такой же data-id */
         const el=document.querySelector(`#content .taskblock[data-id="${t.id}"],#content .task[data-id="${t.id}"],#content .mobiledayrow[data-id="${t.id}"]`);
         if(!el){toast('Задача не найдена на этом дне');return}
         el.scrollIntoView({behavior:'smooth',block:'center'});
@@ -2692,7 +2717,6 @@ function renderFolderView(){
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
-    /* ПРАВКА №33.1: в надгробия идёт ТОЛЬКО удаляемая папка */
     addTombstones([f]);
     addTombstones(list);
     data.clientFolders=data.clientFolders.filter(x=>x.id!==f.id);
@@ -2704,7 +2728,6 @@ function renderFolderView(){
   };
 }
 
-/* ПРАВКА №30: из задачи провалиться в карточку клиента */
 function openClientCardFromTask(task){
   let folderId=task.clientFolderId,clientId=task.clientId;
   if(folderId){
@@ -2904,7 +2927,6 @@ function bindMobileDayList(d){
       if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
       const wasDone=t.done;
       recomputeDone(t);
-      /* ПРАВКА №38: авто-закрытие задачи → результат в карточку клиента */
       if(!wasDone&&t.done)pushTaskResultToClient(t);
       save();
       if(!wasDone&&t.done)setTimeout(()=>render(),600);
@@ -2926,7 +2948,6 @@ function bindMobileDayList(d){
       const t=data.tasks.find(x=>x.id===id);
       if(!t)return;
       t.done=!t.done;
-      /* ПРАВКА №38: закрытие задачи → результат в карточку клиента */
       if(t.done)pushTaskResultToClient(t);
       save();
       const row=box.closest('.mobiledayrow');
@@ -3395,7 +3416,6 @@ function bindTasks(){
 
         const wasTaskDone=t.done;
         recomputeDone(t);
-        /* ПРАВКА №38: авто-закрытие задачи → результат в карточку клиента */
         if(!wasTaskDone&&t.done)pushTaskResultToClient(t);
         save();
 
@@ -3467,7 +3487,6 @@ function enableTaskDrag(){
         const dx=me.clientX-startX,dy=me.clientY-startY;
         if(!dragging&&Math.hypot(dx,dy)>4){
           dragging=true;
-          /* ПРАВКА №36: флаг «идёт drag» — опрос Drive не перерисует экран посреди перетаскивания */
           window.__taskDragging=true;
           el.classList.add('dragging');
           badge=document.createElement('div');
@@ -3646,7 +3665,6 @@ function saveModal(){
   let note=$('fNote').value.trim();
   let object=$('fObject').value.trim();
   let manager=$('fManager').value.trim();
-  /* ПРАВКА №30: клиент задачи */
   const clientRaw=$('fClient').value.trim();
   let clientName=clientRaw||null;
   let clientFolderId=null,clientId=null;
@@ -3872,7 +3890,6 @@ function quick(){
     const del=data.tasks.find(x=>x.id===state.editing);
     data.tasks=data.tasks.filter(x=>x.id!==state.editing);
     if(del)addTombstones([del]);
-    /* ПРАВКА №34: удаление уезжает в облако сразу */
     delete window.__realHeights;save();
     if(__driveConnected)driveUpload();
     closeModal();render();
@@ -4001,7 +4018,6 @@ function importBackup(file){
 setInterval(()=>renderSidebarPending(),60000);
 /* №46: возврат сети — мгновенная попытка переподключения (сценарий «авиарежим → сеть») */
 window.addEventListener('online',()=>{
-  /* №48: сеть вернулась при живом соединении — дожимаем несохранённое */
   if(__driveConnected){
     if((__drivePendingUpload||__driveDirty)&&!__driveSyncing&&navigator.onLine)setTimeout(()=>driveUpload(),800);
     return;
@@ -4027,7 +4043,6 @@ setInterval(()=>{
 },60000);
 driveInit();
 document.getElementById('driveConnectBtn').onclick=driveConnect;
-/* статус Drive кликабелен при отключении */
 document.getElementById('driveStatus').style.cursor='pointer';
 document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
 
