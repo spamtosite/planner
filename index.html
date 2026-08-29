@@ -2052,7 +2052,6 @@ function maybeUpdateTaskFromNote(cl,note,newText){
   /* №64: триггер закрытия — только « - » (дефис с пробелами); «18-00» и телефоны не мешают */
   if(newText.includes(' - ')){
     if(!task.done){
-    if(!task.done){
       task.done=true;
       (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
       let dashIdx=newText.lastIndexOf(' - ');
