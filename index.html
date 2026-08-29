@@ -1855,6 +1855,13 @@ function whenStr(dateIso,time){
   const dObj=parse(dateIso);
   return (dateIso===today?'сегодня':dateIso===iso(tmrD)?'завтра':`${pad(dObj.getDate())}.${pad(dObj.getMonth()+1)}.${dObj.getFullYear()}`)+(time?`, ${time}`:'');
 }
+  /* №54: **жирный** и __курсив__ в заметках — сначала экранируем, потом размечаем */
+function fmtNote(s){
+  let t=esc(String(s||''));
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t=t.replace(/__(.+?)__/g,'<em>$1</em>');
+  return t;
+}
 
 function maybeCreateTaskFromNote(clientName,text,note){
   const p=parseQuickAdd(text);
@@ -2417,7 +2424,7 @@ function renderFolderView(){
                 </div>`;
               }
               return `<div class="ccnoteitem">
-                <div class="cctext">${esc(n.text)}</div>
+                <div class="cctext">${fmtNote(n.text)}</div>
                 <div class="ccts">${fmtTs(n.ts)}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
                 ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
                 <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
