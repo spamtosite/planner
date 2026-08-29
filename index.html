@@ -237,7 +237,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .focus-mini-fill{fill:none;stroke:#fff;stroke-width:3;stroke-linecap:round;transition:stroke-dashoffset .3s linear}
 @keyframes focusDoneShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 .focuscard.done-shake{animation:focusDoneShake .5s ease}
-@media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:18px}.nav button:nth-child(1):before{content:"☀️"}.nav button:nth-child(2):before{content:"📅"}.nav button:nth-child(3):before{content:"🎯"}.nav button:nth-child(4):before{content:"👥"}.sidebottom{display:none}.top{padding:0 12px}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
+@media(max-width:800px){.sidebar{width:65px}.brand{font-size:0}.brand:after{content:"📅";font-size:22px}.nav button{font-size:11px;text-align:center;padding:10px 4px}.nav button:before{content:none!important}.nav button:after{content:none!important}.sidebottom{display:none}.top{padding:0 12px}.content{padding:12px}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.quickadd{padding:10px 12px}.quickhint{padding:0 12px 8px}.objectrow{grid-template-columns:1fr}}
 @media(max-width:680px){
   .quickadd{flex-direction:column}
   .quickadd input{padding:12px 14px;font-size:15px;border-radius:10px}
@@ -587,6 +587,26 @@ body.resizing iframe{pointer-events:none}
 #fcFolderSel{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;width:100%;font:inherit}
 #fcMoveSel{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;font:inherit}
 .cheadbtn.fc-has{background:#ede9fe;color:#7c3aed}
+.folderclientitem.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
+  /* №59: поиск клиентов */
+  /* №60: поиск — в самое начало сайдбара */
+@media(max-width:800px){.mobilesectionicon{display:none}.mobilesectionsbrand:after{content:none!important}}
+.searchwrap{order:-10;position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:6px;margin-bottom:2px}
+.searchwrap{position:relative;flex:0 0 auto;padding:0 2px}
+#clientSearch{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 30px 9px 12px;background:#fff;font-size:13px;box-sizing:border-box}
+#clientSearchClear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:none;place-items:center;padding:0}
+#clientSearchClear:hover{background:#fecaca;color:#991b1b}
+#clientSearchClear.vis{display:grid}
+.searchresults{position:absolute;left:2px;right:2px;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.22);max-height:46vh;overflow:auto;z-index:70;display:none}
+.searchresults.vis{display:block}
+.searchrow{display:grid;gap:2px;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
+.searchrow:last-child{border-bottom:0}
+.searchrow:hover,.searchrow:hover *{background:#eef4ff}
+.searchrow .srname{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.searchrow .srmeta{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.searchrow .srmeta b{color:var(--accent)}
+.searchempty{padding:12px;font-size:12px;color:var(--muted);text-align:center}
+.searchmark{background:#fef08a;border-radius:3px;padding:0 1px}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div><div class="brand">Мой ежедневник</div>
@@ -600,6 +620,11 @@ body.resizing iframe{pointer-events:none}
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
 <div class="sidebottom">
   <button id="firstCallBtn" style="width:100%;background:var(--accent);color:#fff;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;margin-bottom:6px">📞 Первый звонок</button>
+    <div class="searchwrap">
+    <input id="clientSearch" placeholder="🔍 Клиент, телефон или ID" autocomplete="off">
+    <button id="clientSearchClear" title="Очистить">✕</button>
+    <div class="searchresults" id="clientSearchResults"></div>
+  </div>
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
 </div></aside>
@@ -2237,6 +2262,97 @@ function openFirstCallModal(existing,forceEdit){
 }
 document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
 /* ================== /анкета ================== */
+/* ================== №59: поиск клиентов (имя / телефон / ID CRM) ================== */
+function searchNormPhone(s){return String(s||'').replace(/\D/g,'')}
+function searchPhoneTail(digits){return digits.length>10?digits.slice(-10):digits}
+function buildSearchIndex(){
+  const idx=[];
+  for(const fid in data.folderClients){
+    const f=data.clientFolders.find(x=>x.id===fid);
+    (data.folderClients[fid]||[]).forEach(c=>{
+      idx.push({c,fid,folderName:f?f.name:'?',phones:(c.phones||[]).map(p=>p.digits||''),crmid:String(c.crmid||'')});
+    });
+  }
+  return idx;
+}
+function runClientSearch(qRaw){
+  const box=$('clientSearchResults');
+  const q=qRaw.trim();
+  const clearBtn=$('clientSearchClear');
+  clearBtn.classList.toggle('vis',!!q);
+  if(!q){box.classList.remove('vis');box.innerHTML='';return}
+  const qDigits=searchNormPhone(q);
+  const qLow=q.toLowerCase();
+  const idx=buildSearchIndex();
+  const hits=[];
+  idx.forEach(it=>{
+    let nameHit=qLow&&it.c.name.toLowerCase().includes(qLow);
+    let phoneHit=false,crmidHit=false;
+    const qd=qDigits.length>=3?qDigits:'';
+    let matchedPhone='';
+    if(qd){
+      for(const dg of it.phones){
+        const tail=searchPhoneTail(dg);
+        if(tail.includes(qd)||dg.includes(qd)){phoneHit=true;matchedPhone=dg;break}
+      }
+      crmidHit=it.crmid.includes(qDigits);
+    }
+    if(nameHit||phoneHit||crmidHit){
+      const phoneDisp=matchedPhone?(matchedPhone.length===10?'+7 ('+matchedPhone.slice(0,3)+') '+matchedPhone.slice(3,6)+'-'+matchedPhone.slice(6,8)+'-'+matchedPhone.slice(8):'+'+matchedPhone):'';
+      hits.push({...it,nameHit,phoneHit,crmidHit,phoneDisp});
+    }
+  });
+  hits.sort((a,b)=>{
+    const sa=(a.nameHit?4:0)+(a.phoneHit?2:0)+(a.crmidHit?1:0);
+    const sb=(b.nameHit?4:0)+(b.phoneHit?2:0)+(b.crmidHit?1:0);
+    if(sa!==sb)return sb-sa;
+    return a.c.name.localeCompare(b.c.name);
+  });
+  const hl=t=>{ if(!q)return esc(t); const i=t.toLowerCase().indexOf(qLow); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); };
+  const hlDigits=t=>{ if(!qDigits||qDigits.length<3)return esc(t); const i=t.indexOf(qDigits); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+qDigits.length))+'</span>'+esc(t.slice(i+qDigits.length)); };
+  box.innerHTML=hits.length
+    ?hits.slice(0,30).map(h=>{
+      const parts=[];
+      if(h.phoneDisp)parts.push('📞 '+hlDigits(h.phoneDisp));
+      if(h.crmid)parts.push('🏢 ID '+hlDigits(h.crmid));
+      return `<div class="searchrow" data-sfid="${h.fid}" data-scid="${h.c.id}">
+        <div class="srname">${hl(h.c.name)}</div>
+        <div class="srmeta">${parts.join(' · ')||'—'} · 📁 ${esc(h.folderName)}</div>
+      </div>`;
+    }).join('')
+    :`<div class="searchempty">Ничего не найдено${qDigits&&qDigits.length<3?' — для поиска по номеру/ID введите минимум 3 цифры':''}</div>`;
+  box.classList.add('vis');
+  box.querySelectorAll('.searchrow').forEach(row=>{
+    row.onclick=()=>{
+      box.classList.remove('vis');
+      $('clientSearch').value='';
+      clearBtn.classList.remove('vis');
+      state.openClientId=row.dataset.scid;
+      openFolderView(row.dataset.sfid);
+      setTimeout(()=>{
+        const el=document.querySelector(`[data-client-card="${row.dataset.scid}"]`);
+        if(el){
+          el.scrollIntoView({behavior:'smooth',block:'center'});
+          el.classList.add('celebrate');
+          setTimeout(()=>el.classList.remove('celebrate'),700);
+        }
+      },300);
+    };
+  });
+}
+if($('clientSearch')){
+  $('clientSearch').addEventListener('input',()=>runClientSearch($('clientSearch').value));
+  $('clientSearch').addEventListener('focus',()=>{if($('clientSearch').value.trim())runClientSearch($('clientSearch').value)});
+  $('clientSearchClear').onclick=()=>{
+    $('clientSearch').value='';
+    runClientSearch('');
+    $('clientSearch').focus();
+  };
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.searchwrap'))$('clientSearchResults').classList.remove('vis');
+  });
+}
+/* ================== /№59 ================== */
 
 /* ================== ПРАВКА №27: AI-разбор звонка ================== */
 const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
