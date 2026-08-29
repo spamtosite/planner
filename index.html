@@ -2049,14 +2049,14 @@ function maybeUpdateTaskFromNote(cl,note,newText){
   if(!note.taskId)return;
   const task=data.tasks.find(t=>t.id===note.taskId);
   if(!task){delete note.taskId;save();return}
-  if(newText.includes('-')){
+  /* №64: триггер закрытия — только « - » (дефис с пробелами); «18-00» и телефоны не мешают */
+  if(newText.includes(' - ')){
+    if(!task.done){
     if(!task.done){
       task.done=true;
       (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
       let dashIdx=newText.lastIndexOf(' - ');
-      if(dashIdx<0)dashIdx=newText.lastIndexOf('-');
-      if(dashIdx<0)dashIdx=newText.indexOf('-');
-      const result=newText.slice(dashIdx+1).trim();
+      const result=dashIdx>=0?newText.slice(dashIdx+3).trim():'';
       if(result){
         const lines=(task.note||'').split('\n').filter(Boolean);
         if(!lines.includes(result))lines.push(result);
