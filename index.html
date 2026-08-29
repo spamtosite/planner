@@ -404,7 +404,6 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .sidebarfolderadd input{flex:1;min-width:0;border:1px solid #d9dde2;border-radius:6px;padding:6px 8px;font-size:12px}
 .sidebarfolderadd button{background:var(--accent);color:#fff;border-radius:6px;padding:6px 9px;font-size:11.5px;font-weight:600}
 .sidebarfolderitem .cheadbtn{flex:0 0 auto}
-/* №57: drag карточки на папку */
 .sidebarfolderitem.folder-drop{background:#eef4ff!important;box-shadow:inset 0 0 0 2px var(--accent);animation:folderDropPulse 1s ease-in-out infinite}
 @keyframes folderDropPulse{0%,100%{box-shadow:inset 0 0 0 2px var(--accent)}50%{box-shadow:inset 0 0 0 3px var(--accent),0 0 14px rgba(37,99,235,.35)}}
 .sidebarfolderitem.folder-drop:after{content:"＋";margin-left:auto;font-size:16px;font-weight:800;color:var(--accent)}
@@ -413,7 +412,6 @@ body.client-dragging .folderclientitem{pointer-events:none}
 body.client-dragging .sidebar{user-select:none}
 .clientdragghost{position:fixed;z-index:9999;pointer-events:none;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#111827;color:#fff;padding:7px 12px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:.92}
 .folderclientitem.drag-src{opacity:.35;border:1.5px dashed var(--accent)}
-/* №58: выделение запрещено на всё время перетаскивания задачи */
 body.task-dragging{user-select:none;-webkit-user-select:none}
 .mobilesectionitem[data-mfolder]{cursor:pointer}
 .mgoalnav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
@@ -447,7 +445,6 @@ body.task-dragging{user-select:none;-webkit-user-select:none}
 .mgoalsub.failedSub .mstitle{color:#991b1b;text-decoration:line-through}
 .folderclientlist{display:grid;gap:6px;margin-bottom:12px}
 .folderclientitem{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 7px #0000000a;overflow:hidden;transition:opacity .3s ease,box-shadow .3s ease,border-color .3s ease}
-/* №57: фокус на раскрытой карточке — остальные затемнены */
 .folderclientlist.has-open .folderclientitem{opacity:.42}
 .folderclientlist.has-open .folderclientitem.open{opacity:1;border-color:var(--accent);box-shadow:0 6px 22px rgba(37,99,235,.14)}
 .folderclienthead{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer}
@@ -523,7 +520,6 @@ body.task-dragging{user-select:none;-webkit-user-select:none}
 .noteask-yes{background:var(--accent);color:#fff}
 .noteask-no{background:#f1f3f5;color:#4b5563}
 .noteask-yes:active,.noteask-no:active{transform:scale(.97)}
-/* №57: окно причины удаления задачи */
 .reasonask-overlay{position:fixed;inset:0;background:rgba(15,20,30,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
 .reasonask{width:min(420px,100%);background:#fff;border-radius:16px;box-shadow:0 25px 70px rgba(0,0,0,.35);padding:22px;font-family:inherit;display:grid;gap:12px}
 .reasonask-title{font-size:15px;font-weight:700}
@@ -587,17 +583,13 @@ body.resizing iframe{pointer-events:none}
 #fcFolderSel{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;width:100%;font:inherit}
 #fcMoveSel{border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;background:#fff;font:inherit}
 .cheadbtn.fc-has{background:#ede9fe;color:#7c3aed}
-.folderclientitem.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
-  /* №59: поиск клиентов */
-  /* №60: поиск — в самое начало сайдбара */
-@media(max-width:800px){.mobilesectionicon{display:none}.mobilesectionsbrand:after{content:none!important}}
+/* №59: поиск клиентов */
 .searchwrap{position:sticky;top:0;z-index:15;background:var(--bg);padding:10px 12px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
-.searchwrap{position:relative;flex:0 0 auto;padding:0 2px}
 #clientSearch{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 30px 9px 12px;background:#fff;font-size:13px;box-sizing:border-box}
-#clientSearchClear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:none;place-items:center;padding:0}
+#clientSearchClear{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:none;place-items:center;padding:0}
 #clientSearchClear:hover{background:#fecaca;color:#991b1b}
 #clientSearchClear.vis{display:grid}
-.searchresults{position:absolute;left:2px;right:2px;top:calc(100% + 6px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.22);max-height:46vh;overflow:auto;z-index:70;display:none}
+.searchresults{position:absolute;left:12px;right:12px;top:calc(100% - 2px);background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 18px 50px rgba(0,0,0,.22);max-height:46vh;overflow:auto;z-index:70;display:none}
 .searchresults.vis{display:block}
 .searchrow{display:grid;gap:2px;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--line)}
 .searchrow:last-child{border-bottom:0}
@@ -607,10 +599,11 @@ body.resizing iframe{pointer-events:none}
 .searchrow .srmeta b{color:var(--accent)}
 .searchempty{padding:12px;font-size:12px;color:var(--muted);text-align:center}
 .searchmark{background:#fef08a;border-radius:3px;padding:0 1px}
+.folderclientitem.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
-  <div class="searchwrap">
+<div class="searchwrap">
     <input id="clientSearch" placeholder="🔍 Клиент, телефон или ID" autocomplete="off">
     <button id="clientSearchClear" title="Очистить">✕</button>
     <div class="searchresults" id="clientSearchResults"></div>
@@ -756,7 +749,6 @@ function save(){
   localStorage.setItem(KEY,JSON.stringify(data));
   driveScheduleUpload();
 }
-/* ПРАВКА №35: сразу заливать изменения в облако (на мобиле таймер не успевает) */
 function saveNow(){
   save();
   if(__driveConnected)driveUpload();
@@ -1961,17 +1953,21 @@ function buildTaskResultText(task){
   });
   return parts.join('\n').trim();
 }
-function pushTaskResultToClient(task){
-  if(!task||!task.done)return false;
+/* №62: итог задачи синхронизируется в заметку клиента при каждом изменении */
+function syncTaskResultToClient(task){
+  if(!task)return;
   const result=buildTaskResultText(task);
-  if(!result)return false;
   const existing=findClientNoteByTaskId(task.id);
   if(existing){
-    if((existing.text||'').includes(result))return false;
-    existing.text=(existing.text.trim()+'\n✅ Итог: '+result).trim();
-    existing.ts=Date.now();
-    return true;
+    /* пересобираем блок после строки «✅ Итог:» — актуальные заметки и вердикты */
+    const head=existing.text.split('\n✅ Итог:')[0].trim();
+    if(result){
+      const merged=(head?head+'\n':'')+'✅ Итог: '+result;
+      if(merged!==existing.text){existing.text=merged;existing.ts=Date.now();return true}
+    }
+    return false;
   }
+  if(!result)return false;
   const client=findClientByTask(task);
   if(!client)return false;
   client.notes=client.notes||[];
@@ -1996,6 +1992,7 @@ function maybeUpdateTaskFromNote(cl,note,newText){
         if(!lines.includes(result))lines.push(result);
         task.note=lines.join('\n');
       }
+      syncTaskResultToClient(task);
       save();renderSidebarPending();
       toast('Задача закрыта — итог записан в заметки задачи');
     }
@@ -2030,6 +2027,7 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     task.title=newTitle;
     if(p.template)task.subtasks=(p.template.subtasks||[]).map(x=>({title:x,status:'pending'}));
     task.done=false;
+    syncTaskResultToClient(task);
     save();
     toast(`Задача обновлена: ${when}`);
     close();
@@ -2101,10 +2099,8 @@ function openFirstCallModal(existing,forceEdit){
     const on=(fc[grp]||[]).includes(k);
     return `<button type="button" class="fcchip ${on?'on':''}" data-grp="${grp}" data-val="${esc(k)}" ${dis}>${esc(lbl)}${cd?`<span class="fcl">${cd}</span>`:''}</button>`;
   }).join('');
-  const scriptSaved=localStorage.getItem(FC_SCRIPT_KEY)||'';
   let folderOpts=`<option value="__new__" ${!existing?'selected':''}>📁 ${FC_NEW_FOLDER} (авто)</option>`;
   data.clientFolders.forEach(f=>{folderOpts+=`<option value="${f.id}" ${existing&&existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`});
-  /* №57: селект перемещения — только в режиме редактирования существующей анкеты */
   let moveSel='';
   if(existing&&!viewMode){
     let moveOpts=data.clientFolders.map(f=>`<option value="${f.id}" ${existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`).join('');
@@ -2229,7 +2225,6 @@ function openFirstCallModal(existing,forceEdit){
       fc.dpr=readChips('dpr')[0]||'';
       if(existing){
         existing.client.firstCall=fc;
-        /* №57: перенос клиента в выбранную папку при правке анкеты */
         const moveSel=$('fcMoveSel');
         if(moveSel&&moveSel.value!==existing.folderId){
           const target=data.clientFolders.find(x=>x.id===moveSel.value);
@@ -2263,108 +2258,6 @@ function openFirstCallModal(existing,forceEdit){
 }
 document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
 /* ================== /анкета ================== */
-/* ================== №59: поиск клиентов (имя / телефон / ID CRM) ================== */
-function searchNormPhone(s){return String(s||'').replace(/\D/g,'')}
-function searchPhoneTail(digits){return digits.length>10?digits.slice(-10):digits}
-function buildSearchIndex(){
-  const idx=[];
-  for(const fid in data.folderClients){
-    const f=data.clientFolders.find(x=>x.id===fid);
-    (data.folderClients[fid]||[]).forEach(c=>{
-      idx.push({c,fid,folderName:f?f.name:'?',phones:(c.phones||[]).map(p=>p.digits||''),crmid:String(c.crmid||'')});
-    });
-  }
-  return idx;
-}
-function runClientSearch(qRaw){
-  const box=$('clientSearchResults');
-  const q=qRaw.trim();
-  const clearBtn=$('clientSearchClear');
-  clearBtn.classList.toggle('vis',!!q);
-  if(!q){box.classList.remove('vis');box.innerHTML='';return}
-  /* №61: чисто числовой запрос — только телефон и ID CRM, имена с цифрами («2 млн.») не матчим */
-  const isNumberQuery=/^\+?[\d\s\-()]+$/.test(q)&&/\d/.test(q);
-  const qDigits=searchNormPhone(q);
-  const qd=qDigits.length>=3?qDigits:'';
-  const qLow=q.toLowerCase();
-  const idx=buildSearchIndex();
-  const hits=[];
-  idx.forEach(it=>{
-    let nameHit=false,phoneHit=false,crmidHit=false,matchedPhone='';
-    if(isNumberQuery){
-      if(qd){
-        for(const dg of it.phones){
-          const tail=searchPhoneTail(dg);
-          if(tail.includes(qd)||dg.includes(qd)){phoneHit=true;matchedPhone=dg;break}
-        }
-        crmidHit=!!it.crmid&&it.crmid.includes(qDigits);
-      }
-    }else{
-      nameHit=it.c.name.toLowerCase().includes(qLow);
-      if(!nameHit&&qd){
-        for(const dg of it.phones){
-          const tail=searchPhoneTail(dg);
-          if(tail.includes(qd)||dg.includes(qd)){phoneHit=true;matchedPhone=dg;break}
-        }
-        if(!phoneHit)crmidHit=!!it.crmid&&it.crmid.includes(qDigits);
-      }
-    }
-    if(nameHit||phoneHit||crmidHit){
-      const phoneDisp=matchedPhone?(matchedPhone.length===10?'+7 ('+matchedPhone.slice(0,3)+') '+matchedPhone.slice(3,6)+'-'+matchedPhone.slice(6,8)+'-'+matchedPhone.slice(8):'+'+matchedPhone):'';
-      hits.push({...it,nameHit,phoneHit,crmidHit,phoneDisp});
-    }
-  });
-  hits.sort((a,b)=>{
-    const sa=(a.nameHit?4:0)+(a.phoneHit?2:0)+(a.crmidHit?1:0);
-    const sb=(b.nameHit?4:0)+(b.phoneHit?2:0)+(b.crmidHit?1:0);
-    if(sa!==sb)return sb-sa;
-    return a.c.name.localeCompare(b.c.name);
-  });
-  const hl=t=>{ if(!q||isNumberQuery)return esc(t); const i=t.toLowerCase().indexOf(qLow); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); };
-  const hlDigits=t=>{ if(!qd)return esc(t); const i=t.indexOf(qd); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+qd.length))+'</span>'+esc(t.slice(i+qd.length)); };
-  box.innerHTML=hits.length
-    ?hits.slice(0,30).map(h=>{
-      const parts=[];
-      if(h.phoneDisp)parts.push('📞 '+hlDigits(h.phoneDisp));
-      if(h.crmid)parts.push('🏢 ID '+hlDigits(h.crmid));
-      return `<div class="searchrow" data-sfid="${h.fid}" data-scid="${h.c.id}">
-        <div class="srname">${hl(h.c.name)}</div>
-        <div class="srmeta">${parts.join(' · ')||'—'} · 📁 ${esc(h.folderName)}</div>
-      </div>`;
-    }).join('')
-    :`<div class="searchempty">Ничего не найдено${isNumberQuery&&qDigits.length<3?' — для поиска по номеру/ID введите минимум 3 цифры':''}</div>`;
-  box.classList.add('vis');
-  box.querySelectorAll('.searchrow').forEach(row=>{
-    row.onclick=()=>{
-      box.classList.remove('vis');
-      $('clientSearch').value='';
-      clearBtn.classList.remove('vis');
-      state.openClientId=row.dataset.scid;
-      openFolderView(row.dataset.sfid);
-      setTimeout(()=>{
-        const el=document.querySelector(`[data-client-card="${row.dataset.scid}"]`);
-        if(el){
-          el.scrollIntoView({behavior:'smooth',block:'center'});
-          el.classList.add('celebrate');
-          setTimeout(()=>el.classList.remove('celebrate'),700);
-        }
-      },300);
-    };
-  });
-}
-if($('clientSearch')){
-  $('clientSearch').addEventListener('input',()=>runClientSearch($('clientSearch').value));
-  $('clientSearch').addEventListener('focus',()=>{if($('clientSearch').value.trim())runClientSearch($('clientSearch').value)});
-  $('clientSearchClear').onclick=()=>{
-    $('clientSearch').value='';
-    runClientSearch('');
-    $('clientSearch').focus();
-  };
-  document.addEventListener('click',e=>{
-    if(!e.target.closest('.searchwrap'))$('clientSearchResults').classList.remove('vis');
-  });
-}
-/* ================== /№59 ================== */
 
 /* ================== ПРАВКА №27: AI-разбор звонка ================== */
 const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
@@ -2591,7 +2484,6 @@ function renderFolderView(){
       renderFolderView();
     };
   });
-  /* №58: drag карточки с живым призраком, приглушением источника и выразительной подсветкой папки */
   if(!isMobileLayout()){
     document.querySelectorAll('[data-dragclient]').forEach(head=>{
       head.addEventListener('mousedown',e=>{
@@ -2709,7 +2601,6 @@ function renderFolderView(){
   document.querySelectorAll('[data-rename]').forEach(ri=>{
     const commit=()=>{
       const cl=list.find(x=>x.id===ri.dataset.rename);
-      /* №57: переименование карточки обновляет clientName во всех связанных задачах */
       if(cl&&ri.value.trim()){
         const oldName=cl.name;
         const newName=ri.value.trim();
@@ -2900,7 +2791,6 @@ function renderFolderView(){
       },300);
     };
   });
-  /* №57: удаление заметки со связанной задачей — вопрос про задачу */
   document.querySelectorAll('[data-note-del]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
@@ -2989,7 +2879,7 @@ function confirmTaskDeleteWithReason(task,onConfirm){
     const reason=$('raReason').value.trim();
     if(reason){
       const existing=findClientNoteByTaskId(task.id);
-      const line='🗑 Задача удалена: '+reason;
+      const line=`🗑 ${fmtTs(Date.now())} — Задача удалена: ${reason}`;
       if(existing){
         existing.text=(existing.text.trim()+'\n'+line).trim();
         existing.ts=Date.now();
@@ -3206,7 +3096,7 @@ function bindMobileDayList(d){
       if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
       const wasDone=t.done;
       recomputeDone(t);
-      if(!wasDone&&t.done)pushTaskResultToClient(t);
+      if(!wasDone&&t.done)syncTaskResultToClient(t);
       save();
       if(!wasDone&&t.done)setTimeout(()=>render(),600);
       else if(wasDone&&!t.done)setTimeout(()=>render(),200);
@@ -3227,7 +3117,7 @@ function bindMobileDayList(d){
       const t=data.tasks.find(x=>x.id===id);
       if(!t)return;
       t.done=!t.done;
-      if(t.done)pushTaskResultToClient(t);
+      if(t.done)syncTaskResultToClient(t);
       save();
       const row=box.closest('.mobiledayrow');
       row.classList.toggle('done',t.done);
@@ -3616,6 +3506,7 @@ function openSubtaskNotePopup(anchorEl, t, si){
       lines.push(`${prefix} ${v}`);
     }
     t.note=lines.join('\n');
+    syncTaskResultToClient(t);
     save();
     close();
     delete window.__realHeights;
@@ -3634,7 +3525,7 @@ function bindTasks(){
     });
     el.querySelector('.check').onclick=e=>{
       e.stopPropagation();const willBeDone=!t.done;t.done=willBeOnSafe(t,willBeDone);
-      if(willBeDone){celebrateTask(el);pushTaskResultToClient(t)}
+      if(willBeDone){celebrateTask(el);syncTaskResultToClient(t)}
       save();
       renderSidebarPending();
       __widthOverrides={};delete window.__realHeights;
@@ -3693,7 +3584,7 @@ function bindTasks(){
 
         const wasTaskDone=t.done;
         recomputeDone(t);
-        if(!wasTaskDone&&t.done)pushTaskResultToClient(t);
+        syncTaskResultToClient(t);
         save();
 
         if(!wasTaskDone&&t.done){
@@ -3803,6 +3694,7 @@ function enableTaskDrag(){
         if(duration!==null)t.endTime=fmtMin(snapped+duration);
         delete __widthOverrides[t.id];
         delete window.__realHeights;
+        syncTaskResultToClient(t);
         save();
         render();
       };
@@ -3957,7 +3849,10 @@ function saveModal(){
 
   if(state.editing){
     delete __widthOverrides[state.editing];
-    Object.assign(data.tasks.find(x=>x.id===state.editing),{title,date,time,endTime,note,object,manager,subtasks:subs,clientName,clientId,clientFolderId});
+    const t=data.tasks.find(x=>x.id===state.editing);
+    Object.assign(t,{title,date,time,endTime,note,object,manager,subtasks:subs,clientName,clientId,clientFolderId});
+    /* №62: комментарии после закрытия задачи доезжают в заметки клиента */
+    syncTaskResultToClient(t);
     delete window.__realHeights;save();closeModal();render();
     return;
   }
