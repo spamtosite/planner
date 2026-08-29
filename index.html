@@ -405,7 +405,16 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .sidebarfolderadd button{background:var(--accent);color:#fff;border-radius:6px;padding:6px 9px;font-size:11.5px;font-weight:600}
 .sidebarfolderitem .cheadbtn{flex:0 0 auto}
 /* №57: drag карточки на папку */
-.sidebarfolderitem.folder-drop{background:#eef4ff!important;box-shadow:inset 0 0 0 2px var(--accent)}
+.sidebarfolderitem.folder-drop{background:#eef4ff!important;box-shadow:inset 0 0 0 2px var(--accent);animation:folderDropPulse 1s ease-in-out infinite}
+@keyframes folderDropPulse{0%,100%{box-shadow:inset 0 0 0 2px var(--accent)}50%{box-shadow:inset 0 0 0 3px var(--accent),0 0 14px rgba(37,99,235,.35)}}
+.sidebarfolderitem.folder-drop:after{content:"＋";margin-left:auto;font-size:16px;font-weight:800;color:var(--accent)}
+body.client-dragging{cursor:grabbing;user-select:none}
+body.client-dragging .folderclientitem{pointer-events:none}
+body.client-dragging .sidebar{user-select:none}
+.clientdragghost{position:fixed;z-index:9999;pointer-events:none;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;background:#111827;color:#fff;padding:7px 12px;border-radius:9px;font-size:12.5px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:.92}
+.folderclientitem.drag-src{opacity:.35;border:1.5px dashed var(--accent)}
+/* №58: выделение запрещено на всё время перетаскивания задачи */
+body.task-dragging{user-select:none;-webkit-user-select:none}
 .mobilesectionitem[data-mfolder]{cursor:pointer}
 .mgoalnav{display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .mgoalnav .iconbtn{padding:8px 12px}
@@ -2454,35 +2463,53 @@ function renderFolderView(){
       renderFolderView();
     };
   });
-  /* №57: drag карточки на папку в сайдбаре (ПК) */
+  /* №58: drag карточки с живым призраком, приглушением источника и выразительной подсветкой папки */
   if(!isMobileLayout()){
     document.querySelectorAll('[data-dragclient]').forEach(head=>{
       head.addEventListener('mousedown',e=>{
         if(e.target.closest('button,input'))return;
         const cid=head.dataset.dragclient;
-        let started=false;
+        const cl=list.find(x=>x.id===cid);
+        if(!cl)return;
+        let started=false,ghost=null;
         const startX=e.clientX,startY=e.clientY;
+        const makeGhost=()=>{
+          ghost=document.createElement('div');
+          ghost.className='clientdragghost';
+          ghost.textContent=cl.name;
+          document.body.appendChild(ghost);
+        };
         const onMove=me=>{
           if(!started&&Math.hypot(me.clientX-startX,me.clientY-startY)<6)return;
-          started=true;
-          document.body.style.cursor='grabbing';
+          if(!started){
+            started=true;
+            document.body.classList.add('client-dragging');
+            document.querySelector(`[data-client-card="${cid}"]`)?.classList.add('drag-src');
+            makeGhost();
+          }
+          if(ghost){
+            ghost.style.left=(me.clientX+14)+'px';
+            ghost.style.top=(me.clientY-14)+'px';
+          }
+          let hovered=null;
           document.querySelectorAll('.sidebarfolderitem[data-folder]').forEach(it=>{
             const r=it.getBoundingClientRect();
-            if(me.clientX>=r.left&&me.clientX<=r.right&&me.clientY>=r.top&&me.clientY<=r.bottom){
-              it.classList.add('folder-drop');
-              window.__dropFolderId=it.dataset.folder;
-            }else it.classList.remove('folder-drop');
+            const inside=me.clientX>=r.left&&me.clientX<=r.right&&me.clientY>=r.top&&me.clientY<=r.bottom;
+            it.classList.toggle('folder-drop',inside);
+            if(inside)hovered=it.dataset.folder;
           });
+          window.__dropFolderId=hovered||null;
         };
-        const onUp=me=>{
+        const onUp=()=>{
           document.removeEventListener('mousemove',onMove);
           document.removeEventListener('mouseup',onUp);
-          document.body.style.cursor='';
+          document.body.classList.remove('client-dragging');
+          document.querySelector(`[data-client-card="${cid}"]`)?.classList.remove('drag-src');
+          if(ghost)ghost.remove();
           document.querySelectorAll('.sidebarfolderitem').forEach(it=>it.classList.remove('folder-drop'));
           if(started&&window.__dropFolderId&&window.__dropFolderId!==f.id){
-            const cl=list.find(x=>x.id===cid);
             const target=data.clientFolders.find(x=>x.id===window.__dropFolderId);
-            if(cl&&target){
+            if(target){
               if(state.openClientId===cid)state.openClientId=null;
               fcMoveClient(cl,f.id,window.__dropFolderId);
               save();
@@ -3610,6 +3637,7 @@ function enableTaskDrag(){
         if(!dragging&&Math.hypot(dx,dy)>4){
           dragging=true;
           window.__taskDragging=true;
+          document.body.classList.add('task-dragging');
           el.classList.add('dragging');
           badge=document.createElement('div');
           badge.className='timedragbadge';
@@ -3634,6 +3662,7 @@ function enableTaskDrag(){
         document.removeEventListener('mousemove',onMove);
         document.removeEventListener('mouseup',onUp);
         window.__taskDragging=false;
+        document.body.classList.remove('task-dragging');
         clearHotRow();
         if(!dragging)return;
         el.classList.remove('dragging');
