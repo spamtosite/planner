@@ -591,7 +591,7 @@ body.resizing iframe{pointer-events:none}
   /* №59: поиск клиентов */
   /* №60: поиск — в самое начало сайдбара */
 @media(max-width:800px){.mobilesectionicon{display:none}.mobilesectionsbrand:after{content:none!important}}
-.searchwrap{order:-10;position:sticky;top:0;z-index:5;background:var(--bg);padding-bottom:6px;margin-bottom:2px}
+.searchwrap{position:sticky;top:0;z-index:15;background:var(--bg);padding:10px 12px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
 .searchwrap{position:relative;flex:0 0 auto;padding:0 2px}
 #clientSearch{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 30px 9px 12px;background:#fff;font-size:13px;box-sizing:border-box}
 #clientSearchClear{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:none;place-items:center;padding:0}
@@ -609,7 +609,13 @@ body.resizing iframe{pointer-events:none}
 .searchmark{background:#fef08a;border-radius:3px;padding:0 1px}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
 </style></head>
-<body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div><div class="brand">Мой ежедневник</div>
+<body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
+  <div class="searchwrap">
+    <input id="clientSearch" placeholder="🔍 Клиент, телефон или ID" autocomplete="off">
+    <button id="clientSearchClear" title="Очистить">✕</button>
+    <div class="searchresults" id="clientSearchResults"></div>
+  </div>
+<div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navClients">Клиенты</button></div>
 <div class="sidebarfolders" id="sidebarFolders"></div>
 <div class="sidebarpending" id="sidebarPending"></div>
@@ -620,11 +626,6 @@ body.resizing iframe{pointer-events:none}
 <input type="file" id="importFileInput" accept="application/json" style="display:none">
 <div class="sidebottom">
   <button id="firstCallBtn" style="width:100%;background:var(--accent);color:#fff;padding:9px 10px;border-radius:8px;font-size:12.5px;font-weight:700;margin-bottom:6px">📞 Первый звонок</button>
-    <div class="searchwrap">
-    <input id="clientSearch" placeholder="🔍 Клиент, телефон или ID" autocomplete="off">
-    <button id="clientSearchClear" title="Очистить">✕</button>
-    <div class="searchresults" id="clientSearchResults"></div>
-  </div>
   <button id="driveConnectBtn" style="width:100%;background:#263142;color:#fff;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:600;margin-bottom:6px">☁️ Подключить Google Drive</button>
   <div id="driveStatus" style="font-size:11px;color:#9ca3af">Не подключено</div>
 </div></aside>
@@ -2281,21 +2282,32 @@ function runClientSearch(qRaw){
   const clearBtn=$('clientSearchClear');
   clearBtn.classList.toggle('vis',!!q);
   if(!q){box.classList.remove('vis');box.innerHTML='';return}
+  /* №61: чисто числовой запрос — только телефон и ID CRM, имена с цифрами («2 млн.») не матчим */
+  const isNumberQuery=/^\+?[\d\s\-()]+$/.test(q)&&/\d/.test(q);
   const qDigits=searchNormPhone(q);
+  const qd=qDigits.length>=3?qDigits:'';
   const qLow=q.toLowerCase();
   const idx=buildSearchIndex();
   const hits=[];
   idx.forEach(it=>{
-    let nameHit=qLow&&it.c.name.toLowerCase().includes(qLow);
-    let phoneHit=false,crmidHit=false;
-    const qd=qDigits.length>=3?qDigits:'';
-    let matchedPhone='';
-    if(qd){
-      for(const dg of it.phones){
-        const tail=searchPhoneTail(dg);
-        if(tail.includes(qd)||dg.includes(qd)){phoneHit=true;matchedPhone=dg;break}
+    let nameHit=false,phoneHit=false,crmidHit=false,matchedPhone='';
+    if(isNumberQuery){
+      if(qd){
+        for(const dg of it.phones){
+          const tail=searchPhoneTail(dg);
+          if(tail.includes(qd)||dg.includes(qd)){phoneHit=true;matchedPhone=dg;break}
+        }
+        crmidHit=!!it.crmid&&it.crmid.includes(qDigits);
       }
-      crmidHit=it.crmid.includes(qDigits);
+    }else{
+      nameHit=it.c.name.toLowerCase().includes(qLow);
+      if(!nameHit&&qd){
+        for(const dg of it.phones){
+          const tail=searchPhoneTail(dg);
+          if(tail.includes(qd)||dg.includes(qd)){phoneHit=true;matchedPhone=dg;break}
+        }
+        if(!phoneHit)crmidHit=!!it.crmid&&it.crmid.includes(qDigits);
+      }
     }
     if(nameHit||phoneHit||crmidHit){
       const phoneDisp=matchedPhone?(matchedPhone.length===10?'+7 ('+matchedPhone.slice(0,3)+') '+matchedPhone.slice(3,6)+'-'+matchedPhone.slice(6,8)+'-'+matchedPhone.slice(8):'+'+matchedPhone):'';
@@ -2308,8 +2320,8 @@ function runClientSearch(qRaw){
     if(sa!==sb)return sb-sa;
     return a.c.name.localeCompare(b.c.name);
   });
-  const hl=t=>{ if(!q)return esc(t); const i=t.toLowerCase().indexOf(qLow); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); };
-  const hlDigits=t=>{ if(!qDigits||qDigits.length<3)return esc(t); const i=t.indexOf(qDigits); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+qDigits.length))+'</span>'+esc(t.slice(i+qDigits.length)); };
+  const hl=t=>{ if(!q||isNumberQuery)return esc(t); const i=t.toLowerCase().indexOf(qLow); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+q.length))+'</span>'+esc(t.slice(i+q.length)); };
+  const hlDigits=t=>{ if(!qd)return esc(t); const i=t.indexOf(qd); return i<0?esc(t):esc(t.slice(0,i))+'<span class="searchmark">'+esc(t.slice(i,i+qd.length))+'</span>'+esc(t.slice(i+qd.length)); };
   box.innerHTML=hits.length
     ?hits.slice(0,30).map(h=>{
       const parts=[];
@@ -2320,7 +2332,7 @@ function runClientSearch(qRaw){
         <div class="srmeta">${parts.join(' · ')||'—'} · 📁 ${esc(h.folderName)}</div>
       </div>`;
     }).join('')
-    :`<div class="searchempty">Ничего не найдено${qDigits&&qDigits.length<3?' — для поиска по номеру/ID введите минимум 3 цифры':''}</div>`;
+    :`<div class="searchempty">Ничего не найдено${isNumberQuery&&qDigits.length<3?' — для поиска по номеру/ID введите минимум 3 цифры':''}</div>`;
   box.classList.add('vis');
   box.querySelectorAll('.searchrow').forEach(row=>{
     row.onclick=()=>{
