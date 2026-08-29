@@ -2098,7 +2098,8 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
   pop.innerHTML=`<div class="fcreq">
     <div class="fcreq-title">📞 Первый звонок<button class="cheadbtn" id="fcX" title="Закрыть">✕</button></div>
     <div class="fcsec"><div class="fcsec-t">Мой скрипт разговора</div>
-      <textarea id="fcScript" placeholder="Тапни и напиши скрипт. [Имя клиента] — подставится автоматически" style="width:100%;min-height:64px;resize:vertical;border:1px solid #d9dde2;border-radius:9px;padding:9px 11px;font:inherit;box-sizing:border-box;background:#fff"></textarea>
+      <div class="fcchips" id="fcScriptView" style="cursor:pointer"></div>
+      <textarea id="fcScript" placeholder="Тапни и напиши скрипт. [Имя клиента] — подставится автоматически" style="display:none;width:100%;min-height:90px;resize:vertical;border:1px solid var(--accent);border-radius:9px;padding:9px 11px;font:inherit;box-sizing:border-box;background:#fff"></textarea>
       <div id="fcScriptBtns" style="display:none;gap:8px">
         <button type="button" id="fcScriptSave" style="background:#f1f3f5;color:#4b5563;border:0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600">💾 Сохранить</button>
         <button type="button" id="fcScriptCopy" style="background:#f1f3f5;color:#4b5563;border:0;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600">📋 Копировать</button>
@@ -2156,38 +2157,46 @@ function openFirstCallModal(existing){ /* existing={client,folderId} — реж�
       ch.classList.toggle('on');
     }else ch.classList.toggle('on');
   });
-  /* №51.1: единое поле скрипта — просмотр (с именем) ↔ редактирование (шаблон + кнопки) */
-  const scEl=$('fcScript'), scBtns=$('fcScriptBtns');
+  /* №51.2: скрипт показывается чипами по предложениям; тап — редактирование в textarea */
+  const scView=$('fcScriptView'), scEl=$('fcScript'), scBtns=$('fcScriptBtns');
   let scEditing=false;
-  const scApply=()=>{
-    if(scEditing)return;
+  const scSentences=t=>(t||'').split(/(?<=[.!?])\s+/).map(s=>s.trim()).filter(Boolean);
+  const scRender=()=>{
     const nm=$('fcName').value.trim();
     const tpl=localStorage.getItem(FC_SCRIPT_KEY)||'';
-    scEl.value=nm?tpl.split('[Имя клиента]').join(nm):tpl;
-    scEl.readOnly=true;
-    scEl.style.background='#f8f9fb';
-    scEl.style.cursor='pointer';
-    scBtns.style.display='none';
+    const shown=nm?tpl.split('[Имя клиента]').join(nm):tpl;
+    const parts=scSentences(shown);
+    scView.innerHTML=parts.length
+      ?parts.map(p=>`<span class="fcchip" style="white-space:normal;text-align:left;line-height:1.35">${esc(p)}</span>`).join('')
+      :'<span class="fcchip" style="opacity:.55">Тапни, чтобы написать скрипт</span>';
   };
   const scEdit=()=>{
     if(scEditing)return;
     scEditing=true;
+    scView.style.display='none';
     scEl.value=localStorage.getItem(FC_SCRIPT_KEY)||'';
-    scEl.readOnly=false;
-    scEl.style.background='#fff';
-    scEl.style.cursor='text';
+    scEl.style.display='block';
     scBtns.style.display='flex';
-    scEl.focus();
+    setTimeout(()=>{scEl.focus();scEl.style.height='auto';scEl.style.height=(scEl.scrollHeight+4)+'px'},30);
   };
-  scEl.addEventListener('click',scEdit);
-  scEl.addEventListener('touchstart',scEdit,{passive:true});
-  scEl.addEventListener('blur',()=>{setTimeout(()=>{if(!scBtns.contains(document.activeElement)){scEditing=false;scApply()}},150)});
+  const scDone=()=>{
+    scEditing=false;
+    scEl.style.display='none';
+    scBtns.style.display='none';
+    scView.style.display='flex';
+    scRender();
+  };
+  scView.addEventListener('click',scEdit);
+  scEl.addEventListener('input',()=>{scEl.style.height='auto';scEl.style.height=(scEl.scrollHeight+4)+'px'});
+  scEl.addEventListener('blur',()=>{setTimeout(()=>{if(!scBtns.contains(document.activeElement)&&!scEl.contains(document.activeElement))scDone()},150)});
   $('fcScriptSave').onclick=()=>{
     localStorage.setItem(FC_SCRIPT_KEY,scEl.value);
-    scEditing=false;scApply();
+    scDone();
     toast('Скрипт сохранён на этом устройстве');
   };
-  $('fcScriptCopy').onclick=()=>copyText(scEl.value||'','Скрипт скопирован');
+  $('fcScriptCopy').onclick=()=>copyText(localStorage.getItem(FC_SCRIPT_KEY)||'','Скрипт скопирован');
+  scRender();
+  $('fcName').addEventListener('input',()=>{if(!scEditing)scRender()});
   scApply();
   $('fcSave').onclick=()=>{
     const name=$('fcName').value.trim();
