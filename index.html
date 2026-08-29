@@ -2062,20 +2062,28 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     if(!task.done){
       task.done=true;
       (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
+      /* №66: закрыл через « - » — итог в заметки задачи И в заметку клиента */
       let dashIdx=newText.lastIndexOf(' - ');
       const result=dashIdx>=0?newText.slice(dashIdx+3).trim():'';
       if(result){
         const lines=(task.note||'').split('\n').filter(Boolean);
         if(!lines.includes(result))lines.push(result);
         task.note=lines.join('\n');
+        const existing=findClientNoteByTaskId(task.id);
+        if(existing){
+          if(!existing.text.includes(result)){
+            existing.text=(existing.text.trim()+'\n✅ Итог: '+result).trim();
+            existing.ts=Date.now();
+          }
+        }
       }
-      syncTaskResultToClient(task);
       save();renderSidebarPending();
-      toast('Задача закрыта — итог записан в заметки задачи');
+      if(result)toast('Задача закрыта — итог в заметках задачи и клиента');
+      else toast('Задача закрыта');
     }
     return;
   }
-  /* №64.1: как в создании задачи — название = имя карточки, текст заметки = остальное */
+  /* №64.1/65.2: название = имя карточки; заметки задачи = полный текст заметки клиента */
   const p=parseQuickAdd(newText);
   if(!p.time&&!p.template&&!p.dateFound)return;
   const when=whenStr(p.date,p.time?(p.time+(p.endTime?'–'+p.endTime:'')):null);
@@ -2087,8 +2095,6 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     <div class="noteask-task">
       <div class="nt">${esc(cl.name||'Задача')}</div>
       <div class="ntpl" style="color:var(--muted);font-weight:500">${esc(newText)}</div>
-      <div class="nm">${esc(when)}</div>
-      ${p.template?`<div class="ntpl">Шаблон «${esc(p.template.code)}» — подзадачи обновятся</div>`:''}
     </div>
     <div class="noteask-btns">
       <button class="noteask-no" type="button">Оставить как есть</button>
@@ -2104,19 +2110,12 @@ function maybeUpdateTaskFromNote(cl,note,newText){
     task.time=p.time;
     task.endTime=p.endTime;
     task.title=newTitle;
-    /* №65: не дублируем в заметки задачи то, что уже лежит в заметке клиента */
-    if(newText){
-      const nt=String(newText||'').trim();
-      const already=(task.note||'').includes(nt)||((findClientNoteByTaskId(task.id)||{}).text||'').includes(nt);
-      if(!already){
-        const lines=(task.note||'').split('\n').filter(Boolean);
-        lines.push(nt);
-        task.note=lines.join('\n');
-      }
-    }
+    /* №65.2: заметки задачи = полный текст заметки клиента; никакого «Итог» на простое дополнение */
+    const srcNote=findClientNoteByTaskId(task.id);
+    const full=(srcNote?srcNote.text.split('\n✅ Итог:')[0]:newText).trim();
+    if(full)task.note=full;
     if(p.template)task.subtasks=(p.template.subtasks||[]).map(x=>({title:x,status:'pending'}));
     task.done=false;
-    syncTaskResultToClient(task);
     save();
     toast(`Задача обновлена: ${when}`);
     close();
