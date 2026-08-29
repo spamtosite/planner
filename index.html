@@ -1022,6 +1022,8 @@ async function driveUpload(){
     driveSetStatus('Сохранено');
   }catch(e){
     console.error(e);
+    /* №48: после сбоя помним, что есть незалитое — дожмём сами при возврате сети */
+    __drivePendingUpload=true;
     driveSetStatus('Ошибка сети');
   }finally{
     __driveSyncing=false;
@@ -1059,6 +1061,8 @@ function driveStartPolling(){
 
 async function driveCheckForUpdates(){
   if(!__driveConnected || !__driveFileId || __driveSyncing)return;
+  /* №48: сеть вернулась — сначала дожимаем своё */
+  if((__drivePendingUpload||__driveDirty) && navigator.onLine){driveUpload();return}
   /* ПРАВКА №36: не перерисовываем экран посреди перетаскивания задачи */
   if(window.__taskDragging)return;
   try{
@@ -3176,6 +3180,8 @@ function renderSidebarPending(){
       state.date=parse(el.dataset.date||todayIso);
       state.view='day';
       setTabs();
+      /* №49: на мобилке явно уходим в detail — иначе свайп «назад к разделам» ломается */
+      if(isMobileLayout()){__mobileScreen='detail';renderMobileShell()}
       render();
       setTimeout(()=>{
         const target=document.querySelector(`#content .taskblock[data-id="${id}"],#content .task[data-id="${id}"],#content .mobiledayrow[data-id="${id}"]`);
@@ -3904,7 +3910,12 @@ function importBackup(file){
 setInterval(()=>renderSidebarPending(),60000);
 /* №46: возврат сети — мгновенная попытка переподключения (сценарий «авиарежим → сеть») */
 window.addEventListener('online',()=>{
-  if(__driveConnected||localStorage.getItem('drive_auto')!=='1')return;
+  /* №48: сеть вернулась при живом соединении — дожимаем несохранённое */
+  if(__driveConnected){
+    if((__drivePendingUpload||__driveDirty)&&!__driveSyncing&&navigator.onLine)setTimeout(()=>driveUpload(),800);
+    return;
+  }
+  if(localStorage.getItem('drive_auto')!=='1')return;
   if(!window.google||!google.accounts){driveInit();return}
   driveSetStatus('Сеть вернулась — подключение…');
   const retryOnline=n=>{
