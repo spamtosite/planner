@@ -1,7 +1,7 @@
 /* Ежедневник — service worker v25.
    HTML-навигация всегда сначала идёт в сеть, затем в кэш только при офлайне.
    Это предотвращает показ старой версии приложения после обновления GitHub Pages. */
-const CACHE = 'planner-v26';
+const CACHE = 'planner-v27';
 
 const ASSETS = [
   './',
