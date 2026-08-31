@@ -4331,15 +4331,13 @@ function normalizeNoteBreaks(value=''){
 }
 function sanitizeRichHtml(value){
   const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
-  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN']);
+  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT']);
+  const allowedColors=new Set(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
+    const color=(el.style.color||el.getAttribute('color')||'').toLowerCase();
     [...el.attributes].forEach(a=>el.removeAttribute(a.name));
-    if(el.tagName==='SPAN'){
-      const color=(el.style.color||'').toLowerCase();
-      el.removeAttribute('style');
-      if(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb'].includes(color))el.style.color=color;
-    }
+    if((el.tagName==='SPAN'||el.tagName==='FONT')&&allowedColors.has(color))el.style.color=color;
   });
   return box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
 }
@@ -4364,7 +4362,7 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
   const sync=()=>{textarea.value=sanitizeRichHtml(editor.innerHTML)};
   const normColor=value=>{const v=String(value||'').toLowerCase().replace(/\s/g,'');const map={'rgb(220,38,38)':'#dc2626','rgb(22,163,74)':'#16a34a','rgb(37,99,235)':'#2563eb','rgb(31,35,40)':'#1f2328','rgb(0,0,0)':'#000000'};return map[v]||v};
   const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=normColor(document.queryCommandValue('foreColor'))===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
-  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;if(cmd==='foreColor'){const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}else document.execCommand(cmd,false,null);sync();refresh()}));
+  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;if(cmd==='foreColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e){}const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}else document.execCommand(cmd,false,null);sync();refresh()}));
   editor.addEventListener('input',()=>{sync();refresh()});editor.addEventListener('keyup',refresh);editor.addEventListener('mouseup',refresh);editor.addEventListener('focus',refresh);
 }
 function enhanceVisibleRichEditors(){
