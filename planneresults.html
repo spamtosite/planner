@@ -601,6 +601,9 @@ body.resizing iframe{pointer-events:none}
 .searchmark{background:#fef08a;border-radius:3px;padding:0 1px}
 .folderclientitem.celebrate{animation:taskPop .55s cubic-bezier(.34,1.56,.64,1);border-color:var(--green)!important;box-shadow:0 0 0 3px #16a34a33,0 8px 24px #16a34a2e!important}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
+
+/* Rich text notes */
+.rich-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:9px 0 7px;border-bottom:1px solid var(--line);margin-bottom:8px}.rich-chip{min-height:31px;padding:6px 11px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font-size:12px;font-weight:750;box-shadow:0 1px 2px #00000008;transition:transform .15s,background .15s,border-color .15s,color .15s}.rich-chip:hover{transform:translateY(-1px);background:#fff;border-color:#bcc5d0}.rich-chip.active{background:#e8f0ff;border-color:#2563eb;color:#1746a2;box-shadow:0 0 0 2px #2563eb20}.rich-chip[data-cmd="foreColor"][data-value="#dc2626"].active{background:#fee2e2;border-color:#dc2626;color:#991b1b}.rich-chip[data-cmd="foreColor"][data-value="#16a34a"].active{background:#dcfce7;border-color:#16a34a;color:#166534}.rich-chip[data-cmd="foreColor"][data-value="#2563eb"].active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}.rich-chip[data-cmd="hiliteColor"].active{background:#fef3c7;border-color:#f59e0b;color:#92400e}.rich-editor{min-height:88px;width:100%;border:1.5px solid var(--accent);border-radius:9px;padding:10px 11px;font:inherit;line-height:1.45;background:#fff;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none}.rich-source{display:none!important}.note-result-chip{display:grid;gap:3px;margin-top:10px;padding:10px 12px;border:1px solid #86efac;border-radius:11px;background:linear-gradient(135deg,#ecfdf3,#f0fdf4);box-shadow:0 3px 12px rgba(22,163,74,.10)}.note-result-chip .nr-label{font-size:10.5px;font-weight:850;letter-spacing:.05em;color:#15803d;text-transform:uppercase}.note-result-chip .nr-text{font-size:13px;font-weight:750;color:#166534;white-space:pre-wrap;overflow-wrap:anywhere}.tasknoteitem .rich-note{white-space:normal;overflow-wrap:anywhere}.rich-note mark{background:#fef08a;border-radius:3px;padding:0 1px}@media(max-width:680px){.rich-toolbar{gap:5px}.rich-chip{min-height:34px;padding:6px 9px}.rich-editor{font-size:15px;min-height:105px}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -1270,7 +1273,7 @@ function taskInnerHtml(t){
       <div class="tasktitle" title="${esc(t.title)}">${esc(t.title)}</div>
       ${t.clientName?`<div class="taskclient" data-openclient="${t.id}" title="Открыть карточку клиента">👤 ${esc(t.clientName)}</div>`:''}
       ${t.object?`<div class="taskobj" title="${esc(t.object)}${t.manager?' · '+esc(t.manager):''}">🏢 ${esc(t.object)}${t.manager?' · '+esc(t.manager):''}</div>`:''}
-      ${t.note?`<div class="tasknotes">${t.note.split('\n').filter(Boolean).map(line=>{const m=line.match(/^(\[.+?\])\s*(.*)$/);return m?`<div class="tasknoteitem"><div class="tasknotehead">${esc(m[1])}</div>${m[2]?`<div class="tasknotebody">${esc(m[2])}</div>`:''}</div>`:`<div class="tasknoteitem"><div class="tasknotebody">${esc(line)}</div></div>`}).join('')}</div>`:''}
+      ${t.note?`<div class="tasknotes"><div class="tasknoteitem"><div class="tasknotebody rich-note">${renderRichText(t.note)}</div></div></div>`:''}
       ${t.done&&t.resultText?`<div class="taskresult">Итог: ${esc(t.resultText)}</div>`:''}
     </div>
     <button class="focusbtn" data-action="focus">🎯</button>
@@ -4317,4 +4320,56 @@ if($('clientSearch')){
   });
 }
 /* ================== /№59 ================== */
+
+/* ===== Rich notes: safe formatted text for tasks and client comments ===== */
+function sanitizeRichHtml(value){
+  const box=document.createElement('div');box.innerHTML=String(value||'');
+  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN']);
+  [...box.querySelectorAll('*')].forEach(el=>{
+    if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
+    [...el.attributes].forEach(a=>el.removeAttribute(a.name));
+    if(el.tagName==='SPAN'){
+      const color=(el.style.color||'').toLowerCase();
+      el.removeAttribute('style');
+      if(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb'].includes(color))el.style.color=color;
+    }
+  });
+  return box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
+}
+function richToPlain(value){const box=document.createElement('div');box.innerHTML=sanitizeRichHtml(value);return (box.innerText||'').trim()}
+function renderRichText(value){
+  const raw=String(value||'');
+  const match=raw.match(/(?:\n\n|<br><br>)(?:✅\s*)?Итог:\s*([\s\S]*)$/i);
+  const main=match?raw.slice(0,match.index):raw;
+  const result=match?match[1]:'';
+  const normal=sanitizeRichHtml(main).replace(/\n/g,'<br>');
+  return normal+(result?`<div class="note-result-chip"><span class="nr-label">✅ Итог</span><span class="nr-text">${sanitizeRichHtml(result).replace(/\n/g,'<br>')}</span></div>`:'');
+}
+fmtNotes=function(value){return renderRichText(value)};
+function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="hiliteColor" data-value="#fef08a">Маркер</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
+function enhanceRichTextarea(textarea,placeholder='Комментарий менеджера…'){
+  if(!textarea||textarea.dataset.richReady)return;
+  textarea.dataset.richReady='1';textarea.classList.add('rich-source');
+  const wrap=document.createElement('div');wrap.className='rich-wrap';
+  wrap.innerHTML=richToolbar()+`<div class="rich-editor" contenteditable="true" data-placeholder="${placeholder}"></div>`;
+  textarea.after(wrap);const editor=wrap.querySelector('.rich-editor');editor.innerHTML=sanitizeRichHtml(textarea.value).replace(/\n/g,'<br>');
+  const sync=()=>{textarea.value=sanitizeRichHtml(editor.innerHTML)};
+  const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=document.queryCommandValue('foreColor').toLowerCase()===b.dataset.value;else if(b.dataset.cmd==='hiliteColor')on=document.queryCommandValue('hiliteColor').toLowerCase()===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
+  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;document.execCommand(cmd,false,btn.dataset.value||null);sync();refresh()}));
+  editor.addEventListener('input',()=>{sync();refresh()});editor.addEventListener('keyup',refresh);editor.addEventListener('mouseup',refresh);editor.addEventListener('focus',refresh);
+}
+function enhanceVisibleRichEditors(){
+  document.querySelectorAll('.ccnoteedit-ta').forEach(x=>enhanceRichTextarea(x,'Комментарий менеджера…'));
+  const f=$('fNote');if(f&&$('overlay').style.display==='flex')enhanceRichTextarea(f,'Заметка задачи…');
+}
+const __openModalWithRich=openModal;
+openModal=function(...args){
+  const f=$('fNote');
+  if(f&&f.dataset.richReady){f.nextElementSibling?.classList.contains('rich-wrap')&&f.nextElementSibling.remove();delete f.dataset.richReady;f.classList.remove('rich-source')}
+  __openModalWithRich(...args);setTimeout(enhanceVisibleRichEditors,0)
+};
+const __renderFolderWithRich=renderFolderView;
+renderFolderView=function(...args){__renderFolderWithRich(...args);setTimeout(enhanceVisibleRichEditors,0)};
+new MutationObserver(()=>enhanceVisibleRichEditors()).observe(document.body,{childList:true,subtree:true});
+
 </script></body></html>
