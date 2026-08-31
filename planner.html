@@ -1951,71 +1951,333 @@ function tasksOfClient(client,folderId){
     return false;
   });
 }
-function buildTaskResultText(task){
-  const noteLines=(task.note||'').split('\n').map(x=>x.trim()).filter(Boolean);
-  const parts=noteLines.slice();
-  const covered=new Set();
-  noteLines.forEach(l=>{const m=l.match(/^\[(.+?)\]/);if(m)covered.add(m[1])});
-  (task.subtasks||[]).forEach(s=>{
-    if(!subDone(s))return;
-    if(covered.has(s.title))return;
-    const mark=s.status==='success'?'✓':'✕';
-    parts.push(s.resultNote?`${mark} ${s.title}: ${s.resultNote}`:`${mark} ${s.title}`);
+/* =========================================================
+   Синхронизация задачи и заметки клиента
+
+   Правило:
+   - пока задача НЕ завершена:
+     новые строки из календаря добавляются в обычную заметку;
+     «✅ Итог» не создаётся;
+   - когда задача завершена:
+     отдельная финальная запись добавляется как «✅ Итог».
+   ========================================================= */
+
+
+/* Возвращает заметку клиента, которая связана с задачей. */
+function getTaskClientNote(task){
+  if(!task) return null;
+  return findClientNoteByTaskId(task.id);
+}
+
+
+/* Разделяет текст заметки клиента на:
+   1. обычную рабочую историю;
+   2. существующий итог, если он уже есть. */
+function splitClientNoteText(text=''){
+  const marker='\n✅ Итог:';
+  const index=String(text||'').indexOf(marker);
+
+  if(index===-1){
+    return {
+      progress:String(text||'').trim(),
+      result:''
+    };
+  }
+
+  return {
+    progress:String(text||'').slice(0,index).trim(),
+    result:String(text||'').slice(index+marker.length).trim()
+  };
+}
+
+
+/* Добавляет строку в текст только один раз.
+   Это защищает от дублей при повторном сохранении задачи,
+   рендере, синхронизации Drive или повторном открытии окна. */
+function appendUniqueLine(text='', line=''){
+  const cleanLine=String(line||'').trim();
+  if(!cleanLine) return String(text||'').trim();
+
+  const lines=String(text||'')
+    .split('\n')
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  if(!lines.includes(cleanLine)){
+    lines.push(cleanLine);
+  }
+
+  return lines.join('\n').trim();
+}
+
+
+/* Возвращает строки заметки задачи, которые появились
+   после уже существующей основной заметки клиента.
+
+   Например:
+
+   Основная заметка клиента:
+   Позвонить в понедельник в 10 утра
+   До этого отправлял Кипарис
+
+   Заметка задачи после работы:
+   Позвонить в понедельник в 10 утра
+   До этого отправлял Кипарис
+   В 10.00 - НБТ
+   В 10.52 - НБТ
+
+   Функция вернёт только:
+   В 10.00 - НБТ
+   В 10.52 - НБТ
+*/
+function getNewTaskProgressLines(task, existingProgress=''){
+  const taskLines=String(task?.note||'')
+    .split('\n')
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  const clientLines=String(existingProgress||'')
+    .split('\n')
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  const known=new Set(clientLines);
+
+  return taskLines.filter(line=>!known.has(line));
+}
+
+
+/* Синхронизация ХОДА РАБОТЫ.
+
+   Используется только пока задача открыта.
+   Никакого «✅ Итог» здесь нет.
+
+   Пример:
+   В 10.00 - НБТ
+   В 10.52 - НБТ
+
+   просто добавятся в основную заметку клиента.
+*/
+function syncTaskProgressToClient(task){
+  if(!task || task.done) return false;
+
+  const existing=getTaskClientNote(task);
+  if(!existing) return false;
+
+  const parts=splitClientNoteText(existing.text);
+  const newLines=getNewTaskProgressLines(task,parts.progress);
+
+  if(!newLines.length) return false;
+
+  let updatedProgress=parts.progress;
+
+  newLines.forEach(line=>{
+    updatedProgress=appendUniqueLine(updatedProgress,line);
   });
+
+  const merged=parts.result
+    ? `${updatedProgress}\n✅ Итог: ${parts.result}`.trim()
+    : updatedProgress.trim();
+
+  if(merged===existing.text) return false;
+
+  existing.text=merged;
+  existing.ts=Date.now();
+
+  return true;
+}
+
+
+/* Возвращает ТОЛЬКО финальный результат задачи.
+
+   Важно:
+   - обычная исходная заметка задачи сюда не попадает;
+   - записи «В 10.00 - НБТ» сюда не попадают;
+   - подзадачи могут попасть в итог, если они завершены
+     и у них есть результат.
+
+   Сам итог хранится в task.finalResult.
+*/
+function buildTaskFinalResultText(task){
+  const parts=[];
+
+  const finalResult=String(task?.finalResult||'').trim();
+
+  if(finalResult){
+    parts.push(finalResult);
+  }
+
+  (task?.subtasks||[]).forEach(sub=>{
+    if(!subDone(sub)) return;
+    if(!sub.resultNote) return;
+
+    const mark=sub.status==='success' ? '✓' : '✕';
+    const text=`${mark} ${sub.title}: ${sub.resultNote}`.trim();
+
+    if(!parts.includes(text)){
+      parts.push(text);
+    }
+  });
+
   return parts.join('\n').trim();
 }
-/* №62: итог задачи синхронизируется в заметку клиента при каждом изменении */
+
+
+/* Синхронизация ИТОГА.
+
+   Вызывается только у завершённой задачи.
+   Если задача открыта — функция ничего не делает. */
 function syncTaskResultToClient(task){
-  if(!task)return;
-  const result=buildTaskResultText(task);
-  const existing=findClientNoteByTaskId(task.id);
+  if(!task || !task.done) return false;
+
+  const finalResult=buildTaskFinalResultText(task);
+
+  /* Задача закрыта, но итог ещё не введён.
+     Это допустимо: «✅ Итог» пока не создаём. */
+  if(!finalResult) return false;
+
+  const existing=getTaskClientNote(task);
+
   if(existing){
-    const head=existing.text.split('\n✅ Итог:')[0].trim();
-    if(result){
-      const merged=(head?head+'\n':'')+'✅ Итог: '+result;
-      if(merged!==existing.text){existing.text=merged;existing.ts=Date.now();return true}
-    }
-    return false;
+    const parts=splitClientNoteText(existing.text);
+
+    const merged=parts.progress
+      ? `${parts.progress}\n✅ Итог: ${finalResult}`.trim()
+      : `✅ Итог: ${finalResult}`;
+
+    if(merged===existing.text) return false;
+
+    existing.text=merged;
+    existing.ts=Date.now();
+
+    return true;
   }
-  if(!result)return false;
+
+  /* Если задача появилась не из заметки клиента,
+     но к ней привязан клиент — создаём новую заметку. */
   const client=findClientByTask(task);
-  if(!client)return false;
+
+  if(!client) return false;
+
   client.notes=client.notes||[];
-  client.notes.push({id:uid(),text:result,ts:Date.now(),taskId:task.id});
+
+  client.notes.push({
+    id:uid(),
+    text:`✅ Итог: ${finalResult}`,
+    ts:Date.now(),
+    taskId:task.id
+  });
+
   return true;
+}
+
+
+/* Общая безопасная функция.
+   Её можно вызывать при любом сохранении задачи. */
+function syncTaskToClient(task){
+  if(!task) return false;
+
+  if(task.done){
+    return syncTaskResultToClient(task);
+  }
+
+  return syncTaskProgressToClient(task);
+}
+  /* Окно ввода финального итога.
+   Открывается только при явном завершении задачи галочкой. */
+function askTaskFinalResult(task,onDone){
+  if(!task){
+    if(onDone) onDone();
+    return;
+  }
+
+  const pop=document.createElement('div');
+
+  pop.className='reasonask-overlay';
+
+  pop.innerHTML=`
+    <div class="reasonask">
+      <div class="reasonask-title">
+        ✅ Завершить задачу
+      </div>
+
+      <div style="font-size:12px;color:var(--muted);line-height:1.45">
+        Итог появится в карточке клиента только после завершения задачи.
+        Если итог пока не нужен, можно оставить поле пустым.
+      </div>
+
+      <textarea
+        id="taskFinalResultInput"
+        placeholder="Например: Договорились посмотреть Усадьбу"
+      >${esc(task.finalResult||'')}</textarea>
+
+      <div class="reasonask-btns">
+        <button class="reasonask-gray" id="taskFinalCancel">
+          Отмена
+        </button>
+
+        <button class="reasonask-gray" id="taskFinalSkip">
+          Завершить без итога
+        </button>
+
+        <button class="noteask-yes" id="taskFinalSave">
+          Завершить и сохранить итог
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(pop);
+
+  const close=()=>pop.remove();
+
+  pop.addEventListener('click',e=>{
+    if(e.target===pop) close();
+  });
+
+  pop.querySelector('#taskFinalCancel').onclick=()=>{
+    close();
+  };
+
+  pop.querySelector('#taskFinalSkip').onclick=()=>{
+    task.done=true;
+    task.finalResult='';
+
+    syncTaskToClient(task);
+    save();
+
+    close();
+
+    if(onDone) onDone();
+  };
+
+  pop.querySelector('#taskFinalSave').onclick=()=>{
+    task.done=true;
+    task.finalResult=pop
+      .querySelector('#taskFinalResultInput')
+      .value
+      .trim();
+
+    syncTaskToClient(task);
+    save();
+
+    close();
+
+    if(onDone) onDone();
+  };
+
+  setTimeout(()=>{
+    pop.querySelector('#taskFinalResultInput')?.focus();
+  },30);
 }
 
 /* №64/№65.2/№66: обновление задачи из заметки */
 function maybeUpdateTaskFromNote(cl,note,newText){
   if(!note.taskId)return;
+  
   const task=data.tasks.find(t=>t.id===note.taskId);
+  
   if(!task){delete note.taskId;save();return}
-  /* №64: триггер закрытия — только « - » (дефис с пробелами); «18-00» и телефоны не мешают */
-  if(newText.includes(' - ')){
-    if(!task.done){
-      task.done=true;
-      (task.subtasks||[]).forEach(s=>{if(!subDone(s))s.status='success'});
-      /* №66: закрыл через « - » — итог в заметки задачи И в заметку клиента */
-      let dashIdx=newText.lastIndexOf(' - ');
-      const result=dashIdx>=0?newText.slice(dashIdx+3).trim():'';
-      if(result){
-        const lines=(task.note||'').split('\n').filter(Boolean);
-        if(!lines.includes(result))lines.push(result);
-        task.note=lines.join('\n');
-        const existing=findClientNoteByTaskId(task.id);
-        if(existing){
-          if(!existing.text.includes(result)){
-            existing.text=(existing.text.trim()+'\n✅ Итог: '+result).trim();
-            existing.ts=Date.now();
-          }
-        }
-      }
-      save();renderSidebarPending();
-      if(result)toast('Задача закрыта — итог в заметках задачи и клиента');
-      else toast('Задача закрыта');
-    }
-    return;
-  }
   /* №64.1/65.2: название = имя карточки; заметки задачи = полный текст заметки клиента */
   const p=parseQuickAdd(newText);
   if(!p.time&&!p.template&&!p.dateFound)return;
@@ -3125,7 +3387,7 @@ function bindMobileDayList(d){
       if(!wasSet){mb.classList.add('bump');setTimeout(()=>mb.classList.remove('bump'),260);celebrateSubtask(mb,v==='success');playTick()}
       const wasDone=t.done;
       recomputeDone(t);
-      if(!wasDone&&t.done)syncTaskResultToClient(t);
+      if(!wasDone&&t.done)syncTaskToClient(t);
       save();
       if(!wasDone&&t.done)setTimeout(()=>render(),600);
       else if(wasDone&&!t.done)setTimeout(()=>render(),200);
@@ -3146,7 +3408,7 @@ function bindMobileDayList(d){
       const t=data.tasks.find(x=>x.id===id);
       if(!t)return;
       t.done=!t.done;
-      if(t.done)syncTaskResultToClient(t);
+      if(t.done)syncTaskToClient(t);
       save();
       const row=box.closest('.mobiledayrow');
       row.classList.toggle('done',t.done);
@@ -3535,7 +3797,7 @@ function openSubtaskNotePopup(anchorEl, t, si){
       lines.push(`${prefix} ${v}`);
     }
     t.note=lines.join('\n');
-    syncTaskResultToClient(t);
+    syncTaskToClient(t);
     save();
     close();
     delete window.__realHeights;
@@ -3552,14 +3814,38 @@ function bindTasks(){
       e.stopPropagation();
       openClientCardFromTask(t);
     });
-    el.querySelector('.check').onclick=e=>{
-      e.stopPropagation();const willBeDone=!t.done;t.done=willBeOnSafe(t,willBeDone);
-      if(willBeDone){celebrateTask(el);syncTaskResultToClient(t)}
-      save();
-      renderSidebarPending();
-      __widthOverrides={};delete window.__realHeights;
-      setTimeout(()=>render(),willBeDone?520:0);
-    };
+el.querySelector('.check').onclick=e=>{
+  e.stopPropagation();
+
+  const willBeDone=!t.done;
+
+  /* Если задача уже закрыта — снимаем галочку без окна итога. */
+  if(!willBeDone){
+    t.done=false;
+
+    save();
+    renderSidebarPending();
+
+    delete __widthOverrides[t.id];
+    delete window.__realHeights;
+
+    render();
+
+    return;
+  }
+
+  /* Если ставим галочку — итог спрашивается явно. */
+  askTaskFinalResult(t,()=>{
+    celebrateTask(el);
+
+    renderSidebarPending();
+
+    delete __widthOverrides[t.id];
+    delete window.__realHeights;
+
+    setTimeout(()=>render(),520);
+  });
+};
     el.querySelector('.tasktitle').onclick=()=>openModal(t.id);
     el.querySelector('[data-action="edit"]')?.addEventListener('click',()=>openModal(t.id));
     el.querySelector('[data-action="focus"]')?.addEventListener('click',()=>openFocusFor(t.id));
@@ -3613,7 +3899,7 @@ function bindTasks(){
 
         const wasTaskDone=t.done;
         recomputeDone(t);
-        syncTaskResultToClient(t);
+        syncTaskToClient(t);
         save();
 
         if(!wasTaskDone&&t.done){
@@ -3723,7 +4009,7 @@ function enableTaskDrag(){
         if(duration!==null)t.endTime=fmtMin(snapped+duration);
         delete __widthOverrides[t.id];
         delete window.__realHeights;
-        syncTaskResultToClient(t);
+        syncTaskToClient(t);
         save();
         render();
       };
@@ -3881,7 +4167,7 @@ function saveModal(){
     const t=data.tasks.find(x=>x.id===state.editing);
     Object.assign(t,{title,date,time,endTime,note,object,manager,subtasks:subs,clientName,clientId,clientFolderId});
     /* №62: комментарии после закрытия задачи доезжают в заметки клиента */
-    syncTaskResultToClient(t);
+    syncTaskToClient(t);
     delete window.__realHeights;save();closeModal();render();
     return;
   }
