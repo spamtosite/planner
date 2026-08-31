@@ -604,6 +604,18 @@ body.resizing iframe{pointer-events:none}
 
 /* Rich text notes */
 .rich-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:9px 0 7px;border-bottom:1px solid var(--line);margin-bottom:8px}.rich-chip{min-height:31px;padding:6px 11px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font-size:12px;font-weight:750;box-shadow:0 1px 2px #00000008;transition:transform .15s,background .15s,border-color .15s,color .15s}.rich-chip:hover{transform:translateY(-1px);background:#fff;border-color:#bcc5d0}.rich-chip.active{background:#e8f0ff;border-color:#2563eb;color:#1746a2;box-shadow:0 0 0 2px #2563eb20}.rich-chip[data-cmd="foreColor"][data-value="#dc2626"].active{background:#fee2e2;border-color:#dc2626;color:#991b1b}.rich-chip[data-cmd="foreColor"][data-value="#16a34a"].active{background:#dcfce7;border-color:#16a34a;color:#166534}.rich-chip[data-cmd="foreColor"][data-value="#2563eb"].active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}.rich-chip[data-cmd="hiliteColor"].active{background:#fef3c7;border-color:#f59e0b;color:#92400e}.rich-editor{min-height:88px;width:100%;border:1.5px solid var(--accent);border-radius:9px;padding:10px 11px;font:inherit;line-height:1.45;background:#fff;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none}.rich-source{display:none!important}.note-result-chip{display:grid;gap:3px;margin-top:10px;padding:10px 12px;border:1px solid #86efac;border-radius:11px;background:linear-gradient(135deg,#ecfdf3,#f0fdf4);box-shadow:0 3px 12px rgba(22,163,74,.10)}.note-result-chip .nr-label{font-size:10.5px;font-weight:850;letter-spacing:.05em;color:#15803d;text-transform:uppercase}.note-result-chip .nr-text{font-size:13px;font-weight:750;color:#166534;white-space:pre-wrap;overflow-wrap:anywhere}.tasknoteitem .rich-note{white-space:normal;overflow-wrap:anywhere}.rich-note mark{background:#fef08a;border-radius:3px;padding:0 1px}@media(max-width:680px){.rich-toolbar{gap:5px}.rich-chip{min-height:34px;padding:6px 9px}.rich-editor{font-size:15px;min-height:105px}}
+
+/* Mobile PWA: modal behaves as an app sheet, not a draggable web page. */
+html{overscroll-behavior-x:none}
+body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:none}
+@media(max-width:800px){
+  .overlay{align-items:flex-end!important;justify-content:center;padding:0!important;overflow:hidden;overscroll-behavior:contain;touch-action:pan-y;background:rgba(15,20,30,.48)}
+  .modal{width:100%!important;max-width:none!important;max-height:92dvh!important;margin:0;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;border-radius:24px 24px 0 0!important;padding:20px 16px max(18px,env(safe-area-inset-bottom))!important;box-shadow:0 -14px 42px rgba(0,0,0,.23);animation:mobileSheetIn .24s cubic-bezier(.22,.9,.3,1)}
+  .modal:before{content:"";display:block;width:42px;height:5px;border-radius:9px;background:#d1d5db;margin:0 auto 14px}
+  .modalfoot{position:sticky;bottom:calc(-1 * max(18px,env(safe-area-inset-bottom)));z-index:2;margin:18px -16px 0;padding:12px 16px max(12px,env(safe-area-inset-bottom));background:rgba(255,255,255,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .modalbuttons{margin-left:auto}
+}
+@keyframes mobileSheetIn{from{transform:translateY(28px);opacity:.6}to{transform:translateY(0);opacity:1}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -4383,5 +4395,26 @@ openModal=function(...args){
 const __renderFolderWithRich=renderFolderView;
 renderFolderView=function(...args){__renderFolderWithRich(...args);setTimeout(enhanceVisibleRichEditors,0)};
 new MutationObserver(()=>enhanceVisibleRichEditors()).observe(document.body,{childList:true,subtree:true});
+
+
+/* Mobile modal scroll lock: keeps the page behind the form completely still in iOS PWA. */
+let __modalScrollY=0;
+function lockAppBehindModal(){
+  if(document.body.classList.contains('modal-open'))return;
+  __modalScrollY=window.scrollY||window.pageYOffset||0;
+  document.body.classList.add('modal-open');
+  document.body.style.top=`-${__modalScrollY}px`;
+}
+function unlockAppBehindModal(){
+  if(!document.body.classList.contains('modal-open'))return;
+  document.body.classList.remove('modal-open');
+  document.body.style.top='';
+  window.scrollTo(0,__modalScrollY);
+}
+const __openModalAppSheet=openModal;
+openModal=function(...args){__openModalAppSheet(...args);lockAppBehindModal()};
+const __closeModalAppSheet=closeModal;
+closeModal=function(...args){__closeModalAppSheet(...args);unlockAppBehindModal()};
+$('overlay')?.addEventListener('touchmove',e=>{if(e.target===$('overlay'))e.preventDefault()},{passive:false});
 
 </script></body></html>
