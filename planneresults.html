@@ -4326,7 +4326,12 @@ if($('clientSearch')){
 /* ===== Rich notes: safe formatted text for tasks and client comments ===== */
 function normalizeNoteBreaks(value=''){
   let text=String(value||'');
-  for(let i=0;i<3;i++)text=text.replace(/&lt;br\s*\/?&gt;/gi,'\n').replace(/&amp;lt;br\s*\/?&amp;gt;/gi,'\n');
+  for(let i=0;i<3;i++){
+    text=text.replace(/&amp;lt;/gi,'&lt;').replace(/&amp;gt;/gi,'&gt;').replace(/&quot;/gi,'"');
+    text=text.replace(/&lt;br\s*\/?&gt;/gi,'\n');
+    // Восстанавливаем только разметку: затем sanitizeRichHtml отфильтрует всё лишнее.
+    text=text.replace(/&lt;([^<>]+)&gt;/g,'<$1>');
+  }
   return text;
 }
 function sanitizeRichHtml(value){
