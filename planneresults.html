@@ -748,8 +748,6 @@ const COL_GAP=8;
 const CRM_BASE='https://crm.elitesochi.com/crm/deal/show/';
 let __widthOverrides={};
 let __lastKnownPct=null;
-// Ширина задач пересчитывается из видимого текста после загрузки форматированных заметок.
-__widthOverrides={};
 function save(){
   localStorage.setItem(KEY,JSON.stringify(data));
   driveScheduleUpload();
@@ -1241,10 +1239,7 @@ let __measureCanvas=null;
 function textWidth(text,font){if(!__measureCanvas)__measureCanvas=document.createElement('canvas');const ctx=__measureCanvas.getContext('2d');ctx.font=font;return ctx.measureText(text).width}
 function visibleText(value=''){
   const node=document.createElement('div');
-  node.innerHTML=String(value)
-    .replace(/<br\s*\/?\s*>/gi,'\n')
-    .replace(/<\/div\s*>/gi,'\n')
-    .replace(/<div[^>]*>/gi,'');
+  node.innerHTML=String(value).replace(/<br\s*\/?\s*>/gi,'\n').replace(/<\/div\s*>/gi,'\n').replace(/<div[^>]*>/gi,'');
   return (node.textContent||node.innerText||'').replace(/\r/g,'').replace(/[^\S\n]+/g,' ').trim();
 }
 function naturalTaskWidth(t){
@@ -1254,16 +1249,9 @@ function naturalTaskWidth(t){
   const timeLabelW=timeLabel(t)?textWidth(visibleText(timeLabel(t)),'700 10.5px system-ui, sans-serif')+16:0;
   const objW=t.object?textWidth(visibleText(t.object),'600 10.5px system-ui, sans-serif')+16:0;
   const clientW=t.clientName?textWidth(visibleText(t.clientName),'700 10.5px system-ui, sans-serif')+40:0;
-  let maxNoteW=0;
-  visibleText(t.note||'').split('\n').map(x=>x.trim()).filter(Boolean).forEach(line=>{
-    const m=line.match(/^(\[.+?\])\s*(.*)$/);
-    const headW=m?textWidth(m[1],'700 10.5px system-ui, sans-serif')+100:0;
-    const bodyW=m?textWidth(m[2]||'','10.5px system-ui, sans-serif')+100:textWidth(line,'10.5px system-ui, sans-serif')+100;
-    maxNoteW=Math.max(maxNoteW,headW,bodyW);
-  });
+  let maxNoteW=0;visibleText(t.note||'').split('\n').map(x=>x.trim()).filter(Boolean).forEach(line=>{const m=line.match(/^(\[.+?\])\s*(.*)$/);maxNoteW=Math.max(maxNoteW,m?textWidth(m[1],'700 10.5px system-ui, sans-serif')+100:0,m?textWidth(m[2]||'','10.5px system-ui, sans-serif')+100:textWidth(line,'10.5px system-ui, sans-serif')+100)});
   const resultW=t.done&&t.resultText?textWidth(visibleText(t.resultText),'700 10.5px system-ui, sans-serif')+100:0;
-  const contentW=Math.max(titleW,maxSubW,timeLabelW,objW,clientW,maxNoteW,resultW);
-  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(contentW));
+  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleW,maxSubW,timeLabelW,objW,clientW,maxNoteW,resultW)));
 }
 
 function subHtml(t){
@@ -1582,9 +1570,11 @@ function fixupActualSizes(d){
     el.querySelectorAll('.subtext,.tasktitle,.taskmeta,.taskobj,.taskclient').forEach(node=>{if(node.scrollWidth>node.clientWidth+1){const overflowPx=node.scrollWidth-node.clientWidth;neededWidth=Math.max(neededWidth,currentWidth+overflowPx+4)}});
     el.querySelectorAll('.tasknotehead,.tasknotebody').forEach(node=>{
       const cs=getComputedStyle(node);
-      const w=textWidth(node.textContent,`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`);
       const pad=28;
-      if(w+pad>neededWidth)neededWidth=w+pad;
+      visibleText(node.innerHTML).split('\n').filter(Boolean).forEach(line=>{
+        const w=textWidth(line,`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`);
+        if(w+pad>neededWidth)neededWidth=w+pad;
+      });
     });
     if(neededWidth>currentWidth+1){__widthOverrides[id]=Math.ceil(neededWidth);changed=true}
   });
@@ -4358,7 +4348,7 @@ function renderRichText(value){
   return normal+(result?`<div class="note-result-chip"><span class="nr-label">✅ Итог</span><span class="nr-text">${sanitizeRichHtml(result).replace(/\n/g,'<br>')}</span></div>`:'');
 }
 fmtNotes=function(value){return renderRichText(value)};
-function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="hiliteColor" data-value="#fef08a">Маркер</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
+function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
 function enhanceRichTextarea(textarea,placeholder='Комментарий менеджера…'){
   if(!textarea||textarea.dataset.richReady)return;
   textarea.dataset.richReady='1';textarea.classList.add('rich-source');
@@ -4366,8 +4356,9 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
   wrap.innerHTML=richToolbar()+`<div class="rich-editor" contenteditable="true" data-placeholder="${placeholder}"></div>`;
   textarea.after(wrap);const editor=wrap.querySelector('.rich-editor');editor.innerHTML=sanitizeRichHtml(textarea.value).replace(/\n/g,'<br>');
   const sync=()=>{textarea.value=sanitizeRichHtml(editor.innerHTML)};
-  const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=document.queryCommandValue('foreColor').toLowerCase()===b.dataset.value;else if(b.dataset.cmd==='hiliteColor')on=document.queryCommandValue('hiliteColor').toLowerCase()===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
-  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;document.execCommand(cmd,false,btn.dataset.value||null);sync();refresh()}));
+  const normColor=value=>{const v=String(value||'').toLowerCase().replace(/\s/g,'');const map={'rgb(220,38,38)':'#dc2626','rgb(22,163,74)':'#16a34a','rgb(37,99,235)':'#2563eb','rgb(31,35,40)':'#1f2328','rgb(0,0,0)':'#000000'};return map[v]||v};
+  const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=normColor(document.queryCommandValue('foreColor'))===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
+  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;if(cmd==='foreColor'){const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}else document.execCommand(cmd,false,null);sync();refresh()}));
   editor.addEventListener('input',()=>{sync();refresh()});editor.addEventListener('keyup',refresh);editor.addEventListener('mouseup',refresh);editor.addEventListener('focus',refresh);
 }
 function enhanceVisibleRichEditors(){
