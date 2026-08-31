@@ -1237,18 +1237,23 @@ function playFocusEndChime(){
 }
 let __measureCanvas=null;
 function textWidth(text,font){if(!__measureCanvas)__measureCanvas=document.createElement('canvas');const ctx=__measureCanvas.getContext('2d');ctx.font=font;return ctx.measureText(text).width}
+function visibleText(value=''){
+  const node=document.createElement('div');
+  node.innerHTML=String(value).replace(/\n/g,'<br>');
+  return (node.textContent||node.innerText||'').replace(/\s+/g,' ').trim();
+}
 function naturalTaskWidth(t){
   if(__widthOverrides[t.id])return __widthOverrides[t.id];
-  const titleW=textWidth(t.title,'600 13px system-ui, sans-serif')+TITLE_ROW_CHROME;
-  let maxSubW=0;(t.subtasks||[]).forEach(s=>{const w=textWidth(s.title,'11px system-ui, sans-serif')+SUB_ROW_CHROME;if(w>maxSubW)maxSubW=w});
+  const titleW=textWidth(visibleText(t.title),'600 13px system-ui, sans-serif')+TITLE_ROW_CHROME;
+  let maxSubW=0;(t.subtasks||[]).forEach(s=>{const w=textWidth(visibleText(s.title),'11px system-ui, sans-serif')+SUB_ROW_CHROME;if(w>maxSubW)maxSubW=w});
   const timeLabelW=timeLabel(t)?textWidth(timeLabel(t),'700 10.5px system-ui, sans-serif')+16:0;
-  const objW=t.object?textWidth(t.object,'600 10.5px system-ui, sans-serif')+16:0;
-  const clientW=t.clientName?textWidth(t.clientName,'700 10.5px system-ui, sans-serif')+40:0;
+  const objW=t.object?textWidth(visibleText(t.object),'600 10.5px system-ui, sans-serif')+16:0;
+  const clientW=t.clientName?textWidth(visibleText(t.clientName),'700 10.5px system-ui, sans-serif')+40:0;
   let maxNoteW=0;
   (t.note?t.note.split('\n').filter(Boolean):[]).forEach(line=>{
     const m=line.match(/^(\[.+?\])\s*(.*)$/);
-    const headW=m?textWidth(m[1],'700 10.5px system-ui, sans-serif')+100:0;
-    const bodyW=m?textWidth(m[2]||'','10.5px system-ui, sans-serif')+100:textWidth(line,'10.5px system-ui, sans-serif')+100;
+    const headW=m?textWidth(visibleText(m[1]),'700 10.5px system-ui, sans-serif')+100:0;
+    const bodyW=m?textWidth(visibleText(m[2]||''),'10.5px system-ui, sans-serif')+100:textWidth(visibleText(line),'10.5px system-ui, sans-serif')+100;
     maxNoteW=Math.max(maxNoteW,headW,bodyW);
   });
   const contentW=Math.max(titleW, maxSubW, timeLabelW, objW, clientW, maxNoteW);
