@@ -1,7 +1,7 @@
 /* ПРАВКА №45: service worker — оффлайн-кеш приложения.
    При выкладке новой версии сборки меняй 'planner-v1' на 'planner-v2' и т.д. */
-const CACHE='planner-v20';
-const ASSETS=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./fav.png'];
+const CACHE='planner-v21';
+const ASSETS=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./fav.png','./planner.html'];
 self.addEventListener('install',e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting()));
 });
