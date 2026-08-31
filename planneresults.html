@@ -4326,7 +4326,6 @@ if($('clientSearch')){
 /* ===== Rich notes: safe formatted text for tasks and client comments ===== */
 function normalizeNoteBreaks(value=''){
   let text=String(value||'');
-  // Исправляет старые записи, где HTML-перенос был сохранён буквами &lt;br&gt;.
   for(let i=0;i<3;i++)text=text.replace(/&lt;br\s*\/?&gt;/gi,'\n').replace(/&amp;lt;br\s*\/?&amp;gt;/gi,'\n');
   return text;
 }
@@ -4354,6 +4353,7 @@ function renderRichText(value){
   return normal+(result?`<div class="note-result-chip"><span class="nr-label">✅ Итог</span><span class="nr-text">${sanitizeRichHtml(result).replace(/\n/g,'<br>')}</span></div>`:'');
 }
 fmtNotes=function(value){return renderRichText(value)};
+fmtNote=function(value){return renderRichText(value)};
 function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
 function enhanceRichTextarea(textarea,placeholder='Комментарий менеджера…'){
   if(!textarea||textarea.dataset.richReady)return;
