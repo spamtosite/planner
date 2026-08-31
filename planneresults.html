@@ -4324,8 +4324,14 @@ if($('clientSearch')){
 /* ================== /№59 ================== */
 
 /* ===== Rich notes: safe formatted text for tasks and client comments ===== */
+function normalizeNoteBreaks(value=''){
+  let text=String(value||'');
+  // Исправляет старые записи, где HTML-перенос был сохранён буквами &lt;br&gt;.
+  for(let i=0;i<3;i++)text=text.replace(/&lt;br\s*\/?&gt;/gi,'\n').replace(/&amp;lt;br\s*\/?&amp;gt;/gi,'\n');
+  return text;
+}
 function sanitizeRichHtml(value){
-  const box=document.createElement('div');box.innerHTML=String(value||'');
+  const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
   const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
@@ -4340,7 +4346,7 @@ function sanitizeRichHtml(value){
 }
 function richToPlain(value){const box=document.createElement('div');box.innerHTML=sanitizeRichHtml(value);return (box.innerText||'').trim()}
 function renderRichText(value){
-  const raw=String(value||'');
+  const raw=normalizeNoteBreaks(value);
   const match=raw.match(/(?:\n\n|<br><br>)(?:✅\s*)?Итог:\s*([\s\S]*)$/i);
   const main=match?raw.slice(0,match.index):raw;
   const result=match?match[1]:'';
@@ -4354,7 +4360,7 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
   textarea.dataset.richReady='1';textarea.classList.add('rich-source');
   const wrap=document.createElement('div');wrap.className='rich-wrap';
   wrap.innerHTML=richToolbar()+`<div class="rich-editor" contenteditable="true" data-placeholder="${placeholder}"></div>`;
-  textarea.after(wrap);const editor=wrap.querySelector('.rich-editor');editor.innerHTML=sanitizeRichHtml(textarea.value).replace(/\n/g,'<br>');
+  textarea.after(wrap);const editor=wrap.querySelector('.rich-editor');editor.innerHTML=sanitizeRichHtml(normalizeNoteBreaks(textarea.value)).replace(/\n/g,'<br>');
   const sync=()=>{textarea.value=sanitizeRichHtml(editor.innerHTML)};
   const normColor=value=>{const v=String(value||'').toLowerCase().replace(/\s/g,'');const map={'rgb(220,38,38)':'#dc2626','rgb(22,163,74)':'#16a34a','rgb(37,99,235)':'#2563eb','rgb(31,35,40)':'#1f2328','rgb(0,0,0)':'#000000'};return map[v]||v};
   const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=normColor(document.queryCommandValue('foreColor'))===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
