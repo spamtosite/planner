@@ -616,7 +616,7 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
   .modalbuttons{margin-left:auto}
 }
 @keyframes mobileSheetIn{from{transform:translateY(28px);opacity:.6}to{transform:translateY(0);opacity:1}}
-</style></head>
+.legaloverlay{position:fixed;inset:0;z-index:3000;background:#0008;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:18px}.legalcard{width:min(560px,100%);max-height:90dvh;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 30px 80px #0005}.legalcard p,.legalcard li{font-size:13px;line-height:1.45}.legalcheck,.storageoption{display:flex;gap:9px;padding:11px 0;font-size:13px}.storageoption{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.storageoption:has(input:checked){border-color:var(--accent);background:#eef4ff}.legalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.storagepanel{display:grid;gap:4px;padding:10px;margin:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12px}.storagepanel button{color:var(--accent);font-weight:700;text-align:left;padding:3px 0}@media(max-width:800px){.legaloverlay{align-items:flex-end;padding:0}.legalcard{width:100%;max-height:92dvh;border-radius:22px 22px 0 0;padding:20px 16px max(18px,env(safe-area-inset-bottom))}}</style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
     <input id="clientSearch" placeholder="🔍 Клиент, телефон или ID" autocomplete="off">
@@ -2252,124 +2252,6 @@ function openFirstCallModal(existing,forceEdit){
 document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
 /* ================== /анкета ================== */
 
-/* ================== ПРАВКА №27: AI-разбор звонка ================== */
-const AI_SETTINGS_KEY='daily_planner_ai_settings_v1';
-const AI_DEFAULT_MODEL='dots-studio/dots-3-note-preview:free';
-/* Security note: the OpenRouter API key is kept in localStorage in plaintext because this
-   is a fully client-side tool with no backend to proxy the request through. Anyone with
-   script access to this page (XSS) or to this browser profile can read it. Acceptable for
-   a single-operator internal tool; not acceptable if this is ever shared/multi-tenant —
-   in that case route the AI call through a small backend that holds the key instead. */
-function aiSettings(){try{return JSON.parse(localStorage.getItem(AI_SETTINGS_KEY))||{}}catch(e){return{}}}
-function aiSaveSettings(s){localStorage.setItem(AI_SETTINGS_KEY,JSON.stringify(s))}
-
-function openAiPopup(cl){
-  document.querySelectorAll('.aiask-overlay').forEach(o=>o.remove());
-  const st=aiSettings();
-  const pop=document.createElement('div');
-  pop.className='aiask-overlay';
-  pop.innerHTML=`<div class="aiask">
-    <div class="aiask-title">🤖 AI-разбор звонка<button class="cheadbtn" id="aiGear" title="Настройки">⚙</button></div>
-    <div id="aiSettingsRow" class="aiask-settings ${st.apiKey?'':'show'}">
-      <input id="aiKeyInput" type="password" placeholder="API-ключ OpenRouter (sk-or-v1-…)" value="${esc(st.apiKey||'')}">
-      <input id="aiModelInput" placeholder="Модель" value="${esc(st.model||AI_DEFAULT_MODEL)}">
-      <textarea id="aiPromptInput" placeholder="Промпт">${esc(st.prompt||'Ты ассистент риелтора. Преврати черновые записи о звонке с клиентом в краткую структурированную заметку: 1) Что произошло. 2) Потребности, объект, бюджет. 3) Следующий шаг (с датой/временем, если указаны). Пиши кратко по-русски, ничего не выдумывай.')}</textarea>
-      <button class="noteask-yes" id="aiSettingsSave" type="button">Сохранить настройки</button>
-    </div>
-    <div class="airow"><textarea id="aiRawInput" placeholder="Черновик: о чём говорили, что решил клиент, что дальше…"></textarea><button id="aiMicBtn" type="button" title="Диктовать (или звук с виртуального микрофона)">🎙</button></div>
-    <div class="aiask-result" id="aiResult" style="display:none"></div>
-    <div class="aiask-btns">
-      <button class="noteask-no" type="button" id="aiClose">Закрыть</button>
-      <button class="noteask-yes" type="button" id="aiRun">🤖 Разобрать</button>
-      <button class="noteask-yes" type="button" id="aiSaveNote" style="display:none">💾 Сохранить как заметку</button>
-    </div>
-  </div>`;
-  document.body.appendChild(pop);
-  let aiText='';
-  pop.addEventListener('click',e=>{if(e.target===pop)pop.remove()});
-  $('aiClose').onclick=()=>pop.remove();
-  $('aiGear').onclick=()=>$('aiSettingsRow').classList.toggle('show');
-  $('aiSettingsSave').onclick=()=>{
-    aiSaveSettings({apiKey:$('aiKeyInput').value.trim(),model:$('aiModelInput').value.trim(),prompt:$('aiPromptInput').value});
-    toast('Настройки AI сохранены');
-    $('aiSettingsRow').classList.remove('show');
-  };
-  $('aiRun').onclick=async()=>{
-    const raw=$('aiRawInput').value.trim();
-    if(!raw){toast('Введи черновик звонка');return}
-    const s=aiSettings();
-    if(!s.apiKey){toast('Сначала вставь API-ключ (⚙)');$('aiSettingsRow').classList.add('show');return}
-    const btn=$('aiRun');btn.disabled=true;btn.textContent='⏳ Думаю…';
-    try{
-      const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':'Bearer '+s.apiKey},
-        body:JSON.stringify({model:s.model||AI_DEFAULT_MODEL,messages:[
-          {role:'system',content:s.prompt||'Преврати записи в краткую структурированную заметку о клиенте.'},
-          {role:'user',content:raw}
-        ]})
-      });
-      const j=await res.json();
-      if(j.error)throw new Error(j.error.message||'Ошибка API');
-      aiText=((j.choices||[])[0]&&j.choices[0].message?j.choices[0].message.content:'').trim();
-      if(!aiText)throw new Error('Пустой ответ модели');
-      const r=$('aiResult');r.style.display='block';r.textContent=aiText;
-      $('aiSaveNote').style.display='';
-    }catch(err){
-      toast('AI: '+(err.message||'ошибка сети'));
-    }finally{
-      btn.disabled=false;btn.textContent='🤖 Разобрать';
-    }
-  };
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  const micBtn=$('aiMicBtn');
-  let rec=null,listening=false,aiBase='',wantStop=false,restartTimer=null;
-  if(!SR)micBtn.style.display='none';
-  else micBtn.onclick=()=>{
-    if(listening){wantStop=true;rec.stop();return}
-    wantStop=false;
-    rec=new SR();
-    rec.lang='ru-RU';rec.continuous=true;rec.interimResults=true;
-    rec.onstart=()=>{listening=true;aiBase=$('aiRawInput').value;micBtn.textContent='⏹';micBtn.classList.add('rec')};
-    rec.onresult=e=>{
-      let fin='',tmp='';
-      for(let i=e.resultIndex;i<e.results.length;i++){
-        if(e.results[i].isFinal)fin+=e.results[i][0].transcript+' ';
-        else tmp+=e.results[i][0].transcript;
-      }
-      if(fin)aiBase=(aiBase+' '+fin).trim();
-      $('aiRawInput').value=(aiBase+' '+tmp).trim();
-    };
-    rec.onend=()=>{
-      listening=false;
-      if(!wantStop){
-        restartTimer=setTimeout(()=>{
-          if(wantStop||!pop.isConnected)return;
-          try{rec.start()}catch(e){}
-        },300);
-      }
-      micBtn.textContent='🎙';micBtn.classList.remove('rec');
-      if(!wantStop&&pop.isConnected){micBtn.textContent='⏹';micBtn.classList.add('rec')}
-    };
-    rec.onerror=ev=>{
-      if(ev.error!=='no-speech'&&ev.error!=='aborted'&&ev.error!=='network')toast('Микрофон: '+ev.error);
-      if(ev.error==='not-allowed')wantStop=true;
-    };
-    rec.start();
-  };
-  $('aiClose').onclick=()=>{wantStop=true;clearTimeout(restartTimer);pop.remove()};
-  pop.addEventListener('click',e=>{if(e.target===pop){wantStop=true;clearTimeout(restartTimer);pop.remove()}});
-  $('aiSaveNote').onclick=()=>{
-    if(!aiText)return;
-    const nt={id:uid(),text:aiText,ts:Date.now(),ai:true};
-    cl.notes=cl.notes||[];
-    cl.notes.push(nt);
-    save();renderFolderView();pop.remove();
-    toast('AI-заметка сохранена');
-  };
-}
-/* ================== /AI-разбор ================== */
-
 function renderFolderView(){
   const f=data.clientFolders.find(x=>x.id===state.openFolderId);
   if(!f){state.view='day';setTabs();render();return}
@@ -2415,7 +2297,7 @@ function renderFolderView(){
         </div>`;
         const notesHtml=`<div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
-           <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button><button class="aibtn" data-ai="${c.id}" title="AI-разбор звонка">🤖</button></div>
+           <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
             ${notes.length?notes.slice().reverse().map(n=>{
               if(state.editingNoteId===n.id){
                 return `<div class="ccnoteitem">
@@ -2719,13 +2601,6 @@ function renderFolderView(){
     save();renderFolderView();
     maybeCreateTaskFromNote(cl.name, v, nt);
   };
-  document.querySelectorAll('[data-ai]').forEach(b=>{
-    b.onclick=(e)=>{
-      e.stopPropagation();
-      const cl=list.find(x=>x.id===b.dataset.ai);
-      if(cl)openAiPopup(cl);
-    };
-  });
   document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
   document.querySelectorAll('[data-note-edit]').forEach(b=>{
     b.onclick=()=>{
@@ -4223,8 +4098,8 @@ setInterval(()=>{
   if(document.visibilityState!=='visible')return;
   driveSilentReauth().then(ok=>{if(ok)driveAfterConnect()});
 },60000);
-driveInit();
-document.getElementById('driveConnectBtn').onclick=driveConnect;
+if(localStorage.getItem('daily_planner_storage_mode')==='drive')driveInit();
+document.getElementById('driveConnectBtn').onclick=requestDriveConnect;
 document.getElementById('driveStatus').style.cursor='pointer';
 document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
 
@@ -4417,4 +4292,4 @@ const __closeModalAppSheet=closeModal;
 closeModal=function(...args){__closeModalAppSheet(...args);unlockAppBehindModal()};
 $('overlay')?.addEventListener('touchmove',e=>{if(e.target===$('overlay'))e.preventDefault()},{passive:false});
 
-</script></body></html>
+const TERMS_VERSION='1.0';const TERMS=`<h2>Условия использования</h2><p>Приложение является локальным инструментом планирования и заметок. Разработчик не предоставляет централизованное серверное хранилище и не получает штатный доступ к задачам, клиентам, телефонам, заметкам или данным Google Drive пользователя.</p><p>Пользователь самостоятельно выбирает хранение на устройстве или синхронизацию со своим Google Drive, обязан иметь право вносить клиентские данные, соблюдать правила работодателя, защищать устройство и регулярно делать экспортные копии.</p><p>Приложение предоставляется «как есть». Разработчик не гарантирует абсолютную сохранность, конфиденциальность и бесперебойную работу устройства, браузера, PWA, сети или внешних сервисов. Ничто не исключает ответственность, которую нельзя исключить законом.</p>`;function legalBox(html){const p=document.createElement('div');p.className='legaloverlay';p.innerHTML=`<div class="legalcard">${html}</div>`;document.body.appendChild(p);return p}function showFirstRun(){const p=legalBox(`${TERMS}<label class="legalcheck"><input id="agree" type="checkbox">Я ознакомился(-лась) с условиями и принимаю их.</label><div class="legalactions"><button id="go" class="primary" disabled>Продолжить</button></div>`);p.querySelector('#agree').onchange=e=>p.querySelector('#go').disabled=!e.target.checked;p.querySelector('#go').onclick=()=>{localStorage.setItem('daily_planner_terms_accepted',TERMS_VERSION);p.remove();showStorageChoice()}}function showStorageChoice(){const p=legalBox(`<h2>Где хранить данные?</h2><label class="storageoption"><input type="radio" name="m" value="local" checked><span><b>💾 Только это устройство</b><br>Нет автоматической синхронизации ПК и телефона.</span></label><label class="storageoption"><input type="radio" name="m" value="drive"><span><b>☁ Мой Google Drive</b><br>Полная база синхронизируется с выбранным Google-аккаунтом.</span></label><div class="legalactions"><button id="saveMode" class="primary">Продолжить</button></div>`);p.querySelector('#saveMode').onclick=()=>{const m=p.querySelector('input:checked').value;localStorage.setItem('daily_planner_storage_mode',m);p.remove();renderStoragePanel();if(m==='drive')requestDriveConnect()}}function requestDriveConnect(){const p=legalBox(`<h2>☁ Подключение Google Drive</h2><p>В выбранный аккаунт будут синхронизироваться все данные ежедневника, включая клиентские карточки, телефоны, заметки и итоги.</p><label class="legalcheck"><input id="d" type="checkbox">Я самостоятельно принимаю это решение.</label><div class="legalactions"><button id="x" class="secondary">Отмена</button><button id="c" class="primary" disabled>Подключить</button></div>`);p.querySelector('#d').onchange=e=>p.querySelector('#c').disabled=!e.target.checked;p.querySelector('#x').onclick=()=>p.remove();p.querySelector('#c').onclick=()=>{p.remove();driveConnect()}}function renderStoragePanel(){let x=$('storagePanel');if(!x){x=document.createElement('div');x.id='storagePanel';x.className='storagepanel';document.querySelector('.sidebottom')?.prepend(x)}const m=localStorage.getItem('daily_planner_storage_mode')||'local';x.innerHTML=m==='drive'?`<b>☁ Google Drive</b><span>Полная синхронизация</span><button id="terms">⚖ Условия</button>`:`<b>💾 Локальное хранение</b><span>Только это устройство</span><button id="connect">Подключить Google Drive</button><button id="terms">⚖ Условия</button>`;x.querySelector('#terms').onclick=()=>{const p=legalBox(`${TERMS}<div class="legalactions"><button class="primary">Закрыть</button></div>`);p.querySelector('button').onclick=()=>p.remove()};x.querySelector('#connect')?.addEventListener('click',showStorageChoice)}setTimeout(()=>{renderStoragePanel();if(localStorage.getItem('daily_planner_terms_accepted')!==TERMS_VERSION)showFirstRun();else if(!localStorage.getItem('daily_planner_storage_mode'))showStorageChoice()},0);</script></body></html>
