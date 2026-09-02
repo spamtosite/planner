@@ -626,6 +626,7 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
   </div>
 <div class="brand">Мой ежедневник</div>
 <div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navObjects">Объекты</button><button id="navClients">Клиенты</button></div>
+<div class="sidebarfolders" id="objectSidebarFolders"></div>
 <div class="sidebarfolders" id="sidebarFolders"></div>
 <div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
@@ -2844,103 +2845,112 @@ function openClientCardFromTask(task){
 }
 
 function renderSidebarFolders(){
-  const wrap=$('sidebarFolders');
-  if(wrap){
-    if(!isMobileLayout()){
-      if(activeClientUi().foldersExpanded){
-        const items=(activeClientData().folders||[]).map(f=>{
-          const cnt=(activeClientData().items[f.id]||[]).length;
-          const active=state.view==='folder'&&activeClientUi().openFolderId===f.id;
-          const nameHtml=activeClientUi().renamingFolderId===f.id
-            ?`<input class="cnameedit" data-frenameinput value="${esc(f.name)}">`
-            /* ИЗМ (шаг 6): иконка папки по разделу */
-            :`${isObjectsSection()?'🏢':'📁'}<span class="sfname">${esc(f.name)}</span>`;
-          return `<div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}">${nameHtml}<span class="fcount">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" title="Переименовать папку">✎</button></div>`;
-        }).join('');
-        const addBlock=activeClientUi().addingFolderSidebar
-          ?`<div class="sidebarfolderadd"><input id="sfInput" placeholder="Название папки"><button id="sfOk">OK</button></div>`
-          :`<div class="sidebarfolderitem sfadd" id="sfAdd">＋ Новая папка</div>`;
-        wrap.innerHTML=items+addBlock;
-        wrap.querySelectorAll('[data-folder]').forEach(el=>{
-          el.onclick=(e)=>{
-            if(e.target.closest('[data-frename],[data-frenameinput]'))return;
-            openFolderView(el.dataset.folder);
-          };
-        });
-        const addBtn=$('sfAdd');
-        if(addBtn)addBtn.onclick=()=>{activeClientUi().addingFolderSidebar=true;renderSidebarFolders()};
-        const si=$('sfInput');
-        if(si){
-          const commit=()=>{
-            const v=si.value.trim();
-            if(v){activeClientData().folders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
-            activeClientUi().addingFolderSidebar=false;renderSidebarFolders();
-          };
-          $('sfOk').onclick=commit;
-          si.onkeydown=e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){activeClientUi().addingFolderSidebar=false;renderSidebarFolders()}};
-          si.focus();
-        }
-      }else{
-        wrap.innerHTML='';
-      }
-    }else{
-      wrap.innerHTML='';
+  /* ИЗМ: два независимых списка — клиенты в #sidebarFolders, объекты в #objectSidebarFolders */
+  const SECS={
+    primary:{folders:()=>data.clientFolders,items:()=>data.folderClients,ui:()=>state.clientPrimaryUi,icon:'📁'},
+    secondary:{folders:()=>data.objectFolders,items:()=>data.folderObjects,ui:()=>state.clientSecondaryUi,icon:'🏢'}
+  };
+  function renderDesktop(wrap,sec){
+    if(!wrap)return;
+    if(isMobileLayout()){wrap.innerHTML='';return}
+    const cfg=SECS[sec],ui=cfg.ui();
+    if(!ui.foldersExpanded){wrap.innerHTML='';return}
+    const folders=cfg.folders(),items=cfg.items();
+    const rows=(folders||[]).map(f=>{
+      const cnt=(items[f.id]||[]).length;
+      const active=state.view==='folder'&&ui.openFolderId===f.id;
+      const nameHtml=ui.renamingFolderId===f.id
+        ?`<input class="cnameedit" data-frenameinput="${sec}" value="${esc(f.name)}">`
+        :`${cfg.icon}<span class="sfname">${esc(f.name)}</span>`;
+      return `<div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}" data-fsec="${sec}">${nameHtml}<span class="fcount">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" data-fsec="${sec}" title="Переименовать папку">✎</button></div>`;
+    }).join('');
+    const addBlock=ui.addingFolderSidebar
+      ?`<div class="sidebarfolderadd"><input id="sfInput_${sec}" placeholder="Название папки"><button id="sfOk_${sec}">OK</button></div>`
+      :`<div class="sidebarfolderitem sfadd" id="sfAdd_${sec}">＋ Новая папка</div>`;
+    wrap.innerHTML=rows+addBlock;
+    wrap.querySelectorAll('[data-folder]').forEach(el=>{
+      el.onclick=(e)=>{
+        if(e.target.closest('[data-frename],[data-frenameinput]'))return;
+        state.clientSection=el.dataset.fsec;
+        openFolderView(el.dataset.folder);
+      };
+    });
+    const addBtn=wrap.querySelector(`#sfAdd_${sec}`);
+    if(addBtn)addBtn.onclick=()=>{ui.addingFolderSidebar=true;renderSidebarFolders()};
+    const si=wrap.querySelector(`#sfInput_${sec}`);
+    if(si){
+      const commit=()=>{
+        const v=si.value.trim();
+        if(v){folders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
+        ui.addingFolderSidebar=false;renderSidebarFolders();
+      };
+      wrap.querySelector(`#sfOk_${sec}`).onclick=commit;
+      si.onkeydown=e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){ui.addingFolderSidebar=false;renderSidebarFolders()}};
+      si.focus();
     }
   }
-  const mlist=$(state.clientSection==='secondary'?'mobileFoldersListSecondary':'mobileFoldersListPrimary');
-  if(mlist){
-    if(activeClientUi().mobileFoldersExpanded){
-      const items=(activeClientData().folders||[]).map(f=>{
-        const cnt=(activeClientData().items[f.id]||[]).length;
-        const nameHtml=activeClientUi().renamingFolderId===f.id
-          ?`<input class="cnameedit" data-frenameinput value="${esc(f.name)}">`
-          /* ИЗМ (шаг 6): иконка папки по разделу */
-          :`<span class="mobilesectionicon">${isObjectsSection()?'🏢':'📁'}</span><span class="mobilesectionlabel">${esc(f.name)}</span>`;
-        return `<div class="mobilesectionitem" data-mfolder="${f.id}" style="padding-left:30px">${nameHtml}<span class="mobilesectionarrow">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" title="Переименовать папку">✎</button></div>`;
-      }).join('');
-      const addBlock=activeClientUi().addingFolderMobile
-        ?`<div class="sidebarfolderadd" style="padding:8px 12px 8px 30px"><input id="mfInput" placeholder="Название папки"><button id="mfOk">OK</button></div>`
-        :`<div class="mobilesectionitem" id="mfAdd" style="padding-left:30px;color:var(--accent);cursor:pointer"><span class="mobilesectionicon">➕</span><span class="mobilesectionlabel">Новая папка</span></div>`;
-      mlist.innerHTML=items+addBlock;
-      mlist.querySelectorAll('[data-mfolder]').forEach(el=>{
-        el.onclick=(e)=>{
-          if(e.target.closest('[data-frename],[data-frenameinput]'))return;
-          openFolderView(el.dataset.mfolder);
-        };
-      });
-      const addBtn=$('mfAdd');
-      if(addBtn)addBtn.onclick=()=>{activeClientUi().addingFolderMobile=true;renderSidebarFolders()};
-      const mi=$('mfInput');
-      if(mi){
-        const commit=()=>{
-          const v=mi.value.trim();
-          if(v){activeClientData().folders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
-          activeClientUi().addingFolderMobile=false;renderSidebarFolders();
-        };
-        $('mfOk').onclick=commit;
-        mi.onkeydown=e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){activeClientUi().addingFolderMobile=false;renderSidebarFolders()}};
-        mi.focus();
-      }
-    }else{
-      mlist.innerHTML='';
+  function renderMobileList(mlist,sec){
+    if(!mlist)return;
+    const cfg=SECS[sec],ui=cfg.ui();
+    if(!ui.mobileFoldersExpanded){mlist.innerHTML='';return}
+    const folders=cfg.folders(),items=cfg.items();
+    const rows=(folders||[]).map(f=>{
+      const cnt=(items[f.id]||[]).length;
+      const nameHtml=ui.renamingFolderId===f.id
+        ?`<input class="cnameedit" data-frenameinput="${sec}" value="${esc(f.name)}">`
+        :`<span class="mobilesectionicon">${cfg.icon}</span><span class="mobilesectionlabel">${esc(f.name)}</span>`;
+      return `<div class="mobilesectionitem" data-mfolder="${f.id}" data-fsec="${sec}" style="padding-left:30px">${nameHtml}<span class="mobilesectionarrow">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" data-fsec="${sec}" title="Переименовать папку">✎</button></div>`;
+    }).join('');
+    const addBlock=ui.addingFolderMobile
+      ?`<div class="sidebarfolderadd" style="padding:8px 12px 8px 30px"><input id="mfInput_${sec}" placeholder="Название папки"><button id="mfOk_${sec}">OK</button></div>`
+      :`<div class="mobilesectionitem" id="mfAdd_${sec}" style="padding-left:30px;color:var(--accent);cursor:pointer"><span class="mobilesectionicon">➕</span><span class="mobilesectionlabel">Новая папка</span></div>`;
+    mlist.innerHTML=rows+addBlock;
+    mlist.querySelectorAll('[data-mfolder]').forEach(el=>{
+      el.onclick=(e)=>{
+        if(e.target.closest('[data-frename],[data-frenameinput]'))return;
+        state.clientSection=el.dataset.fsec;
+        openFolderView(el.dataset.mfolder);
+      };
+    });
+    const addBtn=mlist.querySelector(`#mfAdd_${sec}`);
+    if(addBtn)addBtn.onclick=()=>{ui.addingFolderMobile=true;renderSidebarFolders()};
+    const mi=mlist.querySelector(`#mfInput_${sec}`);
+    if(mi){
+      const commit=()=>{
+        const v=mi.value.trim();
+        if(v){folders.push({id:uid(),name:v});save();toast(`Папка «${v}» создана`)}
+        ui.addingFolderMobile=false;renderSidebarFolders();
+      };
+      mlist.querySelector(`#mfOk_${sec}`).onclick=commit;
+      mi.onkeydown=e=>{if(e.key==='Enter')commit();if(e.key==='Escape'){ui.addingFolderMobile=false;renderSidebarFolders()}};
+      mi.focus();
     }
   }
+  renderDesktop($('sidebarFolders'),'primary');
+  renderDesktop($('objectSidebarFolders'),'secondary');
+  renderMobileList($('mobileFoldersListPrimary'),'primary');
+  renderMobileList($('mobileFoldersListSecondary'),'secondary');
   document.querySelectorAll('[data-frename]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
-      activeClientUi().renamingFolderId=b.dataset.frename;
+      state.clientSection=b.dataset.fsec||state.clientSection;
+      const ui=state.clientSection==='secondary'?state.clientSecondaryUi:state.clientPrimaryUi;
+      ui.renamingFolderId=b.dataset.frename;
       renderSidebarFolders();
     };
   });
   const fri=document.querySelector('[data-frenameinput]');
   if(fri){
+    const sec=fri.dataset.frenameinput||'primary';
+    const ui=sec==='secondary'?state.clientSecondaryUi:state.clientPrimaryUi;
+    const folders=sec==='secondary'?data.objectFolders:data.clientFolders;
     const commitF=()=>{
-      const fo=activeClientData().folders.find(x=>x.id===activeClientUi().renamingFolderId);
+      const fo=folders.find(x=>x.id===ui.renamingFolderId);
       if(fo&&fri.value.trim()){fo.name=fri.value.trim();save();if(state.view==='folder')renderFolderView()}
-      activeClientUi().renamingFolderId=null;
+      ui.renamingFolderId=null;
       renderSidebarFolders();
     };
-    fri.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();commitF()}if(e.key==='Escape'){activeClientUi().renamingFolderId=null;renderSidebarFolders()}};
+    fri.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();commitF()}if(e.key==='Escape'){ui.renamingFolderId=null;renderSidebarFolders()}};
     fri.onblur=commitF;
     fri.onclick=e=>e.stopPropagation();
     setTimeout(()=>{fri.focus();fri.select()},30);
@@ -4033,7 +4043,7 @@ function quick(){
  $('navToday').onclick=()=>{state.date=new Date();state.view='day';setTabs();render()};
  $('navCalendar').onclick=()=>{state.view='month';setTabs();render()};
  $('navMonthGoals').onclick=()=>{state.view='monthgoals';setTabs();render()};
- $('navClients').onclick=()=>{state.clientSection='primary';activeClientUi().foldersExpanded=!activeClientUi().foldersExpanded;renderSidebarFolders()};
+ $('navClients').onclick=()=>{state.clientPrimaryUi.foldersExpanded=!state.clientPrimaryUi.foldersExpanded;renderSidebarFolders()};
 const SIDEBAR_W_KEY='daily_planner_sidebar_w';
 const SIDEBAR_MIN=190,SIDEBAR_MAX=480;
 (function(){
@@ -4365,7 +4375,7 @@ closeModal=function(...args){__closeModalAppSheet(...args);unlockAppBehindModal(
 const TERMS_VERSION='1.0';const TERMS=`<h2>Условия использования</h2><p>Приложение является локальным инструментом планирования и заметок. Разработчик не предоставляет централизованное серверное хранилище и не получает штатный доступ к задачам, клиентам, телефонам, заметкам или данным Google Drive пользователя.</p><p>Пользователь самостоятельно выбирает хранение на устройстве или синхронизацию со своим Google Drive, обязан иметь право вносить клиентские данные, соблюдать правила работодателя, защищать устройство и регулярно делать экспортные копии.</p><p>Приложение предоставляется «как есть». Разработчик не гарантирует абсолютную сохранность, конфиденциальность и бесперебойную работу устройства, браузера, PWA, сети или внешних сервисов. Ничто не исключает ответственность, которую нельзя исключить законом.</p>`;function legalBox(html){const p=document.createElement('div');p.className='legaloverlay';p.innerHTML=`<div class="legalcard">${html}</div>`;document.body.appendChild(p);return p}function showFirstRun(){const p=legalBox(`${TERMS}<label class="legalcheck"><input id="agree" type="checkbox">Я ознакомился(-лась) с условиями и принимаю их.</label><div class="legalactions"><button id="go" class="primary" disabled>Продолжить</button></div>`);p.querySelector('#agree').onchange=e=>p.querySelector('#go').disabled=!e.target.checked;p.querySelector('#go').onclick=()=>{localStorage.setItem('daily_planner_terms_accepted',TERMS_VERSION);p.remove();showStorageChoice()}}function showStorageChoice(){const p=legalBox(`<h2>Где хранить данные?</h2><label class="storageoption"><input type="radio" name="m" value="local" checked><span><b>💾 Только это устройство</b><br>Нет автоматической синхронизации ПК и телефона.</span></label><label class="storageoption"><input type="radio" name="m" value="drive"><span><b>☁ Мой Google Drive</b><br>Полная база синхронизируется с выбранным Google-аккаунтом.</span></label><div class="legalactions"><button id="saveMode" class="primary">Продолжить</button></div>`);p.querySelector('#saveMode').onclick=()=>{const m=p.querySelector('input:checked').value;localStorage.setItem('daily_planner_storage_mode',m);p.remove();renderStoragePanel();if(m==='drive')requestDriveConnect()}}function requestDriveConnect(){const p=legalBox(`<h2>☁ Подключение Google Drive</h2><p>В выбранный аккаунт будут синхронизироваться все данные ежедневника, включая клиентские карточки, телефоны, заметки и итоги.</p><label class="legalcheck"><input id="d" type="checkbox">Я самостоятельно принимаю это решение.</label><div class="legalactions"><button id="x" class="secondary">Отмена</button><button id="c" class="primary" disabled>Подключить</button></div>`);p.querySelector('#d').onchange=e=>p.querySelector('#c').disabled=!e.target.checked;p.querySelector('#x').onclick=()=>p.remove();p.querySelector('#c').onclick=()=>{p.remove();driveConnect()}}function renderStoragePanel(){let x=$('storagePanel');if(!x){x=document.createElement('div');x.id='storagePanel';x.className='storagepanel';document.querySelector('.sidebottom')?.prepend(x)}const m=localStorage.getItem('daily_planner_storage_mode')||'local';x.innerHTML=m==='drive'?`<b>☁ Google Drive</b><span>Полная синхронизация</span><button id="terms">⚖ Условия</button>`:`<b>💾 Локальное хранение</b><span>Только это устройство</span><button id="connect">Подключить Google Drive</button><button id="terms">⚖ Условия</button>`;x.querySelector('#terms').onclick=()=>{const p=legalBox(`${TERMS}<div class="legalactions"><button class="primary">Закрыть</button></div>`);p.querySelector('button').onclick=()=>p.remove()};x.querySelector('#connect')?.addEventListener('click',showStorageChoice)}setTimeout(()=>{renderStoragePanel();if(localStorage.getItem('daily_planner_terms_accepted')!==TERMS_VERSION)showFirstRun();else if(!localStorage.getItem('daily_planner_storage_mode'))showStorageChoice()},0);
 
 /* ================== РАЗДЕЛ «ОБЪЕКТЫ» (ИЗМ, шаг 10: новый вместо старого скрытого) ================== */
- $('navObjects').onclick=()=>{state.clientSection='secondary';activeClientUi().foldersExpanded=!activeClientUi().foldersExpanded;renderSidebarFolders()};
+ $('navObjects').onclick=()=>{state.clientSecondaryUi.foldersExpanded=!state.clientSecondaryUi.foldersExpanded;renderSidebarFolders()};
 
 /* Даталист «Объект (ЖК)» в модалке задачи */
 document.addEventListener('focusin',e=>{
