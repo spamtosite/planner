@@ -16,9 +16,11 @@
 :root{--bg:#f5f6f8;--panel:#fff;--text:#1f2328;--muted:#737a83;--line:#e6e8eb;--accent:#2563eb;--green:#16a34a;--danger:#dc2626;--shadow:0 8px 30px rgba(0,0,0,.07);--rowh:44px}
 *{box-sizing:border-box}body{margin:0;font:14px/1.4 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);background:var(--bg)}
 button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;background:none;color:inherit}
-.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:235px;background:#111827;color:#fff;padding:18px 14px;display:flex;flex-direction:column;gap:8px}.brand{font-size:19px;font-weight:700;padding:6px 10px 18px}.nav button{width:100%;text-align:left;padding:10px 12px;border-radius:8px;color:#d1d5db}.nav button.active,.nav button:hover{background:#263142;color:#fff}.navgroup{display:flex;flex-direction:column;gap:2px}
-.navbtn{width:100%;text-align:left;padding:10px 12px;border-radius:8px;color:#d1d5db}
-.navbtn:hover{background:#263142;color:#fff}.sidebottom{margin-top:auto;color:#9ca3af;font-size:12px;padding:10px}
+.app{display:flex;height:100vh;overflow:hidden}.sidebar{width:235px;background:#111827;color:#fff;padding:18px 14px;display:flex;flex-direction:column;gap:8px}.brand{font-size:19px;font-weight:700;padding:6px 10px 18px}.nav button{width:100%;text-align:left;padding:10px 12px;border-radius:8px;color:#d1d5db}.nav button.active,.nav button:hover{background:#263142;color:#fff}
+.navgroup{display:flex;flex-direction:column;gap:2px}
+.navbtn{width:100%;text-align:left;padding:10px 12px;border-radius:8px;color:var(--muted)}
+.navbtn:hover{background:var(--line);color:var(--text)}
+.navbtn.active{background:var(--line);color:var(--accent)}
 .backupbar{display:flex;gap:6px;padding:0 10px 8px}
 .backupbtn{flex:1;padding:7px 4px;border-radius:8px;background:#263142;color:#d1d5db;font-size:11.5px;font-weight:600;text-align:center;transition:background .15s ease}
 .backupbtn:hover{background:#31405a}
@@ -2858,9 +2860,10 @@ function renderSidebarFolders(){
     const cfg=SECS[sec],ui=cfg.ui();
     if(!ui.foldersExpanded){wrap.innerHTML='';return}
     const folders=cfg.folders(),items=cfg.items();
+    const secActive=state.view==='folder'&&(sec==='secondary'?state.clientSection==='secondary':state.clientSection==='primary');
     const rows=(folders||[]).map(f=>{
       const cnt=(items[f.id]||[]).length;
-      const active=state.view==='folder'&&ui.openFolderId===f.id;
+      const active=secActive&&state.view==='folder'&&ui.openFolderId===f.id;
       const nameHtml=ui.renamingFolderId===f.id
         ?`<input class="cnameedit" data-frenameinput="${sec}" value="${esc(f.name)}">`
         :`${cfg.icon}<span class="sfname">${esc(f.name)}</span>`;
@@ -2957,6 +2960,11 @@ function renderSidebarFolders(){
     fri.onclick=e=>e.stopPropagation();
     setTimeout(()=>{fri.focus();fri.select()},30);
   }
+    const objBtn=document.getElementById('navObjects');
+  const cliBtn=document.getElementById('navClients');
+  const folderViewActive=state.view==='folder';
+  if(objBtn)objBtn.classList.toggle('active',folderViewActive&&state.clientSection==='secondary');
+  if(cliBtn)cliBtn.classList.toggle('active',folderViewActive&&state.clientSection==='primary');
 }
 /* ================== /РАЗДЕЛ «КЛИЕНТЫ» / «ОБЪЕКТЫ» ================== */
   /* ================== МОБИЛЬНЫЙ СПИСОК ДНЯ ================== */
