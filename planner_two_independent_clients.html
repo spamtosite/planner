@@ -621,7 +621,23 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
   .modalbuttons{margin-left:auto}
 }
 @keyframes mobileSheetIn{from{transform:translateY(28px);opacity:.6}to{transform:translateY(0);opacity:1}}
-.legaloverlay{position:fixed;inset:0;z-index:3000;background:#0008;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:18px}.legalcard{width:min(560px,100%);max-height:90dvh;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 30px 80px #0005}.legalcard p,.legalcard li{font-size:13px;line-height:1.45}.legalcheck,.storageoption{display:flex;gap:9px;padding:11px 0;font-size:13px}.storageoption{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.storageoption:has(input:checked){border-color:var(--accent);background:#eef4ff}.legalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.storagepanel{display:grid;gap:4px;padding:10px;margin:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12px}.storagepanel button{color:var(--accent);font-weight:700;text-align:left;padding:3px 0}@media(max-width:800px){.legaloverlay{align-items:flex-end;padding:0}.legalcard{width:100%;max-height:92dvh;border-radius:22px 22px 0 0;padding:20px 16px max(18px,env(safe-area-inset-bottom))}}</style></head>
+.legaloverlay{position:fixed;inset:0;z-index:3000;background:#0008;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:18px}.legalcard{width:min(560px,100%);max-height:90dvh;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 30px 80px #0005}.legalcard p,.legalcard li{font-size:13px;line-height:1.45}.legalcheck,.storageoption{display:flex;gap:9px;padding:11px 0;font-size:13px}.storageoption{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.storageoption:has(input:checked){border-color:var(--accent);background:#eef4ff}.legalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.storagepanel{display:grid;gap:4px;padding:10px;margin:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12px}.storagepanel button{color:var(--accent);font-weight:700;text-align:left;padding:3px 0}@media(max-width:800px){.legaloverlay{align-items:flex-end;padding:0}.legalcard{width:100%;max-height:92dvh;border-radius:22px 22px 0 0;padding:20px 16px max(18px,env(safe-area-inset-bottom))}}
+/* Строки «очередь—срок» и «площадь—цена» */
+.rowpair{display:flex;gap:6px;align-items:center}
+.rowpair input{border:1px solid #d9dde2;border-radius:7px;padding:7px 9px;font-size:12.5px;background:#fff;min-width:0;flex:1;box-sizing:border-box}
+.rowpair.rowadd input{border-style:dashed}
+.ccnoteadd-btn{flex:0 0 auto;white-space:nowrap;background:var(--accent);color:#fff;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600}
+/* Телефонные пины */
+.phonepins{display:flex;flex-direction:column;gap:6px}
+.phonewrap{display:grid;gap:6px}
+.phonepin{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:999px;background:linear-gradient(135deg,#eef4ff,#e6efff);border:1px solid #d7e4ff;max-width:100%}
+.pp-ico{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#0a84ff);color:#fff;display:grid;place-items:center;font-size:14px;flex:0 0 auto;box-shadow:0 2px 6px rgba(37,99,235,.35)}
+.pp-body{display:flex;flex-direction:column;min-width:0;flex:1;gap:1px}
+.pp-mgr-input{border:0;background:transparent;font-size:11px;font-weight:700;color:#1d4ed8;padding:1px 4px;border-radius:6px;width:100%;min-width:0}
+.pp-mgr-input::placeholder{color:#94b5f0;font-weight:600}
+.pp-mgr-input:focus{outline:none;background:#fff;box-shadow:0 0 0 1.5px var(--accent)}
+.pp-num{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:#1f2328;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+</style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
     <input id="clientSearch" placeholder="🔍 Клиент, объект, телефон или ID" autocomplete="off">
@@ -2099,6 +2115,8 @@ function fcMoneyFull(v){
   if(!m)return '';
   return (parseFloat(m)*1e6).toLocaleString('ru-RU')+' ₽';
 }
+function parseRub(v){const d=String(v||'').replace(/\D/g,'');if(!d)return 0;return parseInt(d,10)}
+function fmtRub(v){v=parseInt(v,10);if(!v)return '';return v.toLocaleString('ru-RU')}
 function openFirstCallModal(existing,forceEdit){
   document.querySelectorAll('.fcreq-overlay').forEach(o=>o.remove());
   const viewMode=!!(existing&&!forceEdit);
@@ -2295,6 +2313,14 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
       const off=open?((lookupCityTz(c.city)!==null)?lookupCityTz(c.city):parseTzOffset(c.tz)):null;
       let cardHtml='';
       if(open){
+          if(OBJ){
+          let mig=false;
+          if(c.deadline&&!Array.isArray(c.deadlines)){c.deadlines=[{id:uid(),label:'',val:String(c.deadline)}];delete c.deadline;mig=true}
+          if(c.priceFrom&&!Array.isArray(c.prices)){const mm=parseFloat(String(c.priceFrom).replace(',','.'));c.prices=[{id:uid(),area:'',val:isFinite(mm)&&mm>0?Math.round(mm*1e6):0}];delete c.priceFrom;mig=true}
+          if(!Array.isArray(c.deadlines)){c.deadlines=[];mig=true}
+          if(!Array.isArray(c.prices)){c.prices=[];mig=true}
+          if(mig)save();
+        }
         const cityTime=(off!==null)?`<span class="cty-time" data-citytime="${off}">${clientTimeStr(off)}</span>`:'';
         /* ИЗМ (шаг 5.4): у объекта — задачи по полю object */
         const linkedTasks=(OBJ
@@ -2313,21 +2339,31 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
               <span class="cctaskdate">${t.date?`${t.date.slice(8,10)}.${t.date.slice(5,7)}`:''}${t.time?' '+esc(t.time):''}</span>
               <span class="cctaskname">${esc(t.title)}</span>
             </div>`).join('')}</div></div>`:'';
-        const phonesHtml=`<div class="ccnotesection"><div class="cctitle">Телефоны</div>
+        const phonesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Телефоны отдела продаж':'Телефоны'}</div>
+          <div class="phonepins">
           ${phones.map(p=>`
-            <div class="ccphoneitem">
-              <div class="ccphonetop">
-                <span class="ccphoneval">${esc(p.val)}</span>
+            <div class="phonewrap">
+              <div class="phonepin">
+                <span class="pp-ico">📞</span>
+                <span class="pp-body">
+                  <input class="pp-mgr-input" data-pmgr="${c.id}:${p.id}" value="${esc(p.mgr||'')}" placeholder="Имя менеджера">
+                  <span class="pp-num">${esc(p.val)}</span>
+                </span>
                 <button class="ccminibtn" data-phonecopy="${c.id}:${p.id}" title="Скопировать номер">📋</button>
-                <button class="ccminibtn" data-phonedel="${c.id}:${p.id}" title="Удалить номер">✕</button>
+                <button class="ccminibtn" data-phonedel="${c.id}:${p.id}" title="Удалить">✕</button>
               </div>
               ${isMobileLayout()?`
-                <div class="ccphonebot">
-                  <input class="prefixinput" data-prefixfor="${c.id}:${p.id}" placeholder="Префикс (необяз.)">
-                  <button class="cvcbtn" data-vcard="${c.id}:${p.id}">📱 В контакты</button>
-                </div>`:''}
+              <div class="ccphonebot">
+                <input class="prefixinput" data-prefixfor="${c.id}:${p.id}" placeholder="Префикс (необяз.)">
+                <button class="cvcbtn" data-vcard="${c.id}:${p.id}">📱 В контакты</button>
+              </div>`:''}
             </div>`).join('')}
-          <div class="ccnoteadd"><input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 79111111111 / 9111111111"><button data-phoneadd="${c.id}">Добавить</button></div>
+          </div>
+          <div class="rowpair rowadd">
+            <input id="ppNewMgr" placeholder="Имя менеджера" style="flex:0 0 130px">
+            <input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 9111111111">
+            <button class="ccnoteadd-btn" data-phoneadd="${c.id}">＋ Добавить</button>
+          </div>
         </div>`;
         const notesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'}</div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
@@ -2353,14 +2389,14 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <label class="citylab">${OBJ?'Город / район':'Город'}<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
             ${OBJ?`
             <label>Застройщик<input data-cf="developer" data-cid="${c.id}" value="${esc(c.developer||'')}" placeholder="Застройщик"></label>
-            <label>Срок сдачи<input data-cf="deadline" data-cid="${c.id}" value="${esc(c.deadline||'')}" placeholder="напр. IV кв. 2025"></label>
-            <label>Цена от<input data-cf="priceFrom" data-cid="${c.id}" data-money="1" value="${c.priceFrom?fcMoneyFull(c.priceFrom):''}" placeholder="Цена от, млн"></label>
             `:`
             <label>Бюджет<input data-cf="budget" data-cid="${c.id}" data-money="1" value="${c.budget?fcMoneyFull(c.budget):''}" placeholder="Бюджет, млн"></label>
             <label>ПВ<input data-cf="pv" data-cid="${c.id}" data-money="1" value="${c.pv?fcMoneyFull(c.pv):''}" placeholder="ПВ, млн"></label>
             <label>ID сделки в CRM<input data-cf="crmid" data-cid="${c.id}" value="${esc(c.crmid||'')}" inputmode="numeric" placeholder="напр. 2525138"></label>
             `}
           </div>
+          ${deadlinesHtml}
+          ${pricesHtml}
           ${tasksHtml}
           ${phonesHtml}
           ${notesHtml}
@@ -2400,7 +2436,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     const v=inp.value.trim();if(!v)return;
     /* ИЗМ (шаг 5.3): структура новой записи зависит от раздела */
     folderClientsOf(f.id).push(OBJ
-      ?{id:uid(),name:v,city:'',developer:'',deadline:'',priceFrom:'',tz:'',phones:[],notes:[]}
+      ?{id:uid(),name:v,city:'',developer:'',deadlines:[],prices:[],tz:'',phones:[],notes:[]}
       :{id:uid(),name:v,city:'',tz:'',tzAuto:null,realty:'',budget:'',pv:'',phones:[],notes:[]});
     save();renderFolderView();renderSidebarFolders();
   };
@@ -2604,7 +2640,9 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     if(!norm){toast('Введите корректный номер');return}
     cl.phones=cl.phones||[];
     if(cl.phones.some(p=>p.digits===norm.digits)){toast('Такой номер уже есть');return}
-    cl.phones.push({id:uid(),val:norm.val,digits:norm.digits});
+    const mgrEl=$('ppNewMgr');
+    const mgr=mgrEl?mgrEl.value.trim():'';
+    cl.phones.push({id:uid(),val:norm.val,digits:norm.digits,mgr});
     save();renderFolderView();
   };
   document.querySelectorAll('[data-phoneadd]').forEach(b=>{b.onclick=()=>addPhone(b.dataset.phoneadd)});
@@ -2770,6 +2808,69 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
         save();renderFolderView();
       }
     };
+  });
+        /* Сроки сдачи: редактирование и удаление строк */
+  document.querySelectorAll('[data-dl-label]').forEach(inp=>{
+    const apply=()=>{const [cid,did]=inp.dataset.dlLabel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const dl=(cl.deadlines||[]).find(x=>x.id===did);if(!dl)return;const v=inp.value.trim();if(dl.label!==v){dl.label=v;save()}};
+    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
+  });
+  document.querySelectorAll('[data-dl-val]').forEach(inp=>{
+    const apply=()=>{const [cid,did]=inp.dataset.dlVal.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const dl=(cl.deadlines||[]).find(x=>x.id===did);if(!dl)return;const v=inp.value.trim();if(dl.val!==v){dl.val=v;save()}};
+    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
+  });
+  document.querySelectorAll('[data-dl-del]').forEach(b=>{
+    b.onclick=(e)=>{e.stopPropagation();const [cid,did]=b.dataset.dlDel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;cl.deadlines=(cl.deadlines||[]).filter(x=>x.id!==did);save();renderFolderView()};
+  });
+  document.querySelectorAll('[data-dl-add]').forEach(b=>{
+    b.onclick=()=>{
+      const cl=list.find(x=>x.id===b.dataset.dlAdd);if(!cl)return;
+      const label=($('dlNewLabel')?.value||'').trim();
+      const val=($('dlNewVal')?.value||'').trim();
+      if(!label&&!val){toast('Укажите очередь и срок');return}
+      cl.deadlines=cl.deadlines||[];cl.deadlines.push({id:uid(),label,val});
+      save();renderFolderView();
+    };
+  });
+  const dlValEnter=$('dlNewVal');
+  if(dlValEnter)dlValEnter.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector(`[data-dl-add="${activeClientUi().openClientId}"]`)?.click()}};
+  /* Цены: редактирование с форматированием */
+  document.querySelectorAll('[data-pr-area]').forEach(inp=>{
+    const apply=()=>{const [cid,pid]=inp.dataset.prArea.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const pr=(cl.prices||[]).find(x=>x.id===pid);if(!pr)return;const v=inp.value.trim();if(pr.area!==v){pr.area=v;save()}};
+    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
+  });
+  document.querySelectorAll('[data-pr-val]').forEach(inp=>{
+    inp.addEventListener('focus',()=>{inp.value=inp.dataset.prRaw||''});
+    const apply=()=>{
+      const v=parseRub(inp.value);
+      inp.dataset.prRaw=String(v);
+      inp.value=v?fmtRub(v):'';
+      const [cid,pid]=inp.dataset.prVal.split(':');
+      const cl=list.find(x=>x.id===cid);if(!cl)return;
+      const pr=(cl.prices||[]).find(x=>x.id===pid);if(!pr)return;
+      if(pr.val!==v){pr.val=v;save()}
+    };
+    inp.addEventListener('blur',apply);inp.addEventListener('change',apply);
+    inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
+  });
+  document.querySelectorAll('[data-pr-del]').forEach(b=>{
+    b.onclick=(e)=>{e.stopPropagation();const [cid,pid]=b.dataset.prDel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;cl.prices=(cl.prices||[]).filter(x=>x.id!==pid);save();renderFolderView()};
+  });
+  document.querySelectorAll('[data-pr-add]').forEach(b=>{
+    b.onclick=()=>{
+      const cl=list.find(x=>x.id===b.dataset.prAdd);if(!cl)return;
+      const area=($('prNewArea')?.value||'').trim();
+      const val=parseRub($('prNewVal')?.value||'');
+      if(!area&&!val){toast('Укажите площадь и цену');return}
+      cl.prices=cl.prices||[];cl.prices.push({id:uid(),area,val});
+      save();renderFolderView();
+    };
+  });
+  const prValEnter=$('prNewVal');
+  if(prValEnter)prValEnter.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector(`[data-pr-add="${activeClientUi().openClientId}"]`)?.click()}};
+  /* Имя менеджера у телефона — правка на месте */
+  document.querySelectorAll('[data-pmgr]').forEach(inp=>{
+    const apply=()=>{const [cid,pid]=inp.dataset.pmgr.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const p=(cl.phones||[]).find(x=>x.id===pid);if(!p)return;const v=inp.value.trim();if(p.mgr!==v){p.mgr=v;save()}};
+    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
   });
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
