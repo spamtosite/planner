@@ -2365,6 +2365,32 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <button class="ccnoteadd-btn" data-phoneadd="${c.id}">＋ Добавить</button>
           </div>
         </div>`;
+                const deadlinesHtml=OBJ?`<div class="ccnotesection"><div class="cctitle">Сроки сдачи</div>
+          ${(c.deadlines||[]).map(dl=>`
+            <div class="rowpair">
+              <input data-dl-label="${c.id}:${dl.id}" value="${esc(dl.label||'')}" placeholder="Очередь" style="flex:0 0 130px">
+              <input data-dl-val="${c.id}:${dl.id}" value="${esc(dl.val||'')}" placeholder="Срок (напр. I кв. 2026)">
+              <button class="ccminibtn" data-dl-del="${c.id}:${dl.id}" title="Удалить строку">✕</button>
+            </div>`).join('')}
+          <div class="rowpair rowadd">
+            <input id="dlNewLabel" placeholder="Очередь" style="flex:0 0 130px">
+            <input id="dlNewVal" placeholder="Срок (напр. I кв. 2026)">
+            <button class="ccnoteadd-btn" data-dl-add="${c.id}">＋ Добавить</button>
+          </div>
+        </div>`:'';
+        const pricesHtml=OBJ?`<div class="ccnotesection"><div class="cctitle">Цены</div>
+          ${(c.prices||[]).map(pr=>`
+            <div class="rowpair">
+              <input data-pr-area="${c.id}:${pr.id}" value="${esc(pr.area||'')}" placeholder="Площадь, м²" style="flex:0 0 130px">
+              <input data-pr-val="${c.id}:${pr.id}" data-pr-raw="${pr.val||0}" value="${pr.val?fmtRub(pr.val):''}" placeholder="Цена, ₽">
+              <button class="ccminibtn" data-pr-del="${c.id}:${pr.id}" title="Удалить строку">✕</button>
+            </div>`).join('')}
+          <div class="rowpair rowadd">
+            <input id="prNewArea" placeholder="Площадь, м²" style="flex:0 0 130px">
+            <input id="prNewVal" placeholder="Цена, ₽">
+            <button class="ccnoteadd-btn" data-pr-add="${c.id}">＋ Добавить</button>
+          </div>
+        </div>`:'';
         const notesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'}</div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
            <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
