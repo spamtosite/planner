@@ -1881,6 +1881,7 @@ function renderMonthGoals(){
 /* ИЗМ (шаг 3): починена рекурсия — primary=клиенты, secondary=объекты */
 function activeClientData(){return state.clientSection==='secondary'?{folders:data.objectFolders,items:data.folderObjects}:{folders:data.clientFolders,items:data.folderClients}}
 function isObjectsSection(){return state.clientSection==='secondary'}
+function activeClientUi(){return state.clientSection==='secondary'?state.clientSecondaryUi:state.clientPrimaryUi}
 
 function folderClientsOf(fid){activeClientData().items[fid]=activeClientData().items[fid]||[];return activeClientData().items[fid]}
 
