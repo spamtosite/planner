@@ -2505,6 +2505,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     document.querySelectorAll('[data-dragclient]').forEach(head=>{
       head.addEventListener('mousedown',e=>{
         if(e.target.closest('button,input'))return;
+        const pn=document.getElementById('ccNoteInput');
+        try{pn&&pn.__richSync&&pn.__richSync()}catch(e){}
         const cid=head.dataset.dragclient;
         const cl=list.find(x=>x.id===cid);
         if(!cl)return;
@@ -2737,6 +2739,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
   }
   const addNote=(cid)=>{
     const cl=list.find(x=>x.id===cid);if(!cl)return;
+    try{noteInput.__richSync&&noteInput.__richSync()}catch(e){}
     const v=noteInput.value.trim();if(!v)return;
     const nt={id:uid(),text:v,ts:Date.now()};
     cl.notes=cl.notes||[];
@@ -2765,6 +2768,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
       const nt=(cl.notes||[]).find(n=>n.id===nid);if(!nt)return;
       const ta=document.querySelector(`[data-noteedit-ta="${nid}"]`);
       if(!ta)return;
+      try{ta.__richSync&&ta.__richSync()}catch(e){}
       const newText=ta.value.trim();
       if(!newText){toast('Заметка не может быть пустой');return}
       nt.text=newText;nt.edited=true;save();
@@ -4500,13 +4504,28 @@ function normalizeNoteBreaks(value=''){
 }
 function sanitizeRichHtml(value){
   const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
-  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT']);
+  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL']);
   const allowedColors=new Set(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb']);
+  const allowedBgs=new Set(['rgb(254, 240, 138)','#fef08a','rgb(253, 224, 71)']);
+  const aligns=new Set(['left','center','right','justify']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
-    const color=(el.style.color||el.getAttribute('color')||'').toLowerCase();
+    const keep={};
+    const color=(el.style.color||el.getAttribute('color')||'').toLowerCase().replace(/\s+/g,' ');
+    if(allowedColors.has(color)||allowedColors.has(color.replace(/\s/g,'')))keep.color=allowedColors.has(color)?color:color.replace(/\s/g,'');
+    const bg=(el.style.backgroundColor||'').toLowerCase().replace(/\s+/g,' ');
+    if(allowedBgs.has(bg))keep.backgroundColor=bg;
+    const align=(el.style.textAlign||'').toLowerCase();
+    if(aligns.has(align))keep.textAlign=align;
+    const fw=el.style.fontWeight;
+    if(fw==='bold'||fw==='700')keep.fontWeight='700';
+    const fs=el.style.fontStyle;
+    if(fs==='italic')keep.fontStyle='italic';
+    const td=el.style.textDecorationLine||el.style.textDecoration;
+    if(/underline/.test(td))keep.textDecoration='underline';
+    if(/line-through/.test(td))keep.textDecoration='line-through';
     [...el.attributes].forEach(a=>el.removeAttribute(a.name));
-    if((el.tagName==='SPAN'||el.tagName==='FONT')&&allowedColors.has(color))el.style.color=color;
+    Object.entries(keep).forEach(([k,v])=>el.style[k]=v);
   });
   return box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
 }
@@ -4529,6 +4548,7 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
   wrap.innerHTML=richToolbar()+`<div class="rich-editor" contenteditable="true" data-placeholder="${placeholder}"></div>`;
   textarea.after(wrap);const editor=wrap.querySelector('.rich-editor');editor.innerHTML=sanitizeRichHtml(normalizeNoteBreaks(textarea.value)).replace(/\n/g,'<br>');
   const sync=()=>{textarea.value=sanitizeRichHtml(editor.innerHTML)};
+  textarea.__richSync=sync;
   const normColor=value=>{const v=String(value||'').toLowerCase().replace(/\s/g,'');const map={'rgb(220,38,38)':'#dc2626','rgb(22,163,74)':'#16a34a','rgb(37,99,235)':'#2563eb','rgb(31,35,40)':'#1f2328','rgb(0,0,0)':'#000000'};return map[v]||v};
   const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=normColor(document.queryCommandValue('foreColor'))===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
   wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;if(cmd==='foreColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e){}const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}else document.execCommand(cmd,false,null);sync();refresh()}));
