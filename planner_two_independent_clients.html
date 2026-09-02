@@ -632,17 +632,17 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 .phonewrap{display:grid;gap:6px}
 .phonepin{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:14px;background:linear-gradient(135deg,#ecfdf5,#d5f5e3);border:1px solid #b9ecd2;max-width:100%}
 .pp-body{display:flex;flex-direction:row;align-items:center;min-width:0;flex:1;gap:8px}
-.pp-mgr-input{border:0;background:transparent;font-size:11.5px;font-weight:700;color:#047857;padding:1px 4px;border-radius:6px;width:100%;min-width:0}
+.pp-mgr-input{border:0;background:transparent;font-size:12.5px;font-weight:700;color:#047857;padding:1px 4px;border-radius:6px;width:100%;min-width:0}
 .pp-mgr-input::placeholder{color:#5ecb96;font-weight:600}
 .pp-mgr-input:focus{outline:none;background:#fff;box-shadow:0 0 0 1.5px #10b981}
-.pp-num{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:#065f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;flex:0 0 auto}
+.pp-num{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:#065f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;flex:0 0 auto}
 /* Ценовые чипы */
 .pricechips{display:flex;flex-wrap:wrap;gap:6px}
 .pricechip{display:inline-flex;align-items:baseline;gap:5px;padding:5px 8px 5px 10px;border-radius:12px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;max-width:100%}
-.pc-area{font-size:11px;font-weight:800;color:#c2410c;white-space:nowrap}
-.pc-area::after{content:" м²";font-weight:600;font-size:9.5px;opacity:.75}
+.pc-area{font-size:13px;font-weight:800;color:#c2410c;white-space:nowrap}
+.pc-area::after{content:" м²";font-weight:600;font-size:10.5px;opacity:.75}
 .pc-sep{color:#fdba74;font-weight:700}
-.pc-val{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums;color:#9a3412;white-space:nowrap}
+.pc-val{font-size:14.5px;font-weight:800;font-variant-numeric:tabular-nums;color:#9a3412;white-space:nowrap}
 .pricechip .ccminibtn{width:16px;height:16px;font-size:8px;background:transparent;border:1px solid #fed7aa;color:#c2410c;align-self:center}
 .pricechip .ccminibtn:hover{background:#fed7aa;color:#9a3412}
 .priceadd{display:flex;gap:6px;align-items:center;margin-top:6px}
@@ -2405,9 +2405,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
           <div class="pricechips">
           ${(c.prices||[]).map(pr=>`
             <span class="pricechip">
-              ${pr.area?`<span class="pc-area">${esc(pr.area)}</span><span class="pc-sep">·</span>`:''}
+              ${pr.area?`<span class="pc-area" data-pr-area="${c.id}:${pr.id}" data-pr-arearaw="${esc(pr.area)}" title="Изменить площадь" style="cursor:text">${esc(pr.area)}</span><span class="pc-sep">·</span>`:''}
               <span class="pc-val" data-pr-val="${c.id}:${pr.id}" data-pr-raw="${pr.val||0}" title="Изменить цену">${pr.val?fmtRub(pr.val):'цена?'}</span>
-              ${pr.area?`<span class="pc-area" data-pr-area="${c.id}:${pr.id}" data-pr-arearaw="${esc(pr.area)}" title="Изменить площадь" style="cursor:text">${esc(pr.area)}</span>`:''}
               <button class="ccminibtn" data-pr-del="${c.id}:${pr.id}" title="Удалить">✕</button>
             </span>`).join('')}
           ${(c.prices||[]).length?'':'<span class="folderempty" style="padding:0">Цен пока нет</span>'}
