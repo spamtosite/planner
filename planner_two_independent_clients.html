@@ -129,7 +129,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .clientname{font-size:12.5px;font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .clientremove{padding:0;width:16px;height:16px;border-radius:50%;background:#e5e7eb;color:#6b7280;font-size:10px;display:grid;place-items:center;flex:0 0 auto;opacity:0;transition:opacity .2s ease,background .2s ease}
 .clientchip:hover .clientremove{opacity:1}
-.clientremove:hover{background:#fecaca;color:#991b1b}
+  .clientremove:hover{background:#fecaca;color:#991b1b}
 .clientaddchip{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:12px;background:transparent;border:1.5px dashed #c7cdd6;color:var(--accent);font-size:12.5px;font-weight:600;transition:background .2s ease,border-color .2s ease}
 .clientaddchip:hover{background:#eef4ff;border-color:var(--accent)}
 .clientaddform{display:flex;align-items:center;gap:6px}
@@ -280,7 +280,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
   .mobilebacklink{display:none}
   .app.mobile-showing-detail .mobilebacklink{display:inline-flex}
 }
-@media(max-width:800px){
+  @media(max-width:800px){
   .top{flex-wrap:wrap;height:auto;min-height:70px;row-gap:8px}
   .viewtabs{order:5;width:100%;margin:0 0 4px}
   .viewtabs button{flex:1;text-align:center}
@@ -497,7 +497,7 @@ body.task-dragging{user-select:none;-webkit-user-select:none}
   .clientcard .ccgrid label.citylab{grid-column:1/-1}
   .clientcard{padding:12px 10px}
 }
-.cheadbtn{width:24px;height:24px;border-radius:6px;background:#f1f3f5;color:#6b7280;font-size:12px;display:grid;place-items:center;flex:0 0 auto;padding:0}
+  .cheadbtn{width:24px;height:24px;border-radius:6px;background:#f1f3f5;color:#6b7280;font-size:12px;display:grid;place-items:center;flex:0 0 auto;padding:0}
 .cheadbtn:hover{background:#e2e6ea;color:var(--text)}
 .cnameedit{flex:1;min-width:0;border:1.5px solid var(--accent);border-radius:7px;padding:5px 8px;font-size:13.5px;font-weight:600}
 .ccphoneitem{background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 10px}
@@ -620,13 +620,13 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 .legaloverlay{position:fixed;inset:0;z-index:3000;background:#0008;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;padding:18px}.legalcard{width:min(560px,100%);max-height:90dvh;overflow:auto;background:#fff;border-radius:20px;padding:22px;box-shadow:0 30px 80px #0005}.legalcard p,.legalcard li{font-size:13px;line-height:1.45}.legalcheck,.storageoption{display:flex;gap:9px;padding:11px 0;font-size:13px}.storageoption{border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer}.storageoption:has(input:checked){border-color:var(--accent);background:#eef4ff}.legalactions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.storagepanel{display:grid;gap:4px;padding:10px;margin:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:12px}.storagepanel button{color:var(--accent);font-weight:700;text-align:left;padding:3px 0}@media(max-width:800px){.legaloverlay{align-items:flex-end;padding:0}.legalcard{width:100%;max-height:92dvh;border-radius:22px 22px 0 0;padding:20px 16px max(18px,env(safe-area-inset-bottom))}}</style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
-    <input id="clientSearch" placeholder="🔍 Клиент, телефон или ID" autocomplete="off">
+    <input id="clientSearch" placeholder="🔍 Клиент, объект, телефон или ID" autocomplete="off">
     <button id="clientSearchClear" title="Очистить">✕</button>
     <div class="searchresults" id="clientSearchResults"></div>
   </div>
 <div class="brand">Мой ежедневник</div>
-<div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navObjects">Клиенты</button><button id="navClients">Клиенты</button></div>
-<div class="sidebarfolders" id="objectSidebarFolders" style="display:none"></div><div class="sidebarfolders" id="sidebarFolders"></div>
+<div class="nav"><button id="navToday" class="active">Сегодня</button><button id="navCalendar">Календарь</button><button id="navMonthGoals">Задачи на месяц</button><button id="navObjects">Объекты</button><button id="navClients">Клиенты</button></div>
+<div class="sidebarfolders" id="sidebarFolders"></div>
 <div class="sidebarpending" id="sidebarPending"></div>
 <div class="backupbar">
   <button class="backupbtn" id="exportBtn">⬇ Экспорт</button>
@@ -704,7 +704,6 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 Проверить результат"></textarea></div>
 </div><div class="modalfoot"><button class="danger hidden" id="deleteBtn">Удалить</button>
 <button class="danger hidden" id="deleteSeriesBtn">Удалить всю серию</button><div class="modalbuttons"><button class="secondary" id="cancelBtn">Отмена</button><button class="primary" id="saveBtn">Сохранить</button></div></div><div class="modalhint">Esc или «Отмена» — закрыть без сохранения</div></div></div>
-
 <div class="overlay" id="tplOverlay"><div class="tplmodal">
   <h2 style="margin:0 0 16px">Шаблоны быстрого ввода</h2>
   <div class="tpllist" id="tplList"></div>
@@ -730,6 +729,8 @@ data.folderClients=data.folderClients||{};
 data.clientFolders2=data.clientFolders2||[];
 data.folderClients2=data.folderClients2||{};
 data.monthGoals=data.monthGoals||{};
+data.objectFolders=data.objectFolders||[];
+data.folderObjects=(data.folderObjects&&typeof data.folderObjects==='object')?data.folderObjects:{};
 /* ПРАВКА №33: надгробия удалённых — merge не воскрешает удалённое */
 data.tombstones=data.tombstones||{};
 function addTombstones(arr){
@@ -780,7 +781,6 @@ let __driveKnownModTime=null;
 let __driveSyncTimer=null;
 let __drivePollTimer=null;
 let __driveSyncing=false;
-let __driveConnected=false;
 let __drivePendingUpload=false;
 let __driveDirty=false;
 let __lastMetaCheck=0;
@@ -1011,6 +1011,8 @@ function driveMergeData(localData,remoteData){
     folderClients:driveMergeFolderClients(localData.folderClients,remoteData.folderClients),
     clientFolders2:driveMergeArraysById(localData.clientFolders2||[],remoteData.clientFolders2||[]),
     folderClients2:driveMergeFolderClients(localData.folderClients2||{},remoteData.folderClients2||{}),
+    objectFolders:driveMergeArraysById(localData.objectFolders||[],remoteData.objectFolders||[]),
+    folderObjects:driveMergeFolderClients(localData.folderObjects,remoteData.folderObjects),
     monthGoals:driveMergeMonthGoals(localData.monthGoals,remoteData.monthGoals),
     tombstones:mergedTom
   };
@@ -1034,6 +1036,7 @@ async function driveDownloadAndMerge(){
   data.clientChecks=data.clientChecks||{};data.templates=data.templates||[];
   data.clientFolders=data.clientFolders||[];data.folderClients=data.folderClients||{};
   data.monthGoals=data.monthGoals||{};data.tombstones=data.tombstones||{};
+  data.objectFolders=data.objectFolders||[];data.folderObjects=data.folderObjects||{};
   __driveKnownModTime=remoteModTime;
   localStorage.setItem(KEY,JSON.stringify(data));
   delete window.__realHeights;
@@ -1080,8 +1083,7 @@ function driveScheduleUpload(){
   clearTimeout(__driveSyncTimer);
   __driveSyncTimer=setTimeout(()=>{if(__drivePendingUpload||__driveDirty)driveUpload()},500);
 }
-
-function driveStartPolling(){
+  function driveStartPolling(){
   clearInterval(__drivePollTimer);
   __drivePollTimer=setInterval(()=>{
     if(document.visibilityState==='visible')driveCheckForUpdates();
@@ -1376,7 +1378,8 @@ function openKeyClientCard(keyClientId){
     }
   }
   if(!folderId){toast('Карточка клиента не найдена');return}
-  state.openClientId=clientId;
+  state.clientSection='primary';
+  activeClientUi().openClientId=clientId;
   openFolderView(folderId);
 }
 
@@ -1459,7 +1462,7 @@ function viewHeadHtml(leftHtml,noNav){
 function dayLeftTitle(d){
   return `<span class="datebig">${ruDFull[d.getDay()]} ${pad(d.getDate())}.${pad(d.getMonth()+1)}.${d.getFullYear()}</span>`;
 }
-function bindViewHead(){
+  function bindViewHead(){
   const tm=$('todayBtnM');
   if(tm)tm.onclick=()=>$('navToday').click();
   document.querySelectorAll('.viewtabs button').forEach(b=>b.onclick=()=>{
@@ -1874,9 +1877,10 @@ function renderMonthGoals(){
 }
 /* ================== /ЗАДАЧИ НА МЕСЯЦ ================== */
 
-/* ================== РАЗДЕЛ «КЛИЕНТЫ» ================== */
-function activeClientData(){return state.clientSection==='secondary'?{folders:activeClientData().folders2,items:activeClientData().items2}:{folders:activeClientData().folders,items:activeClientData().items}}
-function activeClientUi(){return state.clientSection==='secondary'?state.clientSecondaryUi:state.clientPrimaryUi}
+/* ================== РАЗДЕЛ «КЛИЕНТЫ» / «ОБЪЕКТЫ» ================== */
+/* ИЗМ (шаг 3): починена рекурсия — primary=клиенты, secondary=объекты */
+function activeClientData(){return state.clientSection==='secondary'?{folders:data.objectFolders,items:data.folderObjects}:{folders:data.clientFolders,items:data.folderClients}}
+function isObjectsSection(){return state.clientSection==='secondary'}
 
 function folderClientsOf(fid){activeClientData().items[fid]=activeClientData().items[fid]||[];return activeClientData().items[fid]}
 
@@ -1928,8 +1932,9 @@ function maybeCreateTaskFromNote(clientName,text,note){
     const tid=uid();
     const subtasks=p.template?(p.template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
     let _cf=null,_cid=null;
-    for(const fid in activeClientData().items){
-      const found=(activeClientData().items[fid]||[]).find(x=>x.name===clientName);
+    /* ИЗМ (шаг 4.3): поиск только по клиентам */
+    for(const fid in data.folderClients){
+      const found=(data.folderClients[fid]||[]).find(x=>x.name===clientName);
       if(found){_cf=fid;_cid=found.id;break}
     }
     data.tasks.push({id:tid,title:fullTitle,date:p.date,time:p.time,endTime:p.endTime,
@@ -1941,10 +1946,10 @@ function maybeCreateTaskFromNote(clientName,text,note){
     render();
   };
 }
-
-function findClientNoteByTaskId(taskId){
-  for(const fid in activeClientData().items){
-    for(const c of (activeClientData().items[fid]||[])){
+  function findClientNoteByTaskId(taskId){
+  /* ИЗМ (шаг 4.1): всегда по клиентам */
+  for(const fid in data.folderClients){
+    for(const c of (data.folderClients[fid]||[])){
       const nt=(c.notes||[]).find(n=>n.taskId===taskId);
       if(nt)return nt;
     }
@@ -1952,13 +1957,14 @@ function findClientNoteByTaskId(taskId){
   return null;
 }
 function findClientByTask(task){
+  /* ИЗМ (шаг 4.2): всегда по клиентам */
   if(task.clientFolderId&&task.clientId){
-    const c=(activeClientData().items[task.clientFolderId]||[]).find(x=>x.id===task.clientId);
+    const c=(data.folderClients[task.clientFolderId]||[]).find(x=>x.id===task.clientId);
     if(c)return c;
   }
   if(task.clientName){
-    for(const fid in activeClientData().items){
-      const c=(activeClientData().items[fid]||[]).find(x=>x.name===task.clientName);
+    for(const fid in data.folderClients){
+      const c=(data.folderClients[fid]||[]).find(x=>x.name===task.clientName);
       if(c)return c;
     }
   }
@@ -2048,9 +2054,10 @@ const FC_NEW_FOLDER='Новые';
 const FC_SINGLE=['kids','kids7','dpr'];
 const FC_SCRIPT_KEY='daily_planner_fc_script';
 
+/* ИЗМ (шаг 4.6): всегда в клиентские папки */
 function fcEnsureNewFolder(){
-  let f=activeClientData().folders.find(x=>x.name===FC_NEW_FOLDER);
-  if(!f){f={id:uid(),name:FC_NEW_FOLDER};activeClientData().folders.push(f)}
+  let f=data.clientFolders.find(x=>x.name===FC_NEW_FOLDER);
+  if(!f){f={id:uid(),name:FC_NEW_FOLDER};data.clientFolders.push(f)}
   return f;
 }
 function fcBuildName(fc){
@@ -2064,13 +2071,15 @@ function fcBuildName(fc){
   else if(p)money=`ПВ ${p} млн.`;
   return [fc.name,fc.city,codes.join(' '),money].filter(Boolean).join(' ');
 }
+/* ИЗМ (шаг 4.6): секция-зависимый перенос */
 function fcMoveClient(client,fromFid,toFid){
   if(fromFid===toFid)return;
-  activeClientData().items[fromFid]=(activeClientData().items[fromFid]||[]).filter(x=>x.id!==client.id);
+  const items=isObjectsSection()?data.folderObjects:data.folderClients;
+  items[fromFid]=(items[fromFid]||[]).filter(x=>x.id!==client.id);
   addTombstones([client]);
   const copy=JSON.parse(JSON.stringify(client));copy.id=uid();
-  (activeClientData().items[toFid]=activeClientData().items[toFid]||[]).push(copy);
-  data.tasks.forEach(t=>{if(t.clientId===client.id&&t.clientFolderId===fromFid){t.clientId=copy.id;t.clientFolderId=toFid}});
+  (items[toFid]=items[toFid]||[]).push(copy);
+  if(!isObjectsSection())data.tasks.forEach(t=>{if(t.clientId===client.id&&t.clientFolderId===fromFid){t.clientId=copy.id;t.clientFolderId=toFid}});
 }
 function fcParseMillions(v){
   const s=String(v||'').replace(/\s|\u00A0/g,'').replace('₽','').replace('млн','');
@@ -2101,10 +2110,12 @@ function openFirstCallModal(existing,forceEdit){
     return `<button type="button" class="fcchip ${on?'on':''}" data-grp="${grp}" data-val="${esc(k)}" ${dis}>${esc(lbl)}${cd?`<span class="fcl">${cd}</span>`:''}</button>`;
   }).join('');
   let folderOpts=`<option value="__new__" ${!existing?'selected':''}>📁 ${FC_NEW_FOLDER} (авто)</option>`;
-  activeClientData().folders.forEach(f=>{folderOpts+=`<option value="${f.id}" ${existing&&existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`});
+  /* ИЗМ (шаг 4.6): data.clientFolders */
+  data.clientFolders.forEach(f=>{folderOpts+=`<option value="${f.id}" ${existing&&existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`});
   let moveSel='';
   if(existing&&!viewMode){
-    let moveOpts=activeClientData().folders.map(f=>`<option value="${f.id}" ${existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`).join('');
+    /* ИЗМ (шаг 4.6): data.clientFolders */
+    let moveOpts=data.clientFolders.map(f=>`<option value="${f.id}" ${existing.folderId===f.id?'selected':''}>📁 ${esc(f.name)}</option>`).join('');
     moveSel=`<div class="fcsec"><div class="fcsec-t">Переместить в папку</div><select id="fcMoveSel">${moveOpts}</select></div>`;
   }
   const pop=document.createElement('div');
@@ -2228,9 +2239,11 @@ function openFirstCallModal(existing,forceEdit){
         existing.client.firstCall=fc;
         const moveSel=$('fcMoveSel');
         if(moveSel&&moveSel.value!==existing.folderId){
-          const target=activeClientData().folders.find(x=>x.id===moveSel.value);
+          /* ИЗМ (шаг 4.6): data.clientFolders */
+          const target=data.clientFolders.find(x=>x.id===moveSel.value);
           fcMoveClient(existing.client,existing.folderId,moveSel.value);
           save();
+          state.clientSection='primary';
           activeClientUi().openClientId=existing.client.id;
           openFolderView(moveSel.value);
           renderSidebarFolders();
@@ -2245,9 +2258,11 @@ function openFirstCallModal(existing,forceEdit){
         let targetId=selVal==='__new__'?fcEnsureNewFolder().id:selVal;
         const cl={id:uid(),name:fcBuildName(fc),city:fc.city,budget:fc.budget,pv:fc.pv,tz:'',phones:[],notes:[],firstCall:fc};
         if(fc.phone){const norm=normalizePhone(fc.phone);cl.phones.push({id:uid(),val:norm?norm.val:fc.phone,digits:norm?norm.digits:fc.phone.replace(/\D/g,'')})}
-        folderClientsOf(targetId).push(cl);
+        /* ИЗМ (шаг 4.6): всегда в клиентов */
+        (data.folderClients[targetId]=data.folderClients[targetId]||[]).push(cl);
         save();
-        const target=activeClientData().folders.find(x=>x.id===targetId);
+        const target=data.clientFolders.find(x=>x.id===targetId);
+        state.clientSection='primary';
         activeClientUi().openClientId=cl.id;
         openFolderView(targetId);
         toast(`«${fc.name}» добавлен в папку «${target?target.name:''}»`);
@@ -2259,12 +2274,13 @@ function openFirstCallModal(existing,forceEdit){
 }
 document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
 /* ================== /анкета ================== */
-
-function renderFolderView(){
+  function renderFolderView(){
   const f=activeClientData().folders.find(x=>x.id===activeClientUi().openFolderId);
   if(!f){state.view='day';setTabs();render();return}
   const list=folderClientsOf(f.id);
-  $('pageTitle').textContent=`📁 ${f.name}`;
+  const OBJ=isObjectsSection(); /* ИЗМ (шаг 5.1) */
+  const secIcon=OBJ?'🏢':'📁';
+  $('pageTitle').textContent=`${secIcon} ${f.name}`;
   const itemsHtml=list.length
     ?list.map(c=>{
       const open=activeClientUi().openClientId===c.id;
@@ -2274,13 +2290,17 @@ function renderFolderView(){
       let cardHtml='';
       if(open){
         const cityTime=(off!==null)?`<span class="cty-time" data-citytime="${off}">${clientTimeStr(off)}</span>`:'';
-        const linkedTasks=tasksOfClient(c,f.id).sort((a,b)=>{
+        /* ИЗМ (шаг 5.4): у объекта — задачи по полю object */
+        const linkedTasks=(OBJ
+          ?data.tasks.filter(t=>t.object&&t.object===c.name)
+          :tasksOfClient(c,f.id)
+        ).sort((a,b)=>{
           if(!!a.done!==!!b.done)return a.done?1:-1;
           return (b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||'');
         });
         const TASKS_LIMIT=8;
         const shownTasks=linkedTasks.slice(0,TASKS_LIMIT);
-        const tasksHtml=linkedTasks.length?`<div class="ccnotesection"><div class="cctitle">Задачи клиента${linkedTasks.length>TASKS_LIMIT?` · ${shownTasks.length} из ${linkedTasks.length}`:''}</div>
+        const tasksHtml=linkedTasks.length?`<div class="ccnotesection"><div class="cctitle">${OBJ?'Задачи объекта':'Задачи клиента'}${linkedTasks.length>TASKS_LIMIT?` · ${shownTasks.length} из ${linkedTasks.length}`:''}</div>
           <div class="cctasklist">${shownTasks.map(t=>`
             <div class="cctaskrow ${t.done?'done':''}" data-copentask="${t.id}" title="Открыть задачу в календаре">
               <span class="cctaskst">${t.done?'✅':'⬜'}</span>
@@ -2303,7 +2323,7 @@ function renderFolderView(){
             </div>`).join('')}
           <div class="ccnoteadd"><input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 79111111111 / 9111111111"><button data-phoneadd="${c.id}">Добавить</button></div>
         </div>`;
-        const notesHtml=`<div class="ccnotesection"><div class="cctitle">Заметки о клиенте</div>
+        const notesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'}</div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
            <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
             ${notes.length?notes.slice().reverse().map(n=>{
@@ -2321,12 +2341,19 @@ function renderFolderView(){
               </div>`;
             }).join(''):'<div class="folderempty">Заметок пока нет</div>'}
           </div>`;
+        /* ИЗМ (шаг 5.5): поля карточки — разные для объекта и клиента */
         cardHtml+=`<div class="clientcard">
           <div class="ccgrid">
-            <label class="citylab">Город<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
+            <label class="citylab">${OBJ?'Город / район':'Город'}<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
+            ${OBJ?`
+            <label>Застройщик<input data-cf="developer" data-cid="${c.id}" value="${esc(c.developer||'')}" placeholder="Застройщик"></label>
+            <label>Срок сдачи<input data-cf="deadline" data-cid="${c.id}" value="${esc(c.deadline||'')}" placeholder="напр. IV кв. 2025"></label>
+            <label>Цена от<input data-cf="priceFrom" data-cid="${c.id}" data-money="1" value="${c.priceFrom?fcMoneyFull(c.priceFrom):''}" placeholder="Цена от, млн"></label>
+            `:`
             <label>Бюджет<input data-cf="budget" data-cid="${c.id}" data-money="1" value="${c.budget?fcMoneyFull(c.budget):''}" placeholder="Бюджет, млн"></label>
             <label>ПВ<input data-cf="pv" data-cid="${c.id}" data-money="1" value="${c.pv?fcMoneyFull(c.pv):''}" placeholder="ПВ, млн"></label>
             <label>ID сделки в CRM<input data-cf="crmid" data-cid="${c.id}" value="${esc(c.crmid||'')}" inputmode="numeric" placeholder="напр. 2525138"></label>
+            `}
           </div>
           ${tasksHtml}
           ${phonesHtml}
@@ -2336,30 +2363,39 @@ function renderFolderView(){
       const headInner=activeClientUi().editingClientId===c.id
         ?`<input class="cnameedit" data-rename="${c.id}" value="${esc(c.name)}">`
         :`<span class="cname">${esc(c.name)}</span>`;
+      /* ИЗМ (шаг 5.6): у объекта нет звезды/анкеты/CRM */
       return `<div class="folderclientitem ${open?'open':''}" data-client-card="${c.id}">
         <div class="folderclienthead" data-toggle="${c.id}" data-dragclient="${c.id}">
           <span class="carrow">▸</span>
           ${headInner}
+          ${OBJ?`
+          <button class="cheadbtn" data-copy="${c.id}" title="Скопировать название">📋</button>
+          `:`
           <button class="cstar ${data.clients.some(k=>k.srcId===c.id||(!k.srcId&&k.name===extractClientName(c.name)))?'on':''}" data-star="${c.id}" title="В ключевые клиенты">★</button>
           <button class="cheadbtn ${c.firstCall?'fc-has':''}" data-fcall="${c.id}" title="Анкета первого звонка">📞</button>
           <button class="cheadbtn" data-crm="${c.id}" title="Открыть сделку в CRM">🏢</button>
           <button class="cheadbtn" data-copy="${c.id}" title="Скопировать имя">📋</button>
+          `}
           <button class="cheadbtn" data-renamebtn="${c.id}" title="Переименовать">✎</button>
-          <button class="cdel" data-cid="${c.id}" title="Удалить клиента">✕</button>
+          <button class="cdel" data-cid="${c.id}" title="Удалить ${OBJ?'объект':'клиента'}">✕</button>
         </div>
         ${cardHtml}
       </div>`;
     }).join('')
-    :'<div class="folderempty">В папке пока никого нет. Добавь первого клиента выше.</div>';
-  $('content').innerHTML=viewHeadHtml(`<span class="datebig">📁 ${esc(f.name)}</span>`,true)
-    +`<div class="folderaddrow"><input id="fvInput" placeholder="Имя клиента"><button class="primary" id="fvAdd">Добавить</button></div>`
+    :`<div class="folderempty">${OBJ?'В папке пока нет объектов. Добавь первый объект выше.':'В папке пока никого нет. Добавь первого клиента выше.'}</div>`;
+  /* ИЗМ (шаг 5.2): заголовок и плейсхолдер */
+  $('content').innerHTML=viewHeadHtml(`<span class="datebig">${secIcon} ${esc(f.name)}</span>`,true)
+    +`<div class="folderaddrow"><input id="fvInput" placeholder="${OBJ?'Название объекта / ЖК':'Имя клиента'}"><button class="primary" id="fvAdd">Добавить</button></div>`
     +`<div class="folderclientlist ${activeClientUi().openClientId?'has-open':''}">${itemsHtml}</div>`
     +`<div class="modalfoot"><button class="danger" id="fvDelFolder">Удалить папку</button><div></div></div>`;
   bindViewHead();
   const inp=$('fvInput');
   const add=()=>{
     const v=inp.value.trim();if(!v)return;
-    folderClientsOf(f.id).push({id:uid(),name:v,city:'',tz:'',tzAuto:null,realty:'',budget:'',pv:'',phones:[],notes:[]});
+    /* ИЗМ (шаг 5.3): структура новой записи зависит от раздела */
+    folderClientsOf(f.id).push(OBJ
+      ?{id:uid(),name:v,city:'',developer:'',deadline:'',priceFrom:'',tz:'',phones:[],notes:[]}
+      :{id:uid(),name:v,city:'',tz:'',tzAuto:null,realty:'',budget:'',pv:'',phones:[],notes:[]});
     save();renderFolderView();renderSidebarFolders();
   };
   $('fvAdd').onclick=add;
@@ -2477,7 +2513,7 @@ function renderFolderView(){
     b.onclick=(e)=>{
       e.stopPropagation();
       const cl=list.find(x=>x.id===b.dataset.copy);
-      if(cl)copyText(cl.name,'Имя скопировано');
+      if(cl)copyText(cl.name,'Скопировано');
     };
   });
   document.querySelectorAll('[data-renamebtn]').forEach(b=>{
@@ -2490,18 +2526,22 @@ function renderFolderView(){
   document.querySelectorAll('[data-rename]').forEach(ri=>{
     const commit=()=>{
       const cl=list.find(x=>x.id===ri.dataset.rename);
-      /* №57: переименование карточки обновляет clientName во всех связанных задачах */
+      /* №57 + ИЗМ (шаг 5.7): переименование обновляет связанные задачи */
       if(cl&&ri.value.trim()){
         const oldName=cl.name;
         const newName=ri.value.trim();
         cl.name=newName;
         if(oldName!==newName){
-          data.tasks.forEach(t=>{
-            if(t.clientName===oldName){
-              t.clientName=newName;
-              if(t.title.startsWith(oldName+' '))t.title=newName+t.title.slice(oldName.length);
-            }
-          });
+          if(OBJ){
+            data.tasks.forEach(t=>{if(t.object===oldName)t.object=newName});
+          }else{
+            data.tasks.forEach(t=>{
+              if(t.clientName===oldName){
+                t.clientName=newName;
+                if(t.title.startsWith(oldName+' '))t.title=newName+t.title.slice(oldName.length);
+              }
+            });
+          }
         }
         save();renderSidebarFolders()
       }
@@ -2517,7 +2557,8 @@ function renderFolderView(){
       e.stopPropagation();
       const cid=b.dataset.cid;
       const cl=list.find(x=>x.id===cid);
-      if(!confirm(`Удалить клиента «${cl?cl.name:''}»?`))return;
+      /* ИЗМ (шаг 5.9): текст подтверждения */
+      if(!confirm(`Удалить ${OBJ?'объект':'клиента'} «${cl?cl.name:''}»?`))return;
       activeClientData().items[f.id]=list.filter(x=>x.id!==cid);
       addTombstones([cl]);
       if(activeClientUi().openClientId===cid)activeClientUi().openClientId=null;
@@ -2607,7 +2648,8 @@ function renderFolderView(){
     cl.notes=cl.notes||[];
     cl.notes.push(nt);
     save();renderFolderView();
-    maybeCreateTaskFromNote(cl.name, v, nt);
+    /* ИЗМ (шаг 5.8): предложение создать задачу — только для клиентов */
+    if(!OBJ)maybeCreateTaskFromNote(cl.name, v, nt);
   };
   document.querySelectorAll('.ccsavebtn').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
   document.querySelectorAll('[data-note-edit]').forEach(b=>{
@@ -2725,7 +2767,7 @@ function renderFolderView(){
   });
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
-    if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} клиент(ами)`:''}?`))return;
+    if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} запис(ью/ями)`:''}?`))return;
     addTombstones([f]);
     addTombstones(list);
     activeClientData().folders=activeClientData().folders.filter(x=>x.id!==f.id);
@@ -2782,18 +2824,20 @@ function confirmTaskDeleteWithReason(task,onConfirm){
 }
 
 function openClientCardFromTask(task){
+  /* ИЗМ (шаг 4.4): всегда по клиентам */
   let folderId=task.clientFolderId,clientId=task.clientId;
   if(folderId){
-    const lst=activeClientData().items[folderId]||[];
+    const lst=data.folderClients[folderId]||[];
     if(!lst.some(x=>x.id===clientId)){folderId=null;clientId=null}
   }
   if(!folderId){
-    for(const fid in activeClientData().items){
-      const found=(activeClientData().items[fid]||[]).find(x=>x.name===task.clientName);
+    for(const fid in data.folderClients){
+      const found=(data.folderClients[fid]||[]).find(x=>x.name===task.clientName);
       if(found){folderId=fid;clientId=found.id;break}
     }
   }
   if(!folderId){toast('Карточка клиента не найдена');return}
+  state.clientSection='primary';
   activeClientUi().openClientId=clientId;
   openFolderView(folderId);
 }
@@ -2808,7 +2852,8 @@ function renderSidebarFolders(){
           const active=state.view==='folder'&&activeClientUi().openFolderId===f.id;
           const nameHtml=activeClientUi().renamingFolderId===f.id
             ?`<input class="cnameedit" data-frenameinput value="${esc(f.name)}">`
-            :`📁<span class="sfname">${esc(f.name)}</span>`;
+            /* ИЗМ (шаг 6): иконка папки по разделу */
+            :`${isObjectsSection()?'🏢':'📁'}<span class="sfname">${esc(f.name)}</span>`;
           return `<div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}">${nameHtml}<span class="fcount">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" title="Переименовать папку">✎</button></div>`;
         }).join('');
         const addBlock=activeClientUi().addingFolderSidebar
@@ -2848,7 +2893,8 @@ function renderSidebarFolders(){
         const cnt=(activeClientData().items[f.id]||[]).length;
         const nameHtml=activeClientUi().renamingFolderId===f.id
           ?`<input class="cnameedit" data-frenameinput value="${esc(f.name)}">`
-          :`<span class="mobilesectionicon">📁</span><span class="mobilesectionlabel">${esc(f.name)}</span>`;
+          /* ИЗМ (шаг 6): иконка папки по разделу */
+          :`<span class="mobilesectionicon">${isObjectsSection()?'🏢':'📁'}</span><span class="mobilesectionlabel">${esc(f.name)}</span>`;
         return `<div class="mobilesectionitem" data-mfolder="${f.id}" style="padding-left:30px">${nameHtml}<span class="mobilesectionarrow">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" title="Переименовать папку">✎</button></div>`;
       }).join('');
       const addBlock=activeClientUi().addingFolderMobile
@@ -2899,9 +2945,8 @@ function renderSidebarFolders(){
     setTimeout(()=>{fri.focus();fri.select()},30);
   }
 }
-/* ================== /РАЗДЕЛ «КЛИЕНТЫ» ================== */
-
-/* ================== МОБИЛЬНЫЙ СПИСОК ДНЯ ================== */
+/* ================== /РАЗДЕЛ «КЛИЕНТЫ» / «ОБЪЕКТЫ» ================== */
+  /* ================== МОБИЛЬНЫЙ СПИСОК ДНЯ ================== */
 const __mobileExpanded=new Set();
 
 function buildMobileDayListHtml(d){
@@ -3198,7 +3243,8 @@ function mobileNavList(){
     {id:'calendar',icon:'📅',label:'Календарь'},
     {id:'monthgoals',icon:'🎯',label:'Задачи на месяц'},
     {id:'clientsPrimary',icon:'👥',label:state.clientPrimaryUi.mobileFoldersExpanded?'Клиенты ▾':'Клиенты ›'},
-    {id:'clientsSecondary',icon:'👥',label:state.clientSecondaryUi.mobileFoldersExpanded?'Клиенты ▾':'Клиенты ›'},
+    /* ИЗМ (шаг 8): второй раздел — «Объекты» */
+    {id:'clientsSecondary',icon:'🏢',label:state.clientSecondaryUi.mobileFoldersExpanded?'Объекты ▾':'Объекты ›'},
     {id:'settings',icon:'⚙',label:'Настройки'}
   ];
 }
@@ -3365,7 +3411,7 @@ function setTabs(){document.querySelectorAll('.viewtabs button').forEach(x=>x.cl
 function recomputeDone(t){if((t.subtasks||[]).length)t.done=t.subtasks.every(s=>subDone(s))}
 
 /* ================== ВСПЛЫВАЮЩЕЕ ОКНО РЕЗУЛЬТАТА ПОДЗАДАЧИ ================== */
-function openSubtaskNotePopup(anchorEl, t, si){
+  function openSubtaskNotePopup(anchorEl, t, si){
   document.querySelectorAll('.subnotepop,.subnotebackdrop').forEach(e=>e.remove());
   const sub=t.subtasks[si];
   const rect=anchorEl.getBoundingClientRect();
@@ -3840,8 +3886,7 @@ function onFocusPhaseEnd(skipped){
   }
   $('focusMainBtn').textContent='▶';$('focusMainBtn').classList.remove('running');
 }
-
-const WB_B='(?<![a-zA-Zа-яА-Я0-9])',WB_A='(?![a-zA-Zа-яА-Я0-9])';
+  const WB_B='(?<![a-zA-Zа-яА-Я0-9])',WB_A='(?![a-zA-Zа-яА-Я0-9])';
 const RU_WEEKDAYS={'понедельник':1,'пн':1,'вторник':2,'вт':2,'среда':3,'ср':3,'четверг':4,'чт':4,'пятница':5,'пт':5,'суббота':6,'сб':6,'воскресенье':0,'вс':0};
 const VERB_STRIP_RE=new RegExp('^(звонок|позвонить|перезвонить|созвон|созвониться|видеопоказ)\\s+','i');
 function parseQuickAdd(raw){
@@ -4013,7 +4058,7 @@ const SIDEBAR_MIN=190,SIDEBAR_MAX=480;
       document.removeEventListener('mousemove',onMove);
       document.removeEventListener('mouseup',onUp);
       rz.classList.remove('active');
-      document.body.classList.remove('resizing');
+      document.body.classList.add('resizing');
       localStorage.setItem(SIDEBAR_W_KEY,String(parseInt(sb.style.width,10)));
     };
     document.addEventListener('mousemove',onMove);
@@ -4047,7 +4092,7 @@ function importBackup(file){
     try{
       parsed=JSON.parse(e.target.result);
     }catch(err){
-      toast('Файл повреждён или не JSON');
+      toast('Файл поврежден или не JSON');
       return;
     }
     if(!parsed||!Array.isArray(parsed.tasks)){
@@ -4065,6 +4110,8 @@ function importBackup(file){
       folderClients:parsed.folderClients||{},
       clientFolders2:parsed.clientFolders2||[],
       folderClients2:parsed.folderClients2||{},
+      objectFolders:parsed.objectFolders||[],
+      folderObjects:parsed.folderObjects||{},
       monthGoals:parsed.monthGoals||{},
       tombstones:parsed.tombstones||{}
     };
@@ -4122,17 +4169,24 @@ if('serviceWorker' in navigator){
 /* ================== №59: поиск клиентов (имя / телефон / ID CRM) ================== */
 function searchNormPhone(s){return String(s||'').replace(/\D/g,'')}
 function searchPhoneTail(digits){return digits.length>10?digits.slice(-10):digits}
+/* ИЗМ (шаг 7.1): индекс включает клиенты и объекты */
 function buildSearchIndex(){
   const idx=[];
   for(const fid in data.folderClients){
     const f=data.clientFolders.find(x=>x.id===fid);
     (data.folderClients[fid]||[]).forEach(c=>{
-      idx.push({c,fid,folderName:f?f.name:'?',phones:(c.phones||[]).map(p=>p.digits||''),crmid:String(c.crmid||'')});
+      idx.push({kind:'client',c,fid,folderName:f?f.name:'?',phones:(c.phones||[]).map(p=>p.digits||''),crmid:String(c.crmid||'')});
+    });
+  }
+  for(const fid in data.folderObjects){
+    const f=data.objectFolders.find(x=>x.id===fid);
+    (data.folderObjects[fid]||[]).forEach(o=>{
+      idx.push({kind:'object',c:o,fid,folderName:f?f.name:'?',phones:(o.phones||[]).map(p=>p.digits||''),crmid:''});
     });
   }
   return idx;
 }
-function runClientSearch(qRaw){
+  function runClientSearch(qRaw){
   const box=$('clientSearchResults');
   const q=qRaw.trim();
   const clearBtn=$('clientSearchClear');
@@ -4183,9 +4237,10 @@ function runClientSearch(qRaw){
       const parts=[];
       if(h.phoneDisp)parts.push('📞 '+hlDigits(h.phoneDisp));
       if(h.crmid)parts.push('🏢 ID '+hlDigits(h.crmid));
-      return `<div class="searchrow" data-sfid="${h.fid}" data-scid="${h.c.id}">
-        <div class="srname">${hl(h.c.name)}</div>
-        <div class="srmeta">${parts.join(' · ')||'—'} · 📁 ${esc(h.folderName)}</div>
+      /* ИЗМ (шаг 7.2): пометка типа (клиент/объект) */
+      return `<div class="searchrow" data-skind="${h.kind}" data-sfid="${h.fid}" data-scid="${h.c.id}">
+        <div class="srname">${h.kind==='object'?'🏢 ':''}${hl(h.c.name)}</div>
+        <div class="srmeta">${parts.join(' · ')||'—'} · ${h.kind==='object'?'🏢':'📁'} ${esc(h.folderName)}</div>
       </div>`;
     }).join('')
     :`<div class="searchempty">Ничего не найдено${isNumberQuery&&qDigits.length<3?' — для поиска по номеру/ID введите минимум 3 цифры':''}</div>`;
@@ -4195,7 +4250,9 @@ function runClientSearch(qRaw){
       box.classList.remove('vis');
       $('clientSearch').value='';
       clearBtn.classList.remove('vis');
-      state.openClientId=row.dataset.scid;
+      /* ИЗМ (шаг 7.2): открываем нужный раздел */
+      state.clientSection=row.dataset.skind==='object'?'secondary':'primary';
+      activeClientUi().openClientId=row.dataset.scid;
       openFolderView(row.dataset.sfid);
       setTimeout(()=>{
         const el=document.querySelector(`[data-client-card="${row.dataset.scid}"]`);
@@ -4302,18 +4359,35 @@ const __openModalAppSheet=openModal;
 openModal=function(...args){__openModalAppSheet(...args);lockAppBehindModal()};
 const __closeModalAppSheet=closeModal;
 closeModal=function(...args){__closeModalAppSheet(...args);unlockAppBehindModal()};
-$('overlay')?.addEventListener('touchmove',e=>{if(e.target===$('overlay'))e.preventDefault()},{passive:false});
+ $('overlay')?.addEventListener('touchmove',e=>{if(e.target===$('overlay'))e.preventDefault()},{passive:false});
 
 const TERMS_VERSION='1.0';const TERMS=`<h2>Условия использования</h2><p>Приложение является локальным инструментом планирования и заметок. Разработчик не предоставляет централизованное серверное хранилище и не получает штатный доступ к задачам, клиентам, телефонам, заметкам или данным Google Drive пользователя.</p><p>Пользователь самостоятельно выбирает хранение на устройстве или синхронизацию со своим Google Drive, обязан иметь право вносить клиентские данные, соблюдать правила работодателя, защищать устройство и регулярно делать экспортные копии.</p><p>Приложение предоставляется «как есть». Разработчик не гарантирует абсолютную сохранность, конфиденциальность и бесперебойную работу устройства, браузера, PWA, сети или внешних сервисов. Ничто не исключает ответственность, которую нельзя исключить законом.</p>`;function legalBox(html){const p=document.createElement('div');p.className='legaloverlay';p.innerHTML=`<div class="legalcard">${html}</div>`;document.body.appendChild(p);return p}function showFirstRun(){const p=legalBox(`${TERMS}<label class="legalcheck"><input id="agree" type="checkbox">Я ознакомился(-лась) с условиями и принимаю их.</label><div class="legalactions"><button id="go" class="primary" disabled>Продолжить</button></div>`);p.querySelector('#agree').onchange=e=>p.querySelector('#go').disabled=!e.target.checked;p.querySelector('#go').onclick=()=>{localStorage.setItem('daily_planner_terms_accepted',TERMS_VERSION);p.remove();showStorageChoice()}}function showStorageChoice(){const p=legalBox(`<h2>Где хранить данные?</h2><label class="storageoption"><input type="radio" name="m" value="local" checked><span><b>💾 Только это устройство</b><br>Нет автоматической синхронизации ПК и телефона.</span></label><label class="storageoption"><input type="radio" name="m" value="drive"><span><b>☁ Мой Google Drive</b><br>Полная база синхронизируется с выбранным Google-аккаунтом.</span></label><div class="legalactions"><button id="saveMode" class="primary">Продолжить</button></div>`);p.querySelector('#saveMode').onclick=()=>{const m=p.querySelector('input:checked').value;localStorage.setItem('daily_planner_storage_mode',m);p.remove();renderStoragePanel();if(m==='drive')requestDriveConnect()}}function requestDriveConnect(){const p=legalBox(`<h2>☁ Подключение Google Drive</h2><p>В выбранный аккаунт будут синхронизироваться все данные ежедневника, включая клиентские карточки, телефоны, заметки и итоги.</p><label class="legalcheck"><input id="d" type="checkbox">Я самостоятельно принимаю это решение.</label><div class="legalactions"><button id="x" class="secondary">Отмена</button><button id="c" class="primary" disabled>Подключить</button></div>`);p.querySelector('#d').onchange=e=>p.querySelector('#c').disabled=!e.target.checked;p.querySelector('#x').onclick=()=>p.remove();p.querySelector('#c').onclick=()=>{p.remove();driveConnect()}}function renderStoragePanel(){let x=$('storagePanel');if(!x){x=document.createElement('div');x.id='storagePanel';x.className='storagepanel';document.querySelector('.sidebottom')?.prepend(x)}const m=localStorage.getItem('daily_planner_storage_mode')||'local';x.innerHTML=m==='drive'?`<b>☁ Google Drive</b><span>Полная синхронизация</span><button id="terms">⚖ Условия</button>`:`<b>💾 Локальное хранение</b><span>Только это устройство</span><button id="connect">Подключить Google Drive</button><button id="terms">⚖ Условия</button>`;x.querySelector('#terms').onclick=()=>{const p=legalBox(`${TERMS}<div class="legalactions"><button class="primary">Закрыть</button></div>`);p.querySelector('button').onclick=()=>p.remove()};x.querySelector('#connect')?.addEventListener('click',showStorageChoice)}setTimeout(()=>{renderStoragePanel();if(localStorage.getItem('daily_planner_terms_accepted')!==TERMS_VERSION)showFirstRun();else if(!localStorage.getItem('daily_planner_storage_mode'))showStorageChoice()},0);
 
-/* === Объекты: та же модель, что папки клиентов === */
-data.objectFolders=Array.isArray(data.objectFolders)?data.objectFolders:[];data.folderObjects=(data.folderObjects&&typeof data.folderObjects==='object')?data.folderObjects:{};
-state.objectFoldersExpanded=false;state.openObjectFolderId=null;state.openObjectId=null;state.addingObjectFolder=false;state.addingObject=false;
-function objs(){data.objectFolders=Array.isArray(data.objectFolders)?data.objectFolders:[];data.folderObjects=(data.folderObjects&&typeof data.folderObjects==='object')?data.folderObjects:{};return data.folderObjects}
-function renderObjectSidebar(){let w=$('objectSidebarFolders');if(!w)return;objs();if(!state.objectFoldersExpanded){w.innerHTML='';return}let rows=data.objectFolders.map(f=>`<div class="sidebarfolderitem ${(state.view==='objectfolder'||state.view==='objectcard')&&state.openObjectFolderId===f.id?'active':''}" data-ofolder="${f.id}">📁<span class="sfname">${esc(f.name)}</span><span class="fcount">${(data.folderObjects[f.id]||[]).length||''}</span></div>`).join('');w.innerHTML=rows+(state.addingObjectFolder?`<div class="sidebarfolderadd"><input id="ofInput" placeholder="Название папки"><button id="ofOk">OK</button></div>`:`<div class="sidebarfolderitem sfadd" id="ofAdd">＋ Новая папка</div>`);w.querySelectorAll('[data-ofolder]').forEach(x=>x.onclick=()=>openObjectFolder(x.dataset.ofolder));let a=$('ofAdd');if(a)a.onclick=()=>{state.addingObjectFolder=true;renderObjectSidebar()};let i=$('ofInput');if(i){let go=()=>{let n=i.value.trim();if(n){let id=uid();data.objectFolders.push({id,name:n});data.folderObjects[id]=[];save();toast(`Папка «${n}» создана`)}state.addingObjectFolder=false;renderObjectSidebar()};$('ofOk').onclick=go;i.onkeydown=e=>{if(e.key==='Enter')go();if(e.key==='Escape'){state.addingObjectFolder=false;renderObjectSidebar()}};i.focus()}}
-function openObjectFolder(id){objs();state.openObjectFolderId=id;state.openObjectId=null;state.view='objectfolder';if(typeof __mobileScreen!=='undefined'&&isMobileLayout())__mobileScreen='detail';render()}
-function objectFolder(){return data.objectFolders.find(f=>f.id===state.openObjectFolderId)}
-function renderObjectFolder(){objs();let f=objectFolder();if(!f){state.view='day';render();return}let list=data.folderObjects[f.id]||[];$('content').innerHTML=`<div class="clientfolderview"><div class="folderviewhead"><button class="backbtn" id="objBack">← Объекты</button><div class="folderviewtitle">🏢 ${esc(f.name)}</div></div><div class="clientaddrow">${state.addingObject?`<input id="objNameNew" placeholder="Название объекта / ЖК" autofocus><button id="objNameSave">Добавить</button>`:`<button class="clientaddchip" id="objAdd">＋ Добавить объект</button>`}</div><div class="clientlist">${list.length?list.map(o=>`<div class="clientrow" data-object="${o.id}"><div class="clientrowname">🏢 ${esc(o.name)}</div><div class="clientrowmeta">${(o.notes||[]).length?`Заметок: ${o.notes.length}`:'Нет заметок'}</div></div>`).join(''):'<div class="emptyhint">В этой папке пока нет объектов.</div>'}</div></div>`;$('objBack').onclick=()=>{state.objectFoldersExpanded=false;renderObjectSidebar();state.view='day';render()};let a=$('objAdd');if(a)a.onclick=()=>{state.addingObject=true;renderObjectFolder()};let i=$('objNameNew');if(i){let go=()=>{let n=i.value.trim();if(n){let o={id:uid(),name:n,notes:[]};data.folderObjects[f.id].push(o);save();state.addingObject=false;state.openObjectId=o.id;state.view='objectcard';render();toast(`Объект «${n}» добавлен`)}else{state.addingObject=false;renderObjectFolder()}};$('objNameSave').onclick=go;i.onkeydown=e=>{if(e.key==='Enter')go();if(e.key==='Escape'){state.addingObject=false;renderObjectFolder()}};i.focus()}document.querySelectorAll('[data-object]').forEach(x=>x.onclick=()=>{state.openObjectId=x.dataset.object;state.view='objectcard';render()})}
-function renderObjectCard(){objs();let f=objectFolder(),o=(data.folderObjects[state.openObjectFolderId]||[]).find(x=>x.id===state.openObjectId);if(!f||!o){state.view='objectfolder';render();return}let notes=(o.notes||[]).sort((a,b)=>b.ts-a.ts);$('content').innerHTML=`<div class="clientfolderview"><div class="folderviewhead"><button class="backbtn" id="objCardBack">← ${esc(f.name)}</button><div class="folderviewtitle">🏢 ${esc(o.name)}</div><button class="cheadbtn" id="objRename">✎</button><button class="cheadbtn" id="objDelete">✕</button></div><div class="clientnotes"><div class="noteshead">Заметки</div><div class="noteadd"><textarea id="objNoteText" placeholder="Сроки, инфраструктура, ОП, условия покупки, мысли…"></textarea><button id="objNoteAdd">Добавить заметку</button></div><div class="noteslist">${notes.length?notes.map(n=>`<div class="noteitem"><div class="notets">${fmtTs(n.ts)}</div><div class="notetext rich-note">${renderRichText(n.text)}</div><button class="notedel" data-onote="${n.id}">✕</button></div>`).join(''):'<div class="emptyhint">Заметок пока нет.</div>'}</div></div></div>`;$('objCardBack').onclick=()=>{state.view='objectfolder';render()};$('objRename').onclick=()=>{let n=prompt('Название объекта',o.name);if(n&&n.trim()){o.name=n.trim();save();render()}};$('objDelete').onclick=()=>{if(confirm(`Удалить «${o.name}»?`)){data.folderObjects[f.id]=data.folderObjects[f.id].filter(x=>x.id!==o.id);save();state.view='objectfolder';render()}};$('objNoteAdd').onclick=()=>{let t=$('objNoteText').value.trim();if(t){o.notes=o.notes||[];o.notes.push({id:uid(),text:t,ts:Date.now()});save();render()}};document.querySelectorAll('[data-onote]').forEach(x=>x.onclick=()=>{o.notes=o.notes.filter(n=>n.id!==x.dataset.onote);save();render()})}
-const normalRender=render;render=function(){if(state.view==='objectfolder'){renderObjectFolder();renderObjectSidebar();renderSidebarPending();renderSidebarFolders();return}if(state.view==='objectcard'){renderObjectCard();renderObjectSidebar();renderSidebarPending();renderSidebarFolders();return}normalRender();renderObjectSidebar()};$('navObjects').onclick=()=>{state.clientSection='secondary';activeClientUi().foldersExpanded=!activeClientUi().foldersExpanded;renderSidebarFolders()};document.addEventListener('focusin',e=>{if(e.target?.id==='fObject'){let names=[];objs();Object.values(data.folderObjects).forEach(a=>(a||[]).forEach(o=>names.push(o.name)));let d=$('objectList');if(d)d.innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join('')}});document.addEventListener('click',e=>{let x=e.target.closest('.taskobj');if(!x)return;let found=null,fid=null;objs();for(let id in data.folderObjects){let o=(data.folderObjects[id]||[]).find(v=>v.name===x.dataset.objectName);if(o){found=o;fid=id;break}}if(found){e.stopPropagation();state.openObjectFolderId=fid;state.openObjectId=found.id;state.view='objectcard';render()}},true);
+/* ================== РАЗДЕЛ «ОБЪЕКТЫ» (ИЗМ, шаг 10: новый вместо старого скрытого) ================== */
+ $('navObjects').onclick=()=>{state.clientSection='secondary';activeClientUi().foldersExpanded=!activeClientUi().foldersExpanded;renderSidebarFolders()};
+
+/* Даталист «Объект (ЖК)» в модалке задачи */
+document.addEventListener('focusin',e=>{
+  if(e.target?.id!=='fObject')return;
+  const d=$('objectList');if(!d)return;
+  const names=[];
+  Object.values(data.folderObjects).forEach(a=>(a||[]).forEach(o=>names.push(o.name)));
+  d.innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join('');
+});
+
+/* Клик по 🏢 объекту в задаче — открыть карточку объекта */
+document.addEventListener('click',e=>{
+  const x=e.target.closest('.taskobj');if(!x)return;
+  const nm=x.dataset.objectName;if(!nm)return;
+  for(const fid in data.folderObjects){
+    const o=(data.folderObjects[fid]||[]).find(v=>v.name===nm);
+    if(o){
+      e.stopPropagation();
+      state.clientSection='secondary';
+      activeClientUi().openClientId=o.id;
+      openFolderView(fid);
+      return;
+    }
+  }
+},true);
 </script></body></html>
