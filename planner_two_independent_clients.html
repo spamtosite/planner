@@ -2859,21 +2859,37 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
       }
     };
   });
-        /* Сроки сдачи: редактирование и удаление строк */
-  document.querySelectorAll('[data-dl-label]').forEach(inp=>{
-    const apply=()=>{const [cid,did]=inp.dataset.dlLabel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const dl=(cl.deadlines||[]).find(x=>x.id===did);if(!dl)return;const v=inp.value.trim();if(dl.label!==v){dl.label=v;save()}};
-    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
-  });
-  document.querySelectorAll('[data-dl-val]').forEach(inp=>{
-    const apply=()=>{const [cid,did]=inp.dataset.dlVal.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const dl=(cl.deadlines||[]).find(x=>x.id===did);if(!dl)return;const v=inp.value.trim();if(dl.val!==v){dl.val=v;save()}};
-    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
-  });
+  /* ==== Поля объекта: сроки, цены, менеджеры (защищённая версия) ==== */
+  const splitRef=s=>{const i=String(s||'').indexOf(':');if(i<0)return[null,null];return[String(s).slice(0,i),String(s).slice(i+1)]};
+  const findObj=(cid)=>list.find(x=>x.id===cid);
+  const findDl=(cl,did)=>((cl&&cl.deadlines)||[]).find(x=>x.id===did);
+  const findPr=(cl,pid)=>((cl&&cl.prices)||[]).find(x=>x.id===pid);
+  const findPh=(cl,pid)=>((cl&&cl.phones)||[]).find(x=>x.id===pid);
+  const bindTextField=(sel,read,write)=>{
+    document.querySelectorAll(sel).forEach(inp=>{
+      const apply=()=>{
+        const [cid,id]=splitRef(read(inp));
+        if(!cid||!id)return;
+        const cl=findObj(cid);if(!cl)return;
+        const item=write.find(cl,id);if(!item)return;
+        const v=inp.value.trim();
+        if(item[write.field]!==v){item[write.field]=v;save()}
+      };
+      inp.onchange=apply;inp.onblur=apply;
+      inp.onclick=e=>e.stopPropagation();
+      inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}};
+    });
+  };
+  bindTextField('[data-dl-label]',inp=>inp.dataset.dlLabel,{field:'label',find:findDl});
+  bindTextField('[data-dl-val]',  inp=>inp.dataset.dlVal,  {field:'val',  find:findDl});
+  bindTextField('[data-pmgr]',    inp=>inp.dataset.pmgr,    {field:'mgr',  find:findPh});
+  /* Удаление/добавление сроков */
   document.querySelectorAll('[data-dl-del]').forEach(b=>{
-    b.onclick=(e)=>{e.stopPropagation();const [cid,did]=b.dataset.dlDel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;cl.deadlines=(cl.deadlines||[]).filter(x=>x.id!==did);save();renderFolderView()};
+    b.onclick=(e)=>{e.stopPropagation();const [cid,did]=splitRef(b.dataset.dlDel);const cl=findObj(cid);if(!cl)return;cl.deadlines=(cl.deadlines||[]).filter(x=>x.id!==did);save();renderFolderView()};
   });
   document.querySelectorAll('[data-dl-add]').forEach(b=>{
     b.onclick=()=>{
-      const cl=list.find(x=>x.id===b.dataset.dlAdd);if(!cl)return;
+      const cl=findObj(b.dataset.dlAdd);if(!cl)return;
       const label=($('dlNewLabel')?.value||'').trim();
       const val=($('dlNewVal')?.value||'').trim();
       if(!label&&!val){toast('Укажите очередь и срок');return}
@@ -2883,40 +2899,20 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
   });
   const dlValEnter=$('dlNewVal');
   if(dlValEnter)dlValEnter.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector(`[data-dl-add="${activeClientUi().openClientId}"]`)?.click()}};
-  /* Цены: редактирование с форматированием */
-  document.querySelectorAll('[data-pr-area]').forEach(sp=>{
-    sp.onclick=(e)=>{
-      e.stopPropagation();
-      if(sp.querySelector('input'))return;
-      const [cid,pid]=sp.dataset.prArea.split(':');
-      const cl=list.find(x=>x.id===cid);if(!cl)return;
-      const pr=(cl.prices||[]).find(x=>x.id===pid);if(!pr)return;
-      const cur=sp.dataset.prArearaw||'';
-      sp.innerHTML=`<input style="width:70px;border:1.5px solid var(--accent);border-radius:6px;padding:1px 5px;font-size:11px;font-weight:800;color:#c2410c" value="${esc(cur)}">`;
-      const i=sp.querySelector('input');i.focus();i.select();
-      const commit=()=>{
-        const v=i.value.trim();
-        const pr2=(list.find(x=>x.id===cid).prices||[]).find(x=>x.id===pid);
-        if(pr2&&pr2.area!==v){pr2.area=v;save()}
-        renderFolderView();
-      };
-      i.onblur=commit;
-      i.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();i.blur()}if(ev.key==='Escape'){i.onblur=null;renderFolderView()}};
-    };
-  });
+  /* Цены-чипы: клик по цене → правка на месте */
   document.querySelectorAll('[data-pr-val]').forEach(sp=>{
     sp.onclick=(e)=>{
       e.stopPropagation();
       if(sp.querySelector('input'))return;
+      const [cid,pid]=splitRef(sp.dataset.prVal);
+      if(!cid||!pid)return;
       const inp=document.createElement('input');
       inp.style.cssText='width:110px;border:1.5px solid var(--accent);border-radius:6px;padding:1px 5px;font-size:12px;font-weight:800;color:#9a3412';
       inp.value=sp.dataset.prRaw||'';
       sp.textContent='';sp.appendChild(inp);inp.focus();inp.select();
-      const [cid,pid]=sp.dataset.prVal.split(':');
       const commit=()=>{
         const v=parsePriceToken(inp.value);
-        const cl=list.find(x=>x.id===cid);
-        const pr=cl?(cl.prices||[]).find(x=>x.id===pid):null;
+        const pr=findPr(findObj(cid),pid);
         if(pr&&pr.val!==v){pr.val=v;save()}
         renderFolderView();
       };
@@ -2924,39 +2920,44 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
       inp.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();inp.blur()}if(ev.key==='Escape'){inp.onblur=null;renderFolderView()}};
     };
   });
-    const apply=()=>{
-      const v=parsePriceToken(inp.value);
-      inp.dataset.prRaw=String(v);
-      inp.value=v?fmtRub(v):'';
-      const [cid,pid]=inp.dataset.prVal.split(':');
-      const cl=list.find(x=>x.id===cid);if(!cl)return;
-      const pr=(cl.prices||[]).find(x=>x.id===pid);if(!pr)return;
-      if(pr.val!==v){pr.val=v;save()}
+  /* Цены-чипы: клик по площади → правка на месте */
+  document.querySelectorAll('[data-pr-area]').forEach(sp=>{
+    sp.onclick=(e)=>{
+      e.stopPropagation();
+      if(sp.querySelector('input'))return;
+      const [cid,pid]=splitRef(sp.dataset.prArea);
+      if(!cid||!pid)return;
+      const cur=sp.dataset.prArearaw||'';
+      sp.innerHTML=`<input style="width:70px;border:1.5px solid var(--accent);border-radius:6px;padding:1px 5px;font-size:11px;font-weight:800;color:#c2410c" value="${esc(cur)}">`;
+      const i=sp.querySelector('input');i.focus();i.select();
+      const commit=()=>{
+        const v=i.value.trim();
+        const pr=findPr(findObj(cid),pid);
+        if(pr&&pr.area!==v){pr.area=v;save()}
+        renderFolderView();
+      };
+      i.onblur=commit;
+      i.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();i.blur()}if(ev.key==='Escape'){i.onblur=null;renderFolderView()}};
     };
-    inp.addEventListener('blur',apply);inp.addEventListener('change',apply);
-    inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
+  });
+  /* Удаление/добавление цен */
   document.querySelectorAll('[data-pr-del]').forEach(b=>{
-    b.onclick=(e)=>{e.stopPropagation();const [cid,pid]=b.dataset.prDel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;cl.prices=(cl.prices||[]).filter(x=>x.id!==pid);save();renderFolderView()};
+    b.onclick=(e)=>{e.stopPropagation();const [cid,pid]=splitRef(b.dataset.prDel);const cl=findObj(cid);if(!cl)return;cl.prices=(cl.prices||[]).filter(x=>x.id!==pid);save();renderFolderView()};
   });
   document.querySelectorAll('[data-pr-add]').forEach(b=>{
     b.onclick=()=>{
-      const cl=list.find(x=>x.id===b.dataset.prAdd);if(!cl)return;
+      const cl=findObj(b.dataset.prAdd);if(!cl)return;
       const areas=String($('prNewArea')?.value||'').split('/').map(x=>x.trim()).filter(Boolean);
       const vals=parsePricesMulti($('prNewVal')?.value||'');
       if(!areas.length&&!vals.length){toast('Укажите площадь и цену');return}
       cl.prices=cl.prices||[];
       const n=Math.max(vals.length,areas.length);
-      for(let i=0;i<n;i++)cl.prices.push({id:uid(),area:areas[i]||'',val:vals[i]||0});
+      for(let i2=0;i2<n;i2++)cl.prices.push({id:uid(),area:areas[i2]||'',val:vals[i2]||0});
       save();renderFolderView();
     };
   });
   const prValEnter=$('prNewVal');
   if(prValEnter)prValEnter.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector(`[data-pr-add="${activeClientUi().openClientId}"]`)?.click()}};
-  /* Имя менеджера у телефона — правка на месте */
-  document.querySelectorAll('[data-pmgr]').forEach(inp=>{
-    const apply=()=>{const [cid,pid]=inp.dataset.pmgr.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;const p=(cl.phones||[]).find(x=>x.id===pid);if(!p)return;const v=inp.value.trim();if(p.mgr!==v){p.mgr=v;save()}};
-    inp.onchange=apply;inp.onblur=apply;inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
-  });
   $('fvDelFolder').onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} запис(ью/ями)`:''}?`))return;
