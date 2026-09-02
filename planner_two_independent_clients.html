@@ -630,13 +630,16 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 /* Телефонные пины */
 .phonepins{display:flex;flex-direction:column;gap:6px}
 .phonewrap{display:grid;gap:6px}
-.phonepin{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:999px;background:linear-gradient(135deg,#eef4ff,#e6efff);border:1px solid #d7e4ff;max-width:100%}
-.pp-ico{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#0a84ff);color:#fff;display:grid;place-items:center;font-size:14px;flex:0 0 auto;box-shadow:0 2px 6px rgba(37,99,235,.35)}
+.phonepin{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:14px;background:linear-gradient(135deg,#ecfdf5,#d5f5e3);border:1px solid #b9ecd2;max-width:100%}
 .pp-body{display:flex;flex-direction:column;min-width:0;flex:1;gap:1px}
-.pp-mgr-input{border:0;background:transparent;font-size:11px;font-weight:700;color:#1d4ed8;padding:1px 4px;border-radius:6px;width:100%;min-width:0}
-.pp-mgr-input::placeholder{color:#94b5f0;font-weight:600}
-.pp-mgr-input:focus{outline:none;background:#fff;box-shadow:0 0 0 1.5px var(--accent)}
-.pp-num{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:#1f2328;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+.pp-mgr-input{border:0;background:transparent;font-size:11.5px;font-weight:700;color:#047857;padding:1px 4px;border-radius:6px;width:100%;min-width:0}
+.pp-mgr-input::placeholder{color:#5ecb96;font-weight:600}
+.pp-mgr-input:focus{outline:none;background:#fff;box-shadow:0 0 0 1.5px #10b981}
+.pp-num{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:#065f46;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+/* Три колонки карточки объекта */
+.objcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
+.objcols .ccnotesection{min-width:0}
+@media(max-width:1100px){.objcols{grid-template-columns:1fr}}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -2116,7 +2119,17 @@ function fcMoneyFull(v){
   return (parseFloat(m)*1e6).toLocaleString('ru-RU')+' ₽';
 }
 function parseRub(v){const d=String(v||'').replace(/\D/g,'');if(!d)return 0;return parseInt(d,10)}
-function fmtRub(v){v=parseInt(v,10);if(!v)return '';return v.toLocaleString('ru-RU')}
+function fmtRub(v){v=parseInt(v,10);if(!v)return '';return v.toLocaleString('ru-RU')+' ₽'}
+function parsePriceToken(tok){
+  const s=String(tok||'').trim().replace(/\s|\u00A0/g,'').replace('₽','').replace(/руб\.?/i,'').replace(',','.');
+  if(!s)return 0;
+  const n=parseFloat(s);
+  if(!isFinite(n)||n<=0)return 0;
+  if(n<=999)return Math.round(n*1e6);      /* млн: 3 → 3 000 000 */
+  if(n<100000)return Math.round(n*1e3);    /* тыс: 10700 → 10 700 000 */
+  return Math.round(n);                    /* уже рубли: 7500000 → 7 500 000 */
+}
+function parsePricesMulti(v){return String(v||'').split('/').map(t=>parsePriceToken(t)).filter(x=>x>0)}
 function openFirstCallModal(existing,forceEdit){
   document.querySelectorAll('.fcreq-overlay').forEach(o=>o.remove());
   const viewMode=!!(existing&&!forceEdit);
@@ -2344,7 +2357,6 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
           ${phones.map(p=>`
             <div class="phonewrap">
               <div class="phonepin">
-                <span class="pp-ico">📞</span>
                 <span class="pp-body">
                   <input class="pp-mgr-input" data-pmgr="${c.id}:${p.id}" value="${esc(p.mgr||'')}" placeholder="Имя менеджера">
                   <span class="pp-num">${esc(p.val)}</span>
@@ -2360,7 +2372,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             </div>`).join('')}
           </div>
           <div class="rowpair rowadd">
-            <input id="ppNewMgr" placeholder="Имя менеджера" style="flex:0 0 130px">
+            <input id="ppNewMgr" placeholder="Имя менеджера" style="flex:0 0 100px">
             <input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 9111111111">
             <button class="ccnoteadd-btn" data-phoneadd="${c.id}">＋ Добавить</button>
           </div>
@@ -2368,12 +2380,12 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
                 const deadlinesHtml=OBJ?`<div class="ccnotesection"><div class="cctitle">Сроки сдачи</div>
           ${(c.deadlines||[]).map(dl=>`
             <div class="rowpair">
-              <input data-dl-label="${c.id}:${dl.id}" value="${esc(dl.label||'')}" placeholder="Очередь" style="flex:0 0 130px">
+              <input data-dl-label="${c.id}:${dl.id}" value="${esc(dl.label||'')}" placeholder="Очередь" style="flex:0 0 100px">
               <input data-dl-val="${c.id}:${dl.id}" value="${esc(dl.val||'')}" placeholder="Срок (напр. I кв. 2026)">
               <button class="ccminibtn" data-dl-del="${c.id}:${dl.id}" title="Удалить строку">✕</button>
             </div>`).join('')}
           <div class="rowpair rowadd">
-            <input id="dlNewLabel" placeholder="Очередь" style="flex:0 0 130px">
+            <input id="dlNewLabel" placeholder="Очередь" style="flex:0 0 100px">
             <input id="dlNewVal" placeholder="Срок (напр. I кв. 2026)">
             <button class="ccnoteadd-btn" data-dl-add="${c.id}">＋ Добавить</button>
           </div>
@@ -2381,12 +2393,12 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
         const pricesHtml=OBJ?`<div class="ccnotesection"><div class="cctitle">Цены</div>
           ${(c.prices||[]).map(pr=>`
             <div class="rowpair">
-              <input data-pr-area="${c.id}:${pr.id}" value="${esc(pr.area||'')}" placeholder="Площадь, м²" style="flex:0 0 130px">
+              <input data-pr-area="${c.id}:${pr.id}" value="${esc(pr.area||'')}" placeholder="Площадь, м²" style="flex:0 0 100px">
               <input data-pr-val="${c.id}:${pr.id}" data-pr-raw="${pr.val||0}" value="${pr.val?fmtRub(pr.val):''}" placeholder="Цена, ₽">
               <button class="ccminibtn" data-pr-del="${c.id}:${pr.id}" title="Удалить строку">✕</button>
             </div>`).join('')}
           <div class="rowpair rowadd">
-            <input id="prNewArea" placeholder="Площадь, м²" style="flex:0 0 130px">
+            <input id="prNewArea" placeholder="Площадь, м²" style="flex:0 0 100px">
             <input id="prNewVal" placeholder="Цена, ₽">
             <button class="ccnoteadd-btn" data-pr-add="${c.id}">＋ Добавить</button>
           </div>
@@ -2421,10 +2433,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <label>ID сделки в CRM<input data-cf="crmid" data-cid="${c.id}" value="${esc(c.crmid||'')}" inputmode="numeric" placeholder="напр. 2525138"></label>
             `}
           </div>
-          ${deadlinesHtml}
-          ${pricesHtml}
+          ${OBJ?`<div class="objcols">${deadlinesHtml}${pricesHtml}${phonesHtml}</div>`:phonesHtml}
           ${tasksHtml}
-          ${phonesHtml}
           ${notesHtml}
         </div>`;
       }
@@ -2867,7 +2877,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
   document.querySelectorAll('[data-pr-val]').forEach(inp=>{
     inp.addEventListener('focus',()=>{inp.value=inp.dataset.prRaw||''});
     const apply=()=>{
-      const v=parseRub(inp.value);
+      const v=parsePriceToken(inp.value);
       inp.dataset.prRaw=String(v);
       inp.value=v?fmtRub(v):'';
       const [cid,pid]=inp.dataset.prVal.split(':');
@@ -2884,10 +2894,12 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
   document.querySelectorAll('[data-pr-add]').forEach(b=>{
     b.onclick=()=>{
       const cl=list.find(x=>x.id===b.dataset.prAdd);if(!cl)return;
-      const area=($('prNewArea')?.value||'').trim();
-      const val=parseRub($('prNewVal')?.value||'');
-      if(!area&&!val){toast('Укажите площадь и цену');return}
-      cl.prices=cl.prices||[];cl.prices.push({id:uid(),area,val});
+      const areas=String($('prNewArea')?.value||'').split('/').map(x=>x.trim()).filter(Boolean);
+      const vals=parsePricesMulti($('prNewVal')?.value||'');
+      if(!areas.length&&!vals.length){toast('Укажите площадь и цену');return}
+      cl.prices=cl.prices||[];
+      const n=Math.max(vals.length,areas.length);
+      for(let i=0;i<n;i++)cl.prices.push({id:uid(),area:areas[i]||'',val:vals[i]||0});
       save();renderFolderView();
     };
   });
