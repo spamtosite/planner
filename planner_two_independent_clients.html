@@ -2936,7 +2936,6 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     };
     inp.addEventListener('blur',apply);inp.addEventListener('change',apply);
     inp.onclick=e=>e.stopPropagation();inp.onkeydown=e=>{if(e.key==='Enter')inp.blur()};
-  });
   document.querySelectorAll('[data-pr-del]').forEach(b=>{
     b.onclick=(e)=>{e.stopPropagation();const [cid,pid]=b.dataset.prDel.split(':');const cl=list.find(x=>x.id===cid);if(!cl)return;cl.prices=(cl.prices||[]).filter(x=>x.id!==pid);save();renderFolderView()};
   });
