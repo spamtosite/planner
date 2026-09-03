@@ -628,6 +628,7 @@ details.fold summary:hover{background:#e9e4ff}
 details.fold[open]{display:block;width:fit-content;max-width:100%;background:#fff;border:1px solid #ddd6fe;border-radius:12px;overflow:hidden}
 details.fold[open] summary{display:flex;border-radius:0;background:#ede9fe;border-bottom:1px solid #ddd6fe}
 details.fold[open] .foldbody{border:0;background:transparent;padding:2px 10px 8px;margin:0}
+details.fold .foldbody{line-height:1.35}
 
 /* Mobile PWA: modal behaves as an app sheet, not a draggable web page. */
 html{overscroll-behavior-x:none}
@@ -4532,22 +4533,17 @@ function foldFlattenBody(details){
   if(!body){
     body=document.createElement('div');body.className='foldbody';
     [...details.childNodes].forEach(n=>{if(n!==sum)body.appendChild(n)});
-    /* ИСПРАВЛЕНО: вставляем body обратно в details */
     if(sum)sum.after(body);else details.appendChild(body);
   }
-  const lines=[];
-  [...body.childNodes].forEach(n=>{
-    if(n.nodeType===1){
-      const tag=n.tagName;
-      if(tag==='BR'){lines.push('');return}
-      if(tag==='DIV'||tag==='P'||tag==='LI'){
-        lines.push(n.innerHTML.replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'').replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,'').replace(/(?:<br>\s*)+$/i,''));
-      }else lines.push(n.outerHTML);
-    }else if(n.nodeType===3){
-      n.textContent.split('\n').forEach(x=>lines.push(esc(x)));
-    }
-  });
-  body.innerHTML=lines.join('<br>').replace(/^(?:<br>)+|(?:<br>)+$/g,'').replace(/(?:<br>\s*){3,}/g,'<br><br>');
+  /* нормализация: блочные границы → <br>, существующие <br> не трогаем, тройные+ схлопываем */
+  let html=body.innerHTML
+    .replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'')
+    .replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,'')
+    .replace(/<li[^>]*>/gi,'<br>').replace(/<\/li>/gi,'')
+    .replace(/(?:\s*<br>\s*){3,}/gi,'<br><br>')
+    .replace(/^(?:\s|<br>)+/i,'')
+    .replace(/(?:\s|<br>)+$/i,'');
+  body.innerHTML=html;
   if(!sum){sum=document.createElement('summary');sum.textContent='Подробнее';details.prepend(sum)}
   return body;
 }
