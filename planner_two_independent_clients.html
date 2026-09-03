@@ -4540,7 +4540,7 @@ function foldFlattenBody(details){
     .replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'')
     .replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,'')
     .replace(/<li[^>]*>/gi,'<br>').replace(/<\/li>/gi,'')
-    .replace(/(?:\s*<br>\s*){3,}/gi,'<br><br>')
+    .replace(/(?:\s*<br>\s*){2,}/gi,'<br>')
     .replace(/^(?:\s|<br>)+/i,'')
     .replace(/(?:\s|<br>)+$/i,'');
   body.innerHTML=html;
@@ -4596,6 +4596,8 @@ function sanitizeRichHtml(value){
   const stash=[];
   box.querySelectorAll('details.fold').forEach((d,i)=>{stash.push(d.outerHTML);d.replaceWith(document.createTextNode('\u0001FOLD'+i+'\u0001'))});
   let out=box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
+    /* ИЗМ: двойные/тройные переносы (артефакты редактора) → один перенос */
+  out=out.replace(/(?:\s*<br>\s*){2,}/gi,'<br>');
   stash.forEach((h,i)=>{out=out.split('\u0001FOLD'+i+'\u0001').join(h)});
   return out;
 }
