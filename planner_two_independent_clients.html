@@ -4541,13 +4541,13 @@ function foldFlattenBody(details){
       const tag=n.tagName;
       if(tag==='BR'){lines.push('');return}
       if(tag==='DIV'||tag==='P'||tag==='LI'){
-        lines.push(n.innerHTML.replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'').replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,''));
+        lines.push(n.innerHTML.replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'').replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,'').replace(/(?:<br>\s*)+$/i,''));
       }else lines.push(n.outerHTML);
     }else if(n.nodeType===3){
       n.textContent.split('\n').forEach(x=>lines.push(esc(x)));
     }
   });
-  body.innerHTML=lines.join('<br>').replace(/(<br>){3,}/g,'<br><br>');
+  body.innerHTML=lines.join('<br>').replace(/^(?:<br>)+|(?:<br>)+$/g,'').replace(/(?:<br>\s*){3,}/g,'<br><br>');
   if(!sum){sum=document.createElement('summary');sum.textContent='Подробнее';details.prepend(sum)}
   return body;
 }
