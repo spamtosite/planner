@@ -616,6 +616,13 @@ a.rich-link{color:#2563eb;font-weight:700;text-decoration:underline;text-underli
 a.rich-link:hover{color:#1d4ed8}
 .rich-chip[data-cmd="spoiler"]{color:#64748b}
 .rich-chip[data-cmd="spoiler"].active{background:#e2e8f0;border-color:#64748b;color:#334155}
+  /* Сворачиваемые блоки в заметках */
+details.fold{margin:4px 0;border:1px solid var(--line);border-radius:10px;background:#f8f9fb;overflow:hidden}
+details.fold summary{list-style:none;cursor:pointer;user-select:none;padding:6px 10px;font-weight:700;font-size:12.5px;color:#1d4ed8;background:#eef4ff}
+details.fold summary::-webkit-details-marker{display:none}
+details.fold summary::before{content:'▸ ';display:inline-block;width:14px;color:#1d4ed8}
+details.fold[open] summary::before{content:'▾ '}
+details.fold summary:hover{background:#e2ecff}
 @media(max-width:680px){.rich-toolbar{gap:5px}.rich-chip{min-height:34px;padding:6px 9px}.rich-editor{font-size:15px;min-height:105px}}
 
 /* Mobile PWA: modal behaves as an app sheet, not a draggable web page. */
@@ -4512,14 +4519,15 @@ function normalizeNoteBreaks(value=''){
 }
 function sanitizeRichHtml(value){
   const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
-  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL','A']);
+  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL','A','DETAILS','SUMMARY']);
   const allowedColors=new Set(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb']);
   const allowedBgs=new Set(['rgb(254, 240, 138)','#fef08a','rgb(253, 224, 71)']);
   const aligns=new Set(['left','center','right','justify']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
-    /* ИЗМ: атрибуты ссылок и спойлеров читаем ДО удаления атрибутов */
+    /* ИЗМ: атрибуты ссылок, спойлеров и свернутых блоков читаем ДО удаления атрибутов */
     const keepHref=(el.tagName==='A')?String(el.getAttribute('href')||''):'';
+    const keepOpen=(el.tagName==='DETAILS'&&el.hasAttribute('open'));
     const isSpoiler=(el.tagName==='SPAN'&&el.classList.contains('spoiler'));
     const wasRevealed=isSpoiler&&el.classList.contains('revealed');
     const keep={};
@@ -4538,11 +4546,13 @@ function sanitizeRichHtml(value){
     if(/line-through/.test(td))keep.textDecoration='line-through';
     if(isSpoiler)keep.__spoiler=true;
     if(wasRevealed)keep.__revealed=true;
+    if(keepOpen)keep.__open=true;
     if(keepHref&&/^(https?:|mailto:)/i.test(keepHref))keep.__href=keepHref;
     [...el.attributes].forEach(a=>el.removeAttribute(a.name));
     const styleEntries=Object.entries(keep).filter(([k])=>!k.startsWith('__'));
     styleEntries.forEach(([k,v])=>el.style[k]=v);
     if(keep.__spoiler){el.classList.add('spoiler');if(keep.__revealed)el.classList.add('revealed')}
+    if(keep.__open)el.setAttribute('open','');
     if(keep.__href){el.setAttribute('href',keep.__href);el.setAttribute('target','_blank');el.setAttribute('rel','noopener');el.classList.add('rich-link')}
   });
   return box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
@@ -4559,7 +4569,7 @@ function renderRichText(value){
 }
 fmtNotes=function(value){return renderRichText(value)};
 fmtNote=function(value){return renderRichText(value)};
-function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="hiliteColor" data-value="#fef08a" title="Выделить жёлтым">🖍</button><button type="button" class="rich-chip" data-cmd="spoiler" title="Спойлер">👻 Спойлер</button><button type="button" class="rich-chip" data-cmd="link" title="Вставить ссылку">🔗 Ссылка</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
+function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="hiliteColor" data-value="#fef08a" title="Выделить жёлтым">🖍</button>button type="button" class="rich-chip" data-cmd="fold" title="Свернуть блок">▼ Блок</button><button type="button" class="rich-chip" data-cmd="link" title="Вставить ссылку">🔗 Ссылка</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
 function enhanceRichTextarea(textarea,placeholder='Комментарий менеджера…'){
   if(!textarea||textarea.dataset.richReady)return;
   textarea.dataset.richReady='1';textarea.classList.add('rich-source');
@@ -4577,6 +4587,25 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
     if(!editor.contains(range.commonAncestorContainer)){toast('Выделите текст внутри редактора');return}
     const span=document.createElement('span');span.className='spoiler';
     try{span.appendChild(range.extractContents());range.deleteContents();range.insertNode(span);sel.removeAllRanges()}catch(e){return}
+    sync();refresh();
+  };
+    const applyFold=()=>{
+    const sel=window.getSelection();
+    if(!sel||sel.rangeCount===0||sel.isCollapsed){toast('Выделите текст, который свернуть');return}
+    const range=sel.getRangeAt(0);
+    if(!editor.contains(range.commonAncestorContainer)){toast('Выделите текст внутри редактора');return}
+    const text=sel.toString();
+    const firstLine=(text.split('\n').find(l=>l.trim())||'').trim();
+    const title=prompt('Название свернутого блока:',firstLine.slice(0,60)||'Подробнее');
+    if(title===null)return;
+    const name=title.trim()||'Подробнее';
+    const details=document.createElement('details');details.className='fold';
+    const summary=document.createElement('summary');summary.textContent=name;
+    details.appendChild(summary);
+    details.appendChild(range.extractContents());
+    range.deleteContents();
+    range.insertNode(details);
+    sel.removeAllRanges();
     sync();refresh();
   };
   const applyLink=()=>{
@@ -4602,7 +4631,7 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
     const cmd=btn.dataset.cmd;
     if(cmd==='foreColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e2){}const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}
     else if(cmd==='hiliteColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e2){}document.execCommand('hiliteColor',false,btn.dataset.value)}
-    else if(cmd==='spoiler')applySpoiler();
+    else if(cmd==='fold')applyFold();
     else if(cmd==='link')applyLink();
     else document.execCommand(cmd,false,null);
     sync();refresh();
