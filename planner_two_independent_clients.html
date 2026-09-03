@@ -624,12 +624,10 @@ details.fold summary::-webkit-details-marker{display:none}
 details.fold summary::before{content:'▸';font-size:11px;transition:transform .2s ease}
 details.fold[open] summary::before{transform:rotate(90deg)}
 details.fold summary:hover{background:#e9e4ff}
-details.fold[open]{display:block}
-details.fold[open] summary{border-radius:12px 12px 0 0;background:#ede9fe}
-details.fold[open]>*:not(summary){border:1px solid #ddd6fe;border-top:0;border-radius:0 0 12px 12px;padding:8px 10px;background:#fff}
-.rich-wrap{position:relative}
-.rich-toolbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0 7px;margin:0 0 8px}
-.clientcard{max-height:70vh;overflow:auto}
+/* раскрытый: ОДИН общий контейнер, строки внутри без собственных рамок */
+details.fold[open]{display:block;background:#fff;border:1px solid #ddd6fe;border-radius:12px;overflow:hidden}
+details.fold[open] summary{display:flex;border-radius:0;background:#ede9fe;border-bottom:1px solid #ddd6fe}
+details.fold[open]>*:not(summary){border:0;background:transparent;padding:2px 10px;margin:0}
 
 /* Mobile PWA: modal behaves as an app sheet, not a draggable web page. */
 html{overscroll-behavior-x:none}
