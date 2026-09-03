@@ -674,6 +674,11 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 /* Редактор прокручивается сам — панель инструментов всегда видна */
 .clientcard{max-height:72vh;overflow:auto}
 .rich-editor{max-height:45vh;overflow-y:auto}
+  /* Одинаковый межстрочный интервал в редакторе и в просмотре */
+.rich-editor{line-height:1.35}
+.rich-editor div,.rich-editor p{margin:0;padding:0;line-height:1.35;min-height:0}
+.rich-editor br{display:block;content:"";line-height:0}
+.ccnoteitem .cctext,.rich-note,.foldbody{line-height:1.35}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
