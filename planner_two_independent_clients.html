@@ -608,7 +608,15 @@ body.resizing iframe{pointer-events:none}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
 
 /* Rich text notes */
-.rich-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:9px 0 7px;border-bottom:1px solid var(--line);margin-bottom:8px}.rich-chip{min-height:31px;padding:6px 11px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font-size:12px;font-weight:750;box-shadow:0 1px 2px #00000008;transition:transform .15s,background .15s,border-color .15s,color .15s}.rich-chip:hover{transform:translateY(-1px);background:#fff;border-color:#bcc5d0}.rich-chip.active{background:#e8f0ff;border-color:#2563eb;color:#1746a2;box-shadow:0 0 0 2px #2563eb20}.rich-chip[data-cmd="foreColor"][data-value="#dc2626"].active{background:#fee2e2;border-color:#dc2626;color:#991b1b}.rich-chip[data-cmd="foreColor"][data-value="#16a34a"].active{background:#dcfce7;border-color:#16a34a;color:#166534}.rich-chip[data-cmd="foreColor"][data-value="#2563eb"].active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}.rich-chip[data-cmd="hiliteColor"].active{background:#fef3c7;border-color:#f59e0b;color:#92400e}.rich-editor{min-height:88px;width:100%;border:1.5px solid var(--accent);border-radius:9px;padding:10px 11px;font:inherit;line-height:1.45;background:#fff;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none}.rich-source{display:none!important}.note-result-chip{display:grid;gap:3px;margin-top:10px;padding:10px 12px;border:1px solid #86efac;border-radius:11px;background:linear-gradient(135deg,#ecfdf3,#f0fdf4);box-shadow:0 3px 12px rgba(22,163,74,.10)}.note-result-chip .nr-label{font-size:10.5px;font-weight:850;letter-spacing:.05em;color:#15803d;text-transform:uppercase}.note-result-chip .nr-text{font-size:13px;font-weight:750;color:#166534;white-space:pre-wrap;overflow-wrap:anywhere}.tasknoteitem .rich-note{white-space:normal;overflow-wrap:anywhere}.rich-note mark{background:#fef08a;border-radius:3px;padding:0 1px}@media(max-width:680px){.rich-toolbar{gap:5px}.rich-chip{min-height:34px;padding:6px 9px}.rich-editor{font-size:15px;min-height:105px}}
+.rich-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:9px 0 7px;border-bottom:1px solid var(--line);margin-bottom:8px}.rich-chip{min-height:31px;padding:6px 11px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font-size:12px;font-weight:750;box-shadow:0 1px 2px #00000008;transition:transform .15s,background .15s,border-color .15s,color .15s}.rich-chip:hover{transform:translateY(-1px);background:#fff;border-color:#bcc5d0}.rich-chip.active{background:#e8f0ff;border-color:#2563eb;color:#1746a2;box-shadow:0 0 0 2px #2563eb20}.rich-chip[data-cmd="foreColor"][data-value="#dc2626"].active{background:#fee2e2;border-color:#dc2626;color:#991b1b}.rich-chip[data-cmd="foreColor"][data-value="#16a34a"].active{background:#dcfce7;border-color:#16a34a;color:#166534}.rich-chip[data-cmd="foreColor"][data-value="#2563eb"].active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}.rich-chip[data-cmd="hiliteColor"].active{background:#fef3c7;border-color:#f59e0b;color:#92400e}.rich-editor{min-height:88px;width:100%;border:1.5px solid var(--accent);border-radius:9px;padding:10px 11px;font:inherit;line-height:1.45;background:#fff;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none}.rich-source{display:none!important}.note-result-chip{display:grid;gap:3px;margin-top:10px;padding:10px 12px;border:1px solid #86efac;border-radius:11px;background:linear-gradient(135deg,#ecfdf3,#f0fdf4);box-shadow:0 3px 12px rgba(22,163,74,.10)}.note-result-chip .nr-label{font-size:10.5px;font-weight:850;letter-spacing:.05em;color:#15803d;text-transform:uppercase}.note-result-chip .nr-text{font-size:13px;font-weight:750;color:#166534;white-space:pre-wrap;overflow-wrap:anywhere}.tasknoteitem .rich-note{white-space:normal;overflow-wrap:anywhere}.rich-note mark{background:#fef08a;border-radius:3px;padding:0 1px}
+.spoiler{background:#cbd5e1;color:transparent;border-radius:4px;padding:0 3px;cursor:pointer;transition:background .2s ease,color .2s ease}
+.spoiler.revealed{background:#fef9c3;color:inherit}
+.spoiler:not(.revealed) *{visibility:hidden}
+a.rich-link{color:#2563eb;font-weight:700;text-decoration:underline;text-underline-offset:2px;cursor:pointer;word-break:break-all}
+a.rich-link:hover{color:#1d4ed8}
+.rich-chip[data-cmd="spoiler"]{color:#64748b}
+.rich-chip[data-cmd="spoiler"].active{background:#e2e8f0;border-color:#64748b;color:#334155}
+@media(max-width:680px){.rich-toolbar{gap:5px}.rich-chip{min-height:34px;padding:6px 9px}.rich-editor{font-size:15px;min-height:105px}}
 
 /* Mobile PWA: modal behaves as an app sheet, not a draggable web page. */
 html{overscroll-behavior-x:none}
@@ -4504,12 +4512,16 @@ function normalizeNoteBreaks(value=''){
 }
 function sanitizeRichHtml(value){
   const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
-  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL']);
+  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL','A']);
   const allowedColors=new Set(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb']);
   const allowedBgs=new Set(['rgb(254, 240, 138)','#fef08a','rgb(253, 224, 71)']);
   const aligns=new Set(['left','center','right','justify']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
+    /* ИЗМ: атрибуты ссылок и спойлеров читаем ДО удаления атрибутов */
+    const keepHref=(el.tagName==='A')?String(el.getAttribute('href')||''):'';
+    const isSpoiler=(el.tagName==='SPAN'&&el.classList.contains('spoiler'));
+    const wasRevealed=isSpoiler&&el.classList.contains('revealed');
     const keep={};
     const color=(el.style.color||el.getAttribute('color')||'').toLowerCase().replace(/\s+/g,' ');
     if(allowedColors.has(color)||allowedColors.has(color.replace(/\s/g,'')))keep.color=allowedColors.has(color)?color:color.replace(/\s/g,'');
@@ -4524,11 +4536,18 @@ function sanitizeRichHtml(value){
     const td=el.style.textDecorationLine||el.style.textDecoration;
     if(/underline/.test(td))keep.textDecoration='underline';
     if(/line-through/.test(td))keep.textDecoration='line-through';
+    if(isSpoiler)keep.__spoiler=true;
+    if(wasRevealed)keep.__revealed=true;
+    if(keepHref&&/^(https?:|mailto:)/i.test(keepHref))keep.__href=keepHref;
     [...el.attributes].forEach(a=>el.removeAttribute(a.name));
-    Object.entries(keep).forEach(([k,v])=>el.style[k]=v);
+    const styleEntries=Object.entries(keep).filter(([k])=>!k.startsWith('__'));
+    styleEntries.forEach(([k,v])=>el.style[k]=v);
+    if(keep.__spoiler){el.classList.add('spoiler');if(keep.__revealed)el.classList.add('revealed')}
+    if(keep.__href){el.setAttribute('href',keep.__href);el.setAttribute('target','_blank');el.setAttribute('rel','noopener');el.classList.add('rich-link')}
   });
   return box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
 }
+  
 function richToPlain(value){const box=document.createElement('div');box.innerHTML=sanitizeRichHtml(value);return (box.innerText||'').trim()}
 function renderRichText(value){
   const raw=normalizeNoteBreaks(value);
@@ -4540,7 +4559,7 @@ function renderRichText(value){
 }
 fmtNotes=function(value){return renderRichText(value)};
 fmtNote=function(value){return renderRichText(value)};
-function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
+function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="hiliteColor" data-value="#fef08a" title="Выделить жёлтым">🖍</button><button type="button" class="rich-chip" data-cmd="spoiler" title="Спойлер">👻 Спойлер</button><button type="button" class="rich-chip" data-cmd="link" title="Вставить ссылку">🔗 Ссылка</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
 function enhanceRichTextarea(textarea,placeholder='Комментарий менеджера…'){
   if(!textarea||textarea.dataset.richReady)return;
   textarea.dataset.richReady='1';textarea.classList.add('rich-source');
@@ -4551,7 +4570,43 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
   textarea.__richSync=sync;
   const normColor=value=>{const v=String(value||'').toLowerCase().replace(/\s/g,'');const map={'rgb(220,38,38)':'#dc2626','rgb(22,163,74)':'#16a34a','rgb(37,99,235)':'#2563eb','rgb(31,35,40)':'#1f2328','rgb(0,0,0)':'#000000'};return map[v]||v};
   const refresh=()=>{wrap.querySelectorAll('.rich-chip').forEach(b=>{let on=false;try{if(b.dataset.cmd==='foreColor')on=normColor(document.queryCommandValue('foreColor'))===b.dataset.value;else if(b.dataset.cmd!=='removeFormat')on=document.queryCommandState(b.dataset.cmd)}catch(e){}b.classList.toggle('active',on)})};
-  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{e.preventDefault();editor.focus();const cmd=btn.dataset.cmd;if(cmd==='foreColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e){}const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}else document.execCommand(cmd,false,null);sync();refresh()}));
+    const applySpoiler=()=>{
+    const sel=window.getSelection();
+    if(!sel||sel.rangeCount===0||sel.isCollapsed){toast('Выделите текст для спойлера');return}
+    const range=sel.getRangeAt(0);
+    if(!editor.contains(range.commonAncestorContainer)){toast('Выделите текст внутри редактора');return}
+    const span=document.createElement('span');span.className='spoiler';
+    try{span.appendChild(range.extractContents());range.deleteContents();range.insertNode(span);sel.removeAllRanges()}catch(e){return}
+    sync();refresh();
+  };
+  const applyLink=()=>{
+    const sel=window.getSelection();
+    let text='',range=null;
+    if(sel&&sel.rangeCount&&!sel.isCollapsed){
+      range=sel.getRangeAt(0);
+      if(!editor.contains(range.commonAncestorContainer)){toast('Выделите текст внутри редактора');return}
+      text=sel.toString();
+    }
+    const url=prompt((text?'Ссылка для «'+text+'»':'URL ссылки')+' (https://…):','');
+    if(!url)return;
+    const clean=url.trim().match(/^(https?:\/\/|mailto:)/i)?url.trim():'https://'+url.trim();
+    const name=text||prompt('Название ссылки (как она будет выглядеть):', 'Отчетность');
+    if(!name){toast('Название ссылки не задано');return}
+    const a=document.createElement('a');a.href=clean;a.target='_blank';a.rel='noopener';a.className='rich-link';a.textContent=name;
+    if(range){try{range.deleteContents();range.insertNode(a);sel.removeAllRanges()}catch(e){}}
+    else{editor.appendChild(document.createTextNode(' '));editor.appendChild(a)}
+    sync();refresh();
+  };
+  wrap.querySelectorAll('.rich-chip').forEach(btn=>btn.addEventListener('mousedown',e=>{
+    e.preventDefault();editor.focus();
+    const cmd=btn.dataset.cmd;
+    if(cmd==='foreColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e2){}const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}
+    else if(cmd==='hiliteColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e2){}document.execCommand('hiliteColor',false,btn.dataset.value)}
+    else if(cmd==='spoiler')applySpoiler();
+    else if(cmd==='link')applyLink();
+    else document.execCommand(cmd,false,null);
+    sync();refresh();
+  }));
   editor.addEventListener('input',()=>{sync();refresh()});editor.addEventListener('keyup',refresh);editor.addEventListener('mouseup',refresh);editor.addEventListener('focus',refresh);
 }
 function enhanceVisibleRichEditors(){
@@ -4617,5 +4672,12 @@ document.addEventListener('click',e=>{
       return;
     }
   }
+},true);
+/* Спойлеры в заметках: клик — раскрыть/скрыть */
+document.addEventListener('click',e=>{
+  const sp=e.target.closest('.spoiler');
+  if(!sp)return;
+  if(e.target.closest('a'))return;
+  sp.classList.toggle('revealed');
 },true);
 </script></body></html>
