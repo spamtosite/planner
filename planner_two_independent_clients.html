@@ -4535,21 +4535,23 @@ function foldFlattenBody(details){
   details.classList.add('fold');
   const sum=details.querySelector(':scope>summary');
   let body=details.querySelector(':scope>.foldbody');
-  if(!body){
-    body=document.createElement('div');body.className='foldbody';
-    [...details.childNodes].forEach(n=>{if(n!==sum)body.appendChild(n)});
-    if(sum)sum.after(body);else details.appendChild(body);
-  }
-  /* нормализация: блочные границы → <br>, существующие <br> не трогаем, тройные+ схлопываем */
+  if(!body){body=document.createElement('div');body.className='foldbody';details.appendChild(body)}
+  /* все узлы кроме summary и body — внутрь body; лишние foldbody — слить в один */
+  [...details.childNodes].forEach(n=>{if(n!==sum&&n!==body)body.appendChild(n)});
+  details.querySelectorAll(':scope>.foldbody').forEach(b=>{if(b!==body){[...b.childNodes].forEach(n=>body.appendChild(n));b.remove()}});
+  /* нормализация: блочные границы → <br>, чистка пустых спанов и дублей переноса */
   let html=body.innerHTML
     .replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'')
     .replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,'')
     .replace(/<li[^>]*>/gi,'<br>').replace(/<\/li>/gi,'')
+    .replace(/<span[^>]*>(?:<br\s*\/?>|\s)*<\/span>/gi,'')
     .replace(/(?:\s*<br>\s*){2,}/gi,'<br>')
     .replace(/^(?:\s|<br>)+/i,'')
     .replace(/(?:\s|<br>)+$/i,'');
   body.innerHTML=html;
-  if(!sum){sum=document.createElement('summary');sum.textContent='Подробнее';details.prepend(sum)}
+  /* summary — всегда первым ребёнком */
+  if(sum){sum.remove();details.prepend(sum)}
+  else{const s2=document.createElement('summary');s2.textContent='Подробнее';details.prepend(s2)}
   return body;
 }
 function sanitizeRichHtml(value){
@@ -4601,7 +4603,7 @@ function sanitizeRichHtml(value){
   const stash=[];
   box.querySelectorAll('details.fold').forEach((d,i)=>{stash.push(d.outerHTML);d.replaceWith(document.createTextNode('\u0001FOLD'+i+'\u0001'))});
   let out=box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
-    /* ИЗМ: двойные/тройные переносы (артефакты редактора) → один перенос */
+  out=out.replace(/<span[^>]*>(?:<br\s*\/?>|\s)*<\/span>/gi,'');
   out=out.replace(/(?:\s*<br>\s*){2,}/gi,'<br>');
   stash.forEach((h,i)=>{out=out.split('\u0001FOLD'+i+'\u0001').join(h)});
   return out;
