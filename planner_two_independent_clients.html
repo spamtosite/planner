@@ -627,7 +627,7 @@ details.fold summary:hover{background:#e9e4ff}
 /* раскрытый: ОДИН общий контейнер, строки внутри без собственных рамок */
 details.fold[open]{display:block;background:#fff;border:1px solid #ddd6fe;border-radius:12px;overflow:hidden}
 details.fold[open] summary{display:flex;border-radius:0;background:#ede9fe;border-bottom:1px solid #ddd6fe}
-details.fold[open]>*:not(summary){border:0;background:transparent;padding:2px 10px;margin:0}
+details.fold[open] .foldbody{border:0;background:transparent;padding:2px 10px 8px;margin:0}
 
 /* Mobile PWA: modal behaves as an app sheet, not a draggable web page. */
 html{overscroll-behavior-x:none}
@@ -670,10 +670,9 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 .objcols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:start}
 .objcols .ccnotesection{min-width:0}
 @media(max-width:1100px){.objcols{grid-template-columns:1fr}}
-  /* Липкая панель инструментов заметок */
+/* Редактор прокручивается сам — панель инструментов всегда видна */
 .clientcard{max-height:72vh;overflow:auto}
-.rich-wrap{position:relative}
-.rich-wrap .rich-toolbar{position:sticky!important;top:0!important;z-index:8;background:#fafbfc!important;border-bottom:1px solid var(--line);margin:0 0 8px!important;padding:8px 2px 7px!important}
+.rich-editor{max-height:45vh;overflow-y:auto}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -4525,17 +4524,46 @@ function normalizeNoteBreaks(value=''){
   }
   return text;
 }
+/* Сборка содержимого fold-блока в один сплошной узел (inline-форматирование строк сохраняется) */
+function foldFlattenBody(details){
+  details.classList.add('fold');
+  const sum=details.querySelector(':scope>summary');
+  let body=details.querySelector(':scope>.foldbody');
+  if(!body){
+    body=document.createElement('div');body.className='foldbody';
+    [...details.childNodes].forEach(n=>{if(n!==sum)body.appendChild(n)});
+  }
+  const lines=[];
+  [...body.childNodes].forEach(n=>{
+    if(n.nodeType===1){
+      const tag=n.tagName;
+      if(tag==='BR'){lines.push('');return}
+      if(tag==='DIV'||tag==='P'||tag==='LI'){
+        lines.push(n.innerHTML.replace(/<div[^>]*>/gi,'<br>').replace(/<\/div>/gi,'').replace(/<p[^>]*>/gi,'<br>').replace(/<\/p>/gi,''));
+      }else lines.push(n.outerHTML);
+    }else if(n.nodeType===3){
+      n.textContent.split('\n').forEach(x=>lines.push(esc(x)));
+    }
+  });
+  body.innerHTML=lines.join('<br>').replace(/(<br>){3,}/g,'<br><br>');
+  if(!sum){sum=document.createElement('summary');sum.textContent='Подробнее';details.prepend(sum)}
+  return body;
+}
 function sanitizeRichHtml(value){
   const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
+  /* 1) свернутые блоки: все строки — в один сплошной .foldbody (выделение становится цельным) */
+  box.querySelectorAll('details').forEach(d=>foldFlattenBody(d));
   const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL','A','DETAILS','SUMMARY']);
   const allowedColors=new Set(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb']);
   const allowedBgs=new Set(['rgb(254, 240, 138)','#fef08a','rgb(253, 224, 71)']);
   const aligns=new Set(['left','center','right','justify']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
-    /* ИЗМ: атрибуты ссылок, спойлеров и свернутых блоков читаем ДО удаления атрибутов */
     const keepHref=(el.tagName==='A')?String(el.getAttribute('href')||''):'';
     const keepOpen=(el.tagName==='DETAILS'&&el.hasAttribute('open'));
+    /* 2) запоминаем классы блоков ДО срезания атрибутов */
+    const keepFold=(el.tagName==='DETAILS'&&el.classList.contains('fold'));
+    const keepFoldBody=(el.tagName==='DIV'&&el.classList.contains('foldbody'));
     const isSpoiler=(el.tagName==='SPAN'&&el.classList.contains('spoiler'));
     const wasRevealed=isSpoiler&&el.classList.contains('revealed');
     const keep={};
@@ -4555,24 +4583,22 @@ function sanitizeRichHtml(value){
     if(isSpoiler)keep.__spoiler=true;
     if(wasRevealed)keep.__revealed=true;
     if(keepOpen)keep.__open=true;
+    if(keepFold)keep.__fold=true;
+    if(keepFoldBody)keep.__foldbody=true;
     if(keepHref&&/^(https?:|mailto:)/i.test(keepHref))keep.__href=keepHref;
     [...el.attributes].forEach(a=>el.removeAttribute(a.name));
-    const styleEntries=Object.entries(keep).filter(([k])=>!k.startsWith('__'));
-    styleEntries.forEach(([k,v])=>el.style[k]=v);
+    Object.entries(keep).filter(([k])=>!k.startsWith('__')).forEach(([k,v])=>el.style[k]=v);
     if(keep.__spoiler){el.classList.add('spoiler');if(keep.__revealed)el.classList.add('revealed')}
+    if(keep.__fold)el.classList.add('fold');
+    if(keep.__foldbody)el.classList.add('foldbody');
     if(keep.__open)el.setAttribute('open','');
     if(keep.__href){el.setAttribute('href',keep.__href);el.setAttribute('target','_blank');el.setAttribute('rel','noopener');el.classList.add('rich-link')}
   });
-  let out=box.innerHTML.replace(/<div><br><\/div>/g,'<br>');
-  /* ИЗМ: внутри свернутых блоков div не превращаем в <br>, чтобы текст выделялся цельно */
-  box.querySelectorAll('details.fold').forEach((d,i)=>{
-    out=out.replace(new RegExp('<details class="fold">([\\s\\S]*?)</details>','i'),m=>m);
-  });
-  out=out.replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
-  /* возвращаем details с нетронутым внутренним HTML */
-  box.querySelectorAll('details.fold').forEach((d,i)=>{
-    out=out.replace(/<details class="fold">[\s\S]*?<\/details>/i, d.outerHTML);
-  });
+  /* 3) защищаем блоки от глобальной замены div→br плейсхолдерами (корректно для нескольких блоков) */
+  const stash=[];
+  box.querySelectorAll('details.fold').forEach((d,i)=>{stash.push(d.outerHTML);d.replaceWith(document.createTextNode('\u0001FOLD'+i+'\u0001'))});
+  let out=box.innerHTML.replace(/<div><br><\/div>/g,'<br>').replace(/<div>/g,'<br>').replace(/<\/div>/g,'');
+  stash.forEach((h,i)=>{out=out.split('\u0001FOLD'+i+'\u0001').join(h)});
   return out;
 }
   
@@ -4623,6 +4649,7 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
     details.appendChild(range.extractContents());
     range.deleteContents();
     range.insertNode(details);
+    foldFlattenBody(details);
     sel.removeAllRanges();
     sync();refresh();
   };
@@ -4726,24 +4753,5 @@ document.addEventListener('click',e=>{
   if(!sp)return;
   if(e.target.closest('a'))return;
   sp.classList.toggle('revealed');
-},true);
-  /* Копирование содержимого свернутого блока одним куском */
-document.addEventListener('copy',e=>{
-  const sel=window.getSelection();
-  if(!sel||sel.rangeCount===0)return;
-  const range=sel.getRangeAt(0);
-  const folds=range.cloneContents().querySelectorAll?range.cloneContents().querySelectorAll('details.fold'):[];
-  if(!folds.length)return;
-  /* если выделение целиком внутри одного блока или захватывает блоки — отдаём чистый текст */
-  let txt='';
-  const frag=range.cloneContents();
-  const tmp=document.createElement('div');
-  tmp.appendChild(frag);
-  tmp.querySelectorAll('br').forEach(b=>b.replaceWith('\n'));
-  tmp.querySelectorAll('div,p,li,summary').forEach(x=>{x.prepend('\n')});
-  txt=tmp.innerText||tmp.textContent||'';
-  txt=txt.replace(/\n{3,}/g,'\n\n').trim();
-  e.clipboardData.setData('text/plain',txt);
-  e.preventDefault();
 },true);
 </script></body></html>
