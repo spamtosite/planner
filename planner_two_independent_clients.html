@@ -625,7 +625,7 @@ details.fold summary::before{content:'▸';font-size:11px;transition:transform .
 details.fold[open] summary::before{transform:rotate(90deg)}
 details.fold summary:hover{background:#e9e4ff}
 /* раскрытый: ОДИН общий контейнер, строки внутри без собственных рамок */
-details.fold[open]{display:block;background:#fff;border:1px solid #ddd6fe;border-radius:12px;overflow:hidden}
+details.fold[open]{display:block;width:fit-content;max-width:100%;background:#fff;border:1px solid #ddd6fe;border-radius:12px;overflow:hidden}
 details.fold[open] summary{display:flex;border-radius:0;background:#ede9fe;border-bottom:1px solid #ddd6fe}
 details.fold[open] .foldbody{border:0;background:transparent;padding:2px 10px 8px;margin:0}
 
@@ -4532,6 +4532,8 @@ function foldFlattenBody(details){
   if(!body){
     body=document.createElement('div');body.className='foldbody';
     [...details.childNodes].forEach(n=>{if(n!==sum)body.appendChild(n)});
+    /* ИСПРАВЛЕНО: вставляем body обратно в details */
+    if(sum)sum.after(body);else details.appendChild(body);
   }
   const lines=[];
   [...body.childNodes].forEach(n=>{
