@@ -4573,7 +4573,6 @@ function sanitizeRichHtml(value){
   });
   return out;
 }
-}
   
 function richToPlain(value){const box=document.createElement('div');box.innerHTML=sanitizeRichHtml(value);return (box.innerText||'').trim()}
 function renderRichText(value){
