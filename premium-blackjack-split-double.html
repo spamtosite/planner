@@ -13,7 +13,7 @@
   --bg:#080b0a; --panel:#0d1310;
   --gold:#c9a45f; --gold-2:#e8d3a0; --line:rgba(201,164,95,.22);
   --cream:#f6f1e2; --ink:#2a2d26; --red:#a23b32; --bad:#c96b5e; --neutral:#a9b3a5;
-  --card-w:clamp(66px,9vw,94px); --card-h:calc(var(--card-w)*1.45);
+  --card-w:clamp(72px,9.5vw,104px);
   --ease:cubic-bezier(.22,.9,.26,1);
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -53,7 +53,8 @@ header{display:flex;align-items:center;gap:18px;padding:16px 4px 12px}
 
 /* ── Стол ─────────────────────────────── */
 .table{
- --card-h:calc(var(--card-w)*1.45); /* фикс: высота следует за локальной шириной стола */
+  /* фикс: высота считается ЗДЕСЬ, от локальной ширины стола */
+  --card-h:calc(var(--card-w)*1.45);
   position:relative;flex:1;display:flex;flex-direction:column;align-items:center;
   border-radius:26px;padding:14px 14px 10px;overflow:hidden;
   background:radial-gradient(95% 75% at 50% 20%, #1a3d2e 0%, #12291f 48%, #0b1b14 100%);
@@ -80,7 +81,7 @@ header{display:flex;align-items:center;gap:18px;padding:16px 4px 12px}
 .discard{position:absolute;top:22px;left:26px;width:44px;height:62px;border:1px dashed rgba(201,164,95,.3);border-radius:6px;display:grid;place-items:center}
 .discard span{font-size:8.5px;letter-spacing:.24em;color:rgba(233,228,214,.35);writing-mode:vertical-rl}
 
-.dealer{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:calc(var(--card-h) + 38px)}
+.dealer{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:calc(var(--card-h) + 34px)}
 .d-meta{position:relative;display:flex;align-items:center;gap:8px;min-height:26px}
 
 .arc{width:min(720px,96%);margin:4px 0 -4px;display:block}
@@ -88,17 +89,19 @@ header{display:flex;align-items:center;gap:18px;padding:16px 4px 12px}
 .arc-t1{font-family:'Marcellus',serif;font-size:17px;letter-spacing:7px}
 .arc-t2{font-family:'Jost',sans-serif;font-size:9.5px;letter-spacing:3.5px;fill:rgba(201,164,95,.55)}
 
-/* ── Боксы игрока ─────────────────────── */
-.player{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:calc(var(--card-h) + 110px);padding:4px 0 8px;width:100%}
-.hands{display:flex;gap:10px;align-items:flex-end;justify-content:center;width:100%;flex-wrap:nowrap}
+/* ── Боксы игрока (дуга вокруг дилера) ─────────────────────── */
+.player{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:calc(var(--card-h) + 100px);padding:4px 0 8px;width:100%}
+.hands{display:flex;gap:8px;align-items:flex-end;justify-content:center;width:100%;flex-wrap:nowrap}
+.table.packed .hands{gap:3px}
 .box{
   display:flex;flex-direction:column;align-items:center;gap:8px;
-  padding:8px 5px 7px;border-radius:14px;border:1px solid transparent;transition:.3s;min-width:calc(var(--card-w) + 24px);
+  padding:8px 5px 7px;border-radius:14px;border:1px solid transparent;transition:.3s;
 }
 .box.active{border-color:var(--line);background:rgba(201,164,95,.06);box-shadow:0 0 24px rgba(201,164,95,.07)}
 .box-hands{display:flex;gap:6px;align-items:flex-start;justify-content:center;min-height:var(--card-h)}
+.table.packed .box-hands{gap:3px}
 .box-bet{
-  width:96px;height:56px;border:1.5px dashed rgba(201,164,95,.4);border-radius:12px;position:relative;
+  width:92px;height:58px;border:1.5px dashed rgba(201,164,95,.4);border-radius:12px;position:relative;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;transition:.25s;
 }
 body.phase-bet .box-bet{cursor:pointer}
@@ -107,9 +110,17 @@ body.phase-bet .box-bet.empty::after{
   content:'+';position:absolute;inset:0;display:grid;place-items:center;
   font-size:20px;color:rgba(201,164,95,.4);font-weight:300;
 }
+/* во время игры поля ставок сжимаются в тонкую линию — место достаётся картам */
+.table:not(.betting) .box-bet{
+  width:auto;align-self:stretch;min-width:56px;height:16px;padding-top:4px;
+  border:none;border-top:1.5px dashed rgba(201,164,95,.3);border-radius:0;background:transparent;
+}
+.table:not(.betting) .spot-label,
+.table:not(.betting) .spot-chips,
+.table:not(.betting) .amt{display:none}
 .spot-label{font-size:8.5px;letter-spacing:.3em;color:rgba(233,228,214,.4)}
 .spot-label i{font-style:normal;font-family:'Marcellus',serif;color:rgba(233,228,214,.6);margin-right:5px}
-.spot-chips{position:relative;width:80px;height:24px}
+.spot-chips{position:relative;width:76px;height:24px}
 .amt{font-family:'Marcellus',serif;font-size:14px;color:var(--gold-2);line-height:1}
 .amt:empty{display:none}
 .hand{position:relative;display:flex;flex-direction:column;align-items:center;gap:7px;transition:opacity .35s}
@@ -142,6 +153,8 @@ body.phase-bet .box-bet.empty::after{
 .card-slot{width:var(--card-w);height:var(--card-h);transition:transform .55s var(--ease);position:relative}
 .card-slot.in-flight{z-index:7}
 .card-slot + .card-slot{margin-left:calc(var(--card-w) * -0.13)}
+/* плотная укладка при 4-5 боксах — до классов tight/tighter */
+.packed .hand .card-slot + .card-slot{margin-left:calc(var(--card-w) * -0.45)}
 .cards.tight .card-slot + .card-slot{margin-left:calc(var(--card-w) * -0.55)}
 .cards.tighter .card-slot + .card-slot{margin-left:calc(var(--card-w) * -0.68)}
 .card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s var(--ease)}
@@ -280,7 +293,6 @@ body.phase-bet .box-bet.empty::after{
 .cpanel .qbtn{font-family:'Marcellus',serif;font-size:16px;line-height:1}
 .cpanel.blurred .num{filter:blur(9px)}
 
-/* шпаргалка значений карт */
 .cp-legend{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:2px 0 10px;font-size:12.5px;color:#5c5236}
 .cp-legend .lg{font-family:'Marcellus',serif;font-size:13px;min-width:30px;text-align:center;padding:2px 6px;border-radius:8px;border:1px solid rgba(90,70,30,.35)}
 .cp-legend .lg.p{color:#2e6b46;border-color:#2e6b46}
@@ -288,7 +300,6 @@ body.phase-bet .box-bet.empty::after{
 .cp-legend .lg.m{color:#a23b32;border-color:#a23b32}
 .cp-legend .cards-rng{letter-spacing:.06em}
 
-/* строки-показатели с раскрывающимися пояснениями */
 .cp-item{border-bottom:1px dashed rgba(90,70,30,.28)}
 .cp-item:last-of-type{border-bottom:none}
 .cp-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;font-size:13.5px;letter-spacing:.04em;color:#5c5236}
@@ -309,7 +320,6 @@ body.phase-bet .box-bet.empty::after{
 .cp-exp .thr{padding-left:2px;border-left:2px solid rgba(166,138,79,.5)}
 .cp-exp .thr b{color:#4a3a1c}
 
-/* живой вывод «что делать сейчас» */
 .cp-live{
   padding:10px 12px;margin-top:8px;border-radius:10px;border:1px solid rgba(90,70,30,.3);
   background:rgba(166,138,79,.12);font-size:13px;line-height:1.5;letter-spacing:.02em;color:#4a3a1c;
@@ -319,7 +329,6 @@ body.phase-bet .box-bet.empty::after{
 .cp-live.neg{border-color:rgba(162,59,50,.45);background:rgba(162,59,50,.07);color:#a23b32}
 .cp-live::before{content:'ВЫВОД · ';font-size:9.5px;letter-spacing:.24em;opacity:.65}
 
-/* секции и тренажёр */
 .cp-sec{margin-top:10px;padding-top:12px;border-top:2px solid #b89a5e}
 .cp-sec-t{font-size:10px;letter-spacing:.28em;color:#7a6a44;text-transform:uppercase;margin-bottom:10px}
 .cpanel .switch{color:#5c5236}
@@ -369,9 +378,15 @@ body.phase-bet .box-bet.empty::after{
   .brand-sub{display:none}
   .shoe{right:12px;top:14px;transform:scale(.8);transform-origin:top right}
   .discard{left:12px;top:14px;transform:scale(.8);transform-origin:top left}
-  .hands{gap:4px}
-  .box{min-width:calc(var(--card-w) + 12px);padding:6px 2px}
-  .box-bet{width:80px;height:50px}
+  .hands{gap:2px}
+  .box{padding:6px 2px}
+  .box + .box{margin-left:-8px}
+  .box-bet{width:58px;height:48px}
+  .spot-label{font-size:7px;letter-spacing:.16em}
+  .spot-chips{width:46px;height:20px}
+  .amt{font-size:12px}
+  .mchip{width:20px;height:20px;font-size:8px}
+  .table:not(.betting) .box-bet{min-width:40px}
   .rack{gap:8px}
   .chip{width:46px;height:46px;font-size:11.5px}
   .bet-ops{flex-direction:row}
@@ -404,7 +419,7 @@ body.phase-bet .box-bet.empty::after{
     </div>
   </header>
 
-  <main class="table" id="tableEl">
+  <main class="table betting" id="tableEl">
     <div class="table-edge"></div>
 
     <div class="discard" id="discard"><span>ОТБОЙ</span></div>
@@ -493,7 +508,6 @@ body.phase-bet .box-bet.empty::after{
   </div>
 
   <div id="cpReal">
-    <!-- шпаргалка: цена каждой карты -->
     <div class="cp-legend">
       <span class="lg p">+1</span><span class="cards-rng">2–6</span>
       <span class="lg z">0</span><span class="cards-rng">7–9</span>
@@ -627,6 +641,14 @@ const sgn = n => (n > 0 ? '+' : '') + n;
 /* ══════════════ Состояние ══════════════ */
 const CHIP_VALUES = [10, 25, 100, 500, 1000];
 const DECKS = 6, CUT = 78, MAX_HANDS = 6;
+/* дуга боксов: крайние выше и развёрнуты к дилеру, центральный ниже — как на реальном столе */
+const BOX_ARC = [
+  { y: -14, r: 2.6 },
+  { y: -4,  r: 1.3 },
+  { y: 7,   r: 0 },
+  { y: -4,  r: -1.3 },
+  { y: -14, r: -2.6 }
+];
 const state = {
   phase: 'betting', balance: 2000,
   bets: [0,0,0,0,0], boxChips: [[],[],[],[],[]], betOps: [],
@@ -843,6 +865,8 @@ function buildBoxes(){
   for(let i = 0; i < 5; i++){
     const box = document.createElement('div');
     box.className = 'box'; box.dataset.box = i;
+    /* дуга: смещение по вертикали + лёгкий разворот к дилеру (до вставки в DOM — без анимации) */
+    box.style.transform = `translateY(${BOX_ARC[i].y}px) rotate(${BOX_ARC[i].r}deg)`;
     box.innerHTML = `
       <div class="box-hands"></div>
       <div class="box-bet empty">
@@ -852,7 +876,7 @@ function buildBoxes(){
       </div>`;
     box.addEventListener('click', e => {
       if(e.target.closest('.hand')) return;
-      addChip(i);
+      addChip(i, document.querySelector('#rack .chip.sel'));
     });
     box.addEventListener('contextmenu', e => {
       e.preventDefault();
@@ -863,16 +887,19 @@ function buildBoxes(){
   }
 }
 const totalBet = () => state.bets.reduce((a,b) => a + b, 0);
-function addChip(i){
+function addChip(i, chipEl){
   if(busy || state.phase !== 'betting') return;
   if(totalBet() + activeChip > state.balance){ toast('Недостаточно средств', 'bad'); return; }
   state.bets[i] += activeChip;
   state.boxChips[i].push(activeChip);
   state.betOps.push({ i, v: activeChip });
   Sound.chip();
+  /* сумма и «+» обновляются сразу, стопка фишек появляется в момент приземления */
   const spot = boxEls[i].querySelector('.box-bet');
-  flyChip($('#rack'), spot, activeChip);
-  updateBetsUI();
+  spot.classList.remove('empty');
+  spot.querySelector('.amt').textContent = fmt(state.bets[i]);
+  updateBetsUI(i);
+  flyChip(chipEl || $('#rack'), spot, activeChip, () => renderSpotChips(i));
 }
 function removeChip(i){
   if(busy || state.phase !== 'betting' || !state.boxChips[i].length) return;
@@ -910,15 +937,16 @@ function rebet(){
   Sound.chip();
   updateBetsUI();
 }
-function updateBetsUI(){
-  for(let i = 0; i < 5; i++){
-    const spot = boxEls[i].querySelector('.box-bet');
-    spot.querySelector('.spot-chips').innerHTML = state.boxChips[i].map((c, k) =>
-      `<span class="mchip mc${c}" style="bottom:${Math.min(k,7)*3}px;transform:translateX(-50%) translateX(${((k*53)%7)-3}px) rotate(${((k*37)%9)-4}deg)">${c}</span>`
-    ).join('');
-    spot.querySelector('.amt').textContent = state.bets[i] ? fmt(state.bets[i]) : '';
-    spot.classList.toggle('empty', !state.bets[i]);
-  }
+function renderSpotChips(i){
+  const spot = boxEls[i].querySelector('.box-bet');
+  spot.querySelector('.spot-chips').innerHTML = state.boxChips[i].map((c, k) =>
+    `<span class="mchip mc${c}" style="bottom:${Math.min(k,7)*3}px;transform:translateX(-50%) translateX(${((k*53)%7)-3}px) rotate(${((k*37)%9)-4}deg)">${c}</span>`
+  ).join('');
+  spot.querySelector('.amt').textContent = state.bets[i] ? fmt(state.bets[i]) : '';
+  spot.classList.toggle('empty', !state.bets[i]);
+}
+function updateBetsUI(skipBox){
+  for(let i = 0; i < 5; i++) if(i !== skipBox) renderSpotChips(i);
   const sum = totalBet();
   $('#dealAmt').textContent = sum ? fmt(sum) + ' фишек' : 'сделайте ставку';
   $('#dealBtn').disabled = !sum;
@@ -930,23 +958,46 @@ function updateBetsUI(){
   document.querySelectorAll('#rack .chip').forEach(b =>
     b.classList.toggle('off', sum + (+b.dataset.v) > state.balance));
 }
-function flyChip(fromEl, toEl, val){
+/* фишка летит ровно от выбранной фишки к центру поля */
+function flyChip(fromEl, toEl, val, onLand){
   const r1 = fromEl.getBoundingClientRect(), r2 = toEl.getBoundingClientRect();
   const f = document.createElement('div');
   f.className = 'fly-chip mc' + val; f.textContent = val;
-  f.style.left = r1.left + 'px'; f.style.top = r1.top + 'px';
+  const half = 17;
+  const sx = r1.left + r1.width/2 - half, sy = r1.top + r1.height/2 - half;
+  f.style.left = sx + 'px'; f.style.top = sy + 'px';
   document.body.appendChild(f);
+  const dx = (r2.left + r2.width/2 - half) - sx;
+  const dy = (r2.top + r2.height/2 - half) - sy;
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    f.style.transform = `translate(${r2.left + r2.width/2 - r1.left - r1.width/2}px,${r2.top + r2.height/2 - r1.top - r1.height/2}px) rotate(160deg)`;
+    f.style.transform = `translate(${dx}px,${dy}px) rotate(160deg)`;
     f.style.opacity = '.92';
   }));
-  setTimeout(() => f.remove(), 400);
+  setTimeout(() => { f.remove(); if(onLand) onLand(); }, 390);
 }
+/* размер карт: измеряем реальную ширину стола и берём максимум, что помещается */
 function updateCardScale(){
-  const n = Math.max(state.bets.filter(b => b > 0).length, state.hands.reduce((m,h) => Math.max(m, state.hands.filter(x => x.box === h.box).length > 1 ? 2 : 1), 1), 1);
-  const CW = { 1:'clamp(66px,9vw,94px)', 2:'clamp(62px,8vw,86px)',
-               3:'clamp(56px,7vw,76px)', 4:'clamp(52px,6vw,66px)', 5:'clamp(48px,5.2vw,58px)' };
-  $('#tableEl').style.setProperty('--card-w', CW[Math.min(n,5)]);
+  const table = $('#tableEl');
+  const splits = {};
+  state.hands.forEach(h => splits[h.box] = (splits[h.box] || 0) + 1);
+  let boxes = 0, handsTotal = 0;
+  for(let i = 0; i < 5; i++){
+    const hands = splits[i] || (state.bets[i] > 0 ? 1 : 0);
+    if(!hands) continue;
+    boxes++; handsTotal += hands;
+  }
+  const packing = boxes >= 4;
+  table.classList.toggle('packed', packing);
+  if(!boxes) return;
+  const mobile = window.innerWidth <= 640;
+  const pad = mobile ? 6 : 8, gap = packing ? 3 : 6;
+  const unit = packing ? 1.75 : 1.85; /* ширина руки в картах: 2 карты + запас на добор */
+  const caps = {1:124, 2:112, 3:96, 4:84, 5:76};
+  const avail = table.clientWidth - 24;
+  let w = Math.floor((avail - boxes*pad - (boxes-1)*gap) / (handsTotal * unit));
+  w = Math.min(w, caps[Math.min(boxes,5)] || 76);
+  w = Math.max(w, mobile ? 40 : 56);
+  table.style.setProperty('--card-w', w + 'px');
 }
 
 /* ══════════════ Руки ══════════════ */
@@ -1078,6 +1129,7 @@ function setConsole(mode){
   $('#csPlay').classList.toggle('on', mode === 'play');
   $('#csWait').classList.toggle('on', mode === 'wait');
   document.body.classList.toggle('phase-bet', mode === 'bet');
+  $('#tableEl').classList.toggle('betting', mode === 'bet');
 }
 
 /* ══════════════ Советчик стратегии с объяснениями ══════════════ */
@@ -1622,7 +1674,6 @@ function bindEvents(){
   $('#insYes').addEventListener('click', () => resolveInsurance(true));
   $('#insNo').addEventListener('click', () => resolveInsurance(false));
 
-  /* советчик */
   $('#strategyToggle').addEventListener('change', e => {
     state.settings.strategy = e.target.checked;
     save();
@@ -1644,7 +1695,6 @@ function bindEvents(){
     cpanel.classList.toggle('blurred');
     Sound.click();
   });
-  /* «?» — развернуть/свернуть все пояснения разом */
   $('#cpHelp').addEventListener('click', () => {
     const items = cpanel.querySelectorAll('.cp-item');
     const anyClosed = [...items].some(it => !it.classList.contains('open'));
@@ -1652,7 +1702,6 @@ function bindEvents(){
     $('#cpHelp').classList.toggle('lit', anyClosed);
     Sound.click();
   });
-  /* клик по строке-показателю раскрывает пояснение */
   cpanel.addEventListener('click', e => {
     const row = e.target.closest('.cp-row.tog');
     if(!row) return;
@@ -1754,6 +1803,8 @@ function bindEvents(){
       if(e.code === 'KeyN') resolveInsurance(false);
     }
   });
+
+  window.addEventListener('resize', updateCardScale);
 }
 
 /* ══════════════ Старт ══════════════ */
@@ -1767,7 +1818,6 @@ bindEvents();
 setConsole('bet');
  $('#hint').textContent = 'Клик по полю — поставить выбранную фишку';
 updateShoeUI();
-updateCardScale();
 updateBetsUI();
 renderMyRC();
 if(state.settings.train){
