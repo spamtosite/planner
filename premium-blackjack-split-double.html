@@ -79,7 +79,6 @@ header{display:flex;align-items:center;gap:18px;padding:16px 4px 12px}
 .discard{position:absolute;top:22px;left:26px;width:44px;height:62px;border:1px dashed rgba(201,164,95,.3);border-radius:6px;display:grid;place-items:center}
 .discard span{font-size:8.5px;letter-spacing:.24em;color:rgba(233,228,214,.35);writing-mode:vertical-rl}
 
-/* дуга: две линии разнесены, чтобы не слипались в центре */
 .dealer{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:calc(var(--card-h) + 38px)}
 .d-meta{position:relative;display:flex;align-items:center;gap:8px;min-height:26px}
 
@@ -262,9 +261,9 @@ body.phase-bet .box-bet.empty::after{
 .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
 @keyframes dot{0%,100%{opacity:.2}50%{opacity:1}}
 
-/* ── Панель счёта: светлый «блокнот» ─────────────────────── */
+/* ── Панель счёта: светлый «блокнот» с пояснениями ─────────────────────── */
 .cpanel{
-  position:fixed;left:16px;top:80px;width:352px;max-width:calc(100vw - 28px);
+  position:fixed;left:16px;top:80px;width:372px;max-width:calc(100vw - 28px);
   max-height:calc(100vh - 104px);overflow:auto;z-index:46;
   background:linear-gradient(175deg,#f6f0dd 0%,#efe6cc 100%);color:#2c2a20;
   border:1px solid #b89a5e;border-radius:16px;padding:16px 18px 14px;
@@ -272,17 +271,55 @@ body.phase-bet .box-bet.empty::after{
   box-shadow:0 26px 70px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.6);
 }
 .cpanel.open{transform:none}
-.cp-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px solid #b89a5e;margin-bottom:6px}
+.cp-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px solid #b89a5e;margin-bottom:8px}
 .cp-head span{font-family:'Marcellus',serif;font-size:15px;letter-spacing:.14em;color:#4a3a1c}
 .cp-icons{display:flex;gap:6px}
 .cpanel .icon-btn{border-color:rgba(90,70,30,.4);color:#5a4a26;background:transparent}
-.cpanel .icon-btn:hover{border-color:#7a5a1e;color:#3a2d12;background:rgba(166,138,79,.12)}
+.cpanel .icon-btn:hover,.cpanel .icon-btn.lit{border-color:#7a5a1e;color:#3a2d12;background:rgba(166,138,79,.14)}
+.cpanel .qbtn{font-family:'Marcellus',serif;font-size:16px;line-height:1}
 .cpanel.blurred .num{filter:blur(9px)}
-.cp-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 2px;border-bottom:1px dashed rgba(90,70,30,.28);font-size:13.5px;letter-spacing:.04em;color:#5c5236}
-.cp-row b{font-family:'Marcellus',serif;font-weight:400;font-size:26px;color:#2c2a20;transition:filter .2s}
+
+/* шпаргалка значений карт */
+.cp-legend{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;padding:2px 0 10px;font-size:12.5px;color:#5c5236}
+.cp-legend .lg{font-family:'Marcellus',serif;font-size:13px;min-width:30px;text-align:center;padding:2px 6px;border-radius:8px;border:1px solid rgba(90,70,30,.35)}
+.cp-legend .lg.p{color:#2e6b46;border-color:#2e6b46}
+.cp-legend .lg.z{color:#6a5d3a;border-color:rgba(90,70,30,.45)}
+.cp-legend .lg.m{color:#a23b32;border-color:#a23b32}
+.cp-legend .cards-rng{letter-spacing:.06em}
+
+/* строки-показатели с раскрывающимися пояснениями */
+.cp-item{border-bottom:1px dashed rgba(90,70,30,.28)}
+.cp-item:last-of-type{border-bottom:none}
+.cp-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 2px;font-size:13.5px;letter-spacing:.04em;color:#5c5236}
+.cp-row.tog{cursor:pointer;transition:background .2s}
+.cp-row.tog:hover{background:rgba(166,138,79,.08)}
+.cp-row .lbl{flex:1;line-height:1.35}
+.cp-row b{font-family:'Marcellus',serif;font-weight:400;font-size:26px;color:#2c2a20;transition:filter .2s;flex:none}
 .cp-row b.pos{color:#2e6b46}.cp-row b.neg{color:#a23b32}
-.cp-row b.adv{color:#7a5a1e}
-.cp-sec{margin-top:12px;padding-top:12px;border-top:2px solid #b89a5e}
+.cp-row b.adv{color:#7a5a1e;font-size:20px}
+.chev{flex:none;font-style:normal;font-size:11px;color:#8a7444;transition:transform .3s var(--ease);margin-left:2px}
+.cp-item.open .chev{transform:rotate(90deg)}
+.cp-exp{max-height:0;overflow:hidden;transition:max-height .4s var(--ease)}
+.cp-item.open .cp-exp{max-height:400px}
+.cp-exp-in{padding:0 2px 12px}
+.cp-exp p{font-size:12.5px;line-height:1.6;color:#5c5236;margin-bottom:7px}
+.cp-exp p:last-child{margin-bottom:0}
+.cp-exp .lead{color:#4a3a1c;font-weight:500}
+.cp-exp .thr{padding-left:2px;border-left:2px solid rgba(166,138,79,.5)}
+.cp-exp .thr b{color:#4a3a1c}
+
+/* живой вывод «что делать сейчас» */
+.cp-live{
+  padding:10px 12px;margin-top:8px;border-radius:10px;border:1px solid rgba(90,70,30,.3);
+  background:rgba(166,138,79,.12);font-size:13px;line-height:1.5;letter-spacing:.02em;color:#4a3a1c;
+  transition:filter .2s;
+}
+.cp-live.pos{border-color:rgba(46,107,70,.55);background:rgba(46,107,70,.1);color:#2e6b46}
+.cp-live.neg{border-color:rgba(162,59,50,.45);background:rgba(162,59,50,.07);color:#a23b32}
+.cp-live::before{content:'ВЫВОД · ';font-size:9.5px;letter-spacing:.24em;opacity:.65}
+
+/* секции и тренажёр */
+.cp-sec{margin-top:10px;padding-top:12px;border-top:2px solid #b89a5e}
 .cp-sec-t{font-size:10px;letter-spacing:.28em;color:#7a6a44;text-transform:uppercase;margin-bottom:10px}
 .cpanel .switch{color:#5c5236}
 .cpanel .sw{border-color:#a68a4f}
@@ -439,11 +476,12 @@ body.phase-bet .box-bet.empty::after{
   </footer>
 </div>
 
-<!-- Панель счёта карт -->
+<!-- ══════ Панель счёта карт с пояснениями ══════ -->
 <aside class="cpanel" id="cpanel">
   <div class="cp-head">
     <span>СЧЁТ КАРТ · HI-LO</span>
     <div class="cp-icons">
+      <button class="icon-btn sm qbtn" id="cpHelp" title="Развернуть все пояснения">?</button>
       <button class="icon-btn sm" id="cpBlur" title="Скрыть цифры">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2 12s3.5-6.5 10-6.5c1 0 1.9.14 2.8.38M22 12s-3.5 6.5-10 6.5c-1 0-1.9-.14-2.8-.38M4 20 20 4"/></svg>
       </button>
@@ -454,10 +492,65 @@ body.phase-bet .box-bet.empty::after{
   </div>
 
   <div id="cpReal">
-    <div class="cp-row"><span>Текущий счёт (RC)</span><b class="num" id="rcVal">0</b></div>
-    <div class="cp-row"><span>Истинный счёт (TC)</span><b class="num" id="tcVal">+0.0</b></div>
-    <div class="cp-row"><span>Колод в шу</span><b class="num" id="dkVal">6.0</b></div>
-    <div class="cp-row"><span>Ставка по счёту</span><b class="num adv" id="betAdv">1× (мин)</b></div>
+    <!-- шпаргалка: цена каждой карты -->
+    <div class="cp-legend">
+      <span class="lg p">+1</span><span class="cards-rng">2–6</span>
+      <span class="lg z">0</span><span class="cards-rng">7–9</span>
+      <span class="lg m">−1</span><span class="cards-rng">10–A</span>
+    </div>
+
+    <div class="cp-item">
+      <div class="cp-row tog">
+        <span class="lbl">Текущий счёт (RC)</span>
+        <b class="num" id="rcVal">0</b><i class="chev">▶</i>
+      </div>
+      <div class="cp-exp"><div class="cp-exp-in">
+        <p><span class="lead">Что это:</span> сумма «цен» всех карт, ушедших из шу. Каждый выход карты двигает счёт по шпаргалке выше: мелочь толкает вверх, десятки и тузы — вниз.</p>
+        <p><span class="lead">Что означает рост:</span> вышло много мелких карт — в шу осталось непропорционально много десяток и тузов. Больше блэкджеков (которые платят 3:2), дилер чаще перебирает на жёстких 12–16.</p>
+        <p class="thr"><b>К чему ведёт:</b> RC — сырьё, а не инструкция. Он не учитывает, сколько карт осталось, поэтому в решения и ставки идёт только после перевода в истинный счёт (TC).</p>
+      </div></div>
+    </div>
+
+    <div class="cp-item">
+      <div class="cp-row tog">
+        <span class="lbl">Истинный счёт (TC)</span>
+        <b class="num" id="tcVal">+0.0</b><i class="chev">▶</i>
+      </div>
+      <div class="cp-exp"><div class="cp-exp-in">
+        <p><span class="lead">Что это:</span> RC, делённый на оставшиеся колоды. Универсальная «валюта преимущества»: каждый +1 TC смещает ваше матожидание примерно на <b>+0,5%</b> — от базовых −0,5% (обычная игра по стратегии) к плюсу.</p>
+        <p class="thr"><b>Пороги действий:</b><br>
+        TC ≥ <b>+2</b> — поднимаем ставку (×2 и выше);<br>
+        TC ≥ <b>+3</b> — впервые окупается страховка;<br>
+        TC от −1 до +1 — ничего не меняется, играем по базовой стратегии на минималке;<br>
+        TC ≤ <b>−1</b> — преимущество у казино, только минимальная ставка.</p>
+        <p><span class="lead">Зачем делить:</span> «+6» в начале шу из 6 колод — это лишь «лишняя» одна десятка на колоду, почти ничего. А «+6» при остатке в одну колоду — две лишние десятки на колоду, жарко. Деление и отличает жару от ровного счёта.</p>
+      </div></div>
+    </div>
+
+    <div class="cp-item">
+      <div class="cp-row tog">
+        <span class="lbl">Колод в шу</span>
+        <b class="num" id="dkVal">6.0</b><i class="chev">▶</i>
+      </div>
+      <div class="cp-exp"><div class="cp-exp-in">
+        <p><span class="lead">Что это:</span> делитель для TC. В живом казино счётчики оценивают его на глаз — по толщине стопки в отбое. Здесь цифра точная.</p>
+        <p><span class="lead">Почему это важно:</span> один и тот же RC к концу шу «весит» всё больше. Следите: если RC не растёт, но остаток тает — TC всё равно ползёт вверх, и это не ошибка.</p>
+      </div></div>
+    </div>
+
+    <div class="cp-item">
+      <div class="cp-row tog">
+        <span class="lbl">Ставка по счёту</span>
+        <b class="num adv" id="betAdv">1× (мин)</b><i class="chev">▶</i>
+      </div>
+      <div class="cp-exp"><div class="cp-exp-in">
+        <p><span class="lead">Что это:</span> множитель к вашей минимальной ставке из классической схемы спреда: <b>1× → 2× → 4× → 6× → 8×+</b> по мере роста TC.</p>
+        <p><span class="lead">Главная тайна счёта:</span> почти весь профит счётчикам приносят не решения, а именно разброс ставок. Ход игры меняется на проценты процента, а деньги на столе — в разы.</p>
+        <p class="thr"><b>Дисциплина:</b> в минус — всегда 1×, без исключений. Качели «поставлю-сниму» без системы — это просто большие ставки при отрицательном матожидании.</p>
+      </div></div>
+    </div>
+
+    <p class="cp-live num" id="betLive">Сейчас: счёт ровный — играем по минималке</p>
   </div>
 
   <div class="cp-sec">
@@ -479,9 +572,18 @@ body.phase-bet .box-bet.empty::after{
       </div>
       <div class="train-meta">Проверок <b id="tmAtt">0</b> · Верных <b id="tmCor">0</b> · Серия <b id="tmStr">0</b> · Рекорд <b id="tmBest">0</b></div>
     </div>
+    <div class="cp-item" style="border-bottom:none">
+      <div class="cp-row tog">
+        <span class="lbl">Как устроен тренажёр</span><i class="chev">▶</i>
+      </div>
+      <div class="cp-exp"><div class="cp-exp-in">
+        <p><span class="lead">Механика:</span> при включении реальные цифры прячутся, а ваш счёт синхронизируется с фактическим. Дальше каждую открытую карту оцениваете сами кнопками −1 / +1 / 0. В конце раунда игра сверит ваш результат с настоящим и посчитает серию верных ответов.</p>
+        <p class="thr"><b>С чего начать:</b> первые сессии считайте только «+1» за мелочь и «−1» за десятки/тузы, семёрки-девятки просто пропускайте. Большинство промахов новичков — именно на нулях, потому что рука «хочет» нажать хоть что-то. Когда серия доходит до 10+ — подключайте перевод в TC на лету.</p>
+      </div></div>
+    </div>
   </div>
 
-  <p class="cp-note">Раздача в игру: 2–6 → <b>+1</b> · 7–9 → <b>0</b> · 10, J, Q, K, туз → <b>−1</b>. Истинный счёт = RC ÷ колоды в шу. TC <b>+2 и выше</b> — поднимаем ставку, минус — сидим на минимуме. Плюс выгоден и для решений: при TC ≥ +3 страховка начинает окупаться.</p>
+  <p class="cp-note">Итог цепочки: <b>карта → RC → TC → ставка</b>. Решения по картам почти не меняются от счёта (исключения — страховка и пара пограничных рук), меняется размер ставки. Считать без спреда ставок — это спорт, а не заработок.</p>
 </aside>
 
 <div class="toasts" id="toasts"></div>
@@ -653,6 +755,12 @@ function betAdvice(){
   if(f === 4) return '6×';
   return '8×+';
 }
+function betLiveText(tc){
+  if(tc >= 2) return { txt:`Сейчас: преимущество на вашей стороне — ставьте ${betAdvice()} от минималки`, cls:'pos' };
+  if(tc > 0.5) return { txt:'Сейчас: счёт слегка в плюс — можно 1–2× минималки', cls:'pos' };
+  if(tc > -1) return { txt:'Сейчас: счёт ровный — играем по минималке и базовой стратегии', cls:'' };
+  return { txt:'Сейчас: преимущество у казино — только минимальная ставка', cls:'neg' };
+}
 function updateShoeUI(){
   const left = state.shoe.length, tc = trueCount();
   $('#shoeCount').textContent = left;
@@ -664,6 +772,9 @@ function updateShoeUI(){
   tcEl.className = 'num ' + (tc > 0.5 ? 'pos' : (tc < -0.5 ? 'neg' : ''));
   dkEl.textContent = (left / 52).toFixed(1);
   baEl.textContent = betAdvice();
+  const live = betLiveText(tc), liveEl = $('#betLive');
+  liveEl.textContent = live.txt;
+  liveEl.className = 'cp-live num ' + live.cls;
 }
 
 /* ══════════════ Подсчёт рук ══════════════ */
@@ -980,7 +1091,6 @@ function advise(h){
   const hard = !v.soft, t = v.total;
   let a = 'H', why = '';
 
-  /* — пары — */
   if(cs && h.cards.length === 2){
     const r = h.cards[0].r;
     if(r === 'A'){ a = 'P'; why = 'Туз в каждой руке: путь к двум сильным рукам или блэкджекам. Одна рука на 12 слишком слаба.'; }
@@ -1012,13 +1122,11 @@ function advise(h){
     }
   }
 
-  /* — сдача — */
   if(a === 'H' && cr && hard){
     if(t === 16 && up >= 9 && h.cards[0].r !== '8'){ a = 'R'; why = '16 против 9/10/туза проигрывает заметно чаще половины случаев. Гарантированные −50% дешевле средней потери.'; }
     else if(t === 15 && up === 10){ a = 'R'; why = '15 против десятки — одна из худших рук: сдача с потерей половины выгоднее игры.'; }
   }
 
-  /* — мягкие руки — */
   if(a === 'H'){
     if(!hard){
       if(t >= 19){ a = 'S'; why = (t >= 20 ? '20-21 — почти готовый выигрыш.' : '19 — сильная сумма:') + ' рисковать нечем и незачем.'; }
@@ -1039,12 +1147,10 @@ function advise(h){
         if(up >= 5 && up <= 6){ a = 'D'; why = 'Против самых слабых карт дилера (5-6) удваиваем даже мягкую 13-14.'; }
         else { a = 'H'; why = 'Мягкая 13-14: добор без риска перебора, ждём свою карту.'; }
       }
-    }
-    /* — жёсткие руки — */
-    else {
+    } else {
       if(t >= 17){ a = 'S'; why = 'Стоим: с 17+ шанс переборить себя выше, чем шанс обыграть дилера.'; }
       else if(t >= 13){
-        if(up <= 6){ a = 'S'; why = 'Дилер с 2-6 перебирает в 35-42% раздач — не помогает ему, заставляем брать.'; }
+        if(up <= 6){ a = 'S'; why = 'Дилер с 2-6 перебирает в 35-42% раздач — не помогаем ему, заставляем брать.'; }
         else { a = 'H'; why = 'Против сильной карты дилера стоять на 13-16 — почти верный проигрыш, добираем.'; }
       }
       else if(t === 12){
@@ -1064,7 +1170,6 @@ function advise(h){
     }
   }
 
-  /* — фолбэки, если действие недоступно — */
   if(a === 'D' && !cd){
     if(t === 18 && !hard){ a = 'S'; why += ' Удвоение недоступно — стоим.'; }
     else { a = 'H'; why += ' Удвоение недоступно — добираем.'; }
@@ -1538,6 +1643,22 @@ function bindEvents(){
     cpanel.classList.toggle('blurred');
     Sound.click();
   });
+  /* «?» — развернуть/свернуть все пояснения разом */
+  $('#cpHelp').addEventListener('click', () => {
+    const items = cpanel.querySelectorAll('.cp-item');
+    const anyClosed = [...items].some(it => !it.classList.contains('open'));
+    items.forEach(it => it.classList.toggle('open', anyClosed));
+    $('#cpHelp').classList.toggle('lit', anyClosed);
+    Sound.click();
+  });
+  /* клик по строке-показателю раскрывает пояснение */
+  cpanel.addEventListener('click', e => {
+    const row = e.target.closest('.cp-row.tog');
+    if(!row) return;
+    row.closest('.cp-item').classList.toggle('open');
+    Sound.click();
+  });
+
   $('#trainToggle').addEventListener('change', e => toggleTrain(e.target.checked));
   $('#myPlus').addEventListener('click', () => { state.myRC++; renderMyRC(); Sound.click(); });
   $('#myMinus').addEventListener('click', () => { state.myRC--; renderMyRC(); Sound.click(); });
