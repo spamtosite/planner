@@ -48,8 +48,8 @@ header{display:flex;align-items:center;gap:18px;padding:16px 4px 12px}
 .icon-btn:hover{border-color:var(--gold);color:var(--gold-2)}
 .icon-btn.lit{border-color:var(--gold);color:var(--gold-2);background:rgba(201,164,95,.08)}
 .icon-btn svg{width:17px;height:17px}
-.icon-btn.sm{width:28px;height:28px}
-.icon-btn.sm svg{width:14px;height:14px}
+.icon-btn.sm{width:30px;height:30px}
+.icon-btn.sm svg{width:15px;height:15px}
 
 /* ── Стол ─────────────────────────────── */
 .table{
@@ -79,13 +79,14 @@ header{display:flex;align-items:center;gap:18px;padding:16px 4px 12px}
 .discard{position:absolute;top:22px;left:26px;width:44px;height:62px;border:1px dashed rgba(201,164,95,.3);border-radius:6px;display:grid;place-items:center}
 .discard span{font-size:8.5px;letter-spacing:.24em;color:rgba(233,228,214,.35);writing-mode:vertical-rl}
 
-.dealer{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:calc(var(--card-h) + 38px)}
-.d-meta{display:flex;align-items:center;gap:8px;min-height:24px}
+/* дуга: две линии разнесены, чтобы не слипались в центре */
+.dealer{margin-top:20px;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:calc(var(--card-h) + 38px)}
+.d-meta{position:relative;display:flex;align-items:center;gap:8px;min-height:26px}
 
-.arc{width:min(720px,96%);margin:2px 0 -6px;display:block}
-.arc text{fill:rgba(201,164,95,.6)}
+.arc{width:min(720px,96%);margin:4px 0 -4px;display:block}
+.arc text{fill:rgba(232,211,160,.72)}
 .arc-t1{font-family:'Marcellus',serif;font-size:17px;letter-spacing:7px}
-.arc-t2{font-family:'Jost',sans-serif;font-size:9.5px;letter-spacing:3.5px;fill:rgba(201,164,95,.42)}
+.arc-t2{font-family:'Jost',sans-serif;font-size:9.5px;letter-spacing:3.5px;fill:rgba(201,164,95,.55)}
 
 /* ── Боксы игрока ─────────────────────── */
 .player{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:calc(var(--card-h) + 110px);padding:4px 0 8px;width:100%}
@@ -118,8 +119,8 @@ body.phase-bet .box-bet.empty::after{
 .hand.active .hand-base::after{content:'';position:absolute;left:50%;top:-3.5px;width:7px;height:7px;background:var(--gold);transform:translateX(-50%) rotate(45deg)}
 .score{
   position:absolute;top:-14px;left:-13px;z-index:4;min-width:30px;text-align:center;
-  padding:2px 8px;border-radius:20px;background:rgba(8,12,10,.82);border:1px solid var(--line);
-  font-size:12px;letter-spacing:.05em;color:var(--gold-2);opacity:0;transition:opacity .3s;
+  padding:2px 8px;border-radius:20px;background:rgba(8,12,10,.88);border:1px solid var(--line);
+  font-size:12.5px;letter-spacing:.05em;color:var(--gold-2);opacity:0;transition:opacity .3s;
 }
 .score.on{opacity:1}
 .score.bad{color:var(--bad);border-color:rgba(201,107,94,.5)}
@@ -188,10 +189,10 @@ body.phase-bet .box-bet.empty::after{
 }
 
 /* вердикт */
-.verdict{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);text-align:center;z-index:20;pointer-events:none;opacity:0}
+.verdict{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);text-align:center;z-index:20;pointer-events:none;opacity:0}
 .verdict.show{animation:verdictIn 2.1s var(--ease) forwards}
-.verdict b{display:block;font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,5vw,50px);letter-spacing:.24em;padding-left:.24em;color:var(--gold-2)}
-.verdict i{display:block;font-style:normal;font-size:16px;letter-spacing:.3em;margin-top:8px;color:var(--gold-2)}
+.verdict b{display:block;font-family:'Marcellus',serif;font-weight:400;font-size:clamp(28px,5vw,50px);letter-spacing:.24em;padding-left:.24em;color:var(--gold-2);text-shadow:0 3px 24px rgba(0,0,0,.85)}
+.verdict i{display:block;font-style:normal;font-size:16px;letter-spacing:.3em;margin-top:8px;color:var(--gold-2);text-shadow:0 2px 16px rgba(0,0,0,.85)}
 .verdict.lose b,.verdict.lose i{color:var(--bad)}
 .verdict.push b{color:var(--neutral)}
 @keyframes verdictIn{
@@ -210,7 +211,15 @@ body.phase-bet .box-bet.empty::after{
   display:flex;flex-direction:column;gap:8px;
 }
 .console-top{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:22px}
-.hint{font-size:11px;letter-spacing:.2em;color:var(--gold-2);text-transform:uppercase;text-align:center}
+.switch{display:flex;align-items:center;gap:9px;font-size:10.5px;letter-spacing:.2em;color:rgba(233,228,214,.6);cursor:pointer;text-transform:uppercase}
+.switch input{display:none}
+.sw{width:32px;height:17px;border-radius:12px;border:1px solid var(--line);position:relative;transition:.25s;flex:none}
+.sw::after{content:'';position:absolute;top:2.5px;left:3px;width:10px;height:10px;border-radius:50%;background:rgba(233,228,214,.5);transition:.25s}
+.switch input:checked + .sw{border-color:var(--gold);background:rgba(201,164,95,.12)}
+.switch input:checked + .sw::after{left:17px;background:var(--gold)}
+.hint{flex:1;font-size:11.5px;letter-spacing:.05em;color:var(--gold-2);text-align:center;line-height:1.5;min-width:0}
+.hint b{font-weight:600;letter-spacing:.16em;text-transform:uppercase}
+.hint .why{display:block;font-size:11px;letter-spacing:.03em;color:rgba(233,228,214,.78);font-weight:300;text-transform:none;margin-top:2px}
 .kbd-info{font-size:9.5px;letter-spacing:.14em;color:rgba(233,228,214,.35);white-space:nowrap}
 .console-main{display:flex;justify-content:center}
 .cs{display:none;width:100%}
@@ -238,7 +247,7 @@ body.phase-bet .box-bet.empty::after{
 .btn:hover:not(:disabled){border-color:var(--gold);color:var(--gold-2);background:rgba(201,164,95,.07)}
 .btn:disabled{opacity:.3;cursor:default}
 .btn .key{display:block;font-size:8.5px;letter-spacing:.2em;opacity:.45;margin-top:3px}
-.btn.sugg{border-color:var(--gold);color:var(--gold-2)}
+.btn.sugg{border-color:var(--gold);color:var(--gold-2);background:rgba(201,164,95,.09)}
 .btn.sugg::before{content:'';display:inline-block;width:5px;height:5px;background:var(--gold);border-radius:50%;margin-right:8px;vertical-align:2px;animation:pulse 1.2s infinite}
 @keyframes pulse{50%{opacity:.25}}
 .btn.primary{background:var(--gold);border-color:var(--gold);color:#161208;font-weight:600;padding:14px 26px}
@@ -253,39 +262,46 @@ body.phase-bet .box-bet.empty::after{
 .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
 @keyframes dot{0%,100%{opacity:.2}50%{opacity:1}}
 
-/* ── Панель счёта карт ─────────────────────── */
+/* ── Панель счёта: светлый «блокнот» ─────────────────────── */
 .cpanel{
-  position:fixed;left:14px;top:76px;width:264px;z-index:46;
-  background:rgba(10,14,12,.94);border:1px solid var(--line);border-radius:16px;
-  padding:14px 16px;backdrop-filter:blur(10px);
-  transform:translateX(-130%);transition:transform .4s var(--ease);
-  box-shadow:0 18px 50px rgba(0,0,0,.5);
+  position:fixed;left:16px;top:80px;width:352px;max-width:calc(100vw - 28px);
+  max-height:calc(100vh - 104px);overflow:auto;z-index:46;
+  background:linear-gradient(175deg,#f6f0dd 0%,#efe6cc 100%);color:#2c2a20;
+  border:1px solid #b89a5e;border-radius:16px;padding:16px 18px 14px;
+  transform:translateX(-135%);transition:transform .4s var(--ease);
+  box-shadow:0 26px 70px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.6);
 }
 .cpanel.open{transform:none}
-.cp-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.cp-head span{font-family:'Marcellus',serif;font-size:13.5px;letter-spacing:.16em;color:var(--gold-2)}
+.cp-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:2px solid #b89a5e;margin-bottom:6px}
+.cp-head span{font-family:'Marcellus',serif;font-size:15px;letter-spacing:.14em;color:#4a3a1c}
 .cp-icons{display:flex;gap:6px}
-.cp-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 2px;border-bottom:1px dashed rgba(201,164,95,.14);font-size:12px;letter-spacing:.08em;color:rgba(233,228,214,.65)}
-.cp-row b{font-family:'Marcellus',serif;font-weight:400;font-size:16px;color:var(--gold-2)}
-.cp-row b.pos{color:#9fc98f}.cp-row b.neg{color:var(--bad)}
-.cp-row b.mut{color:rgba(233,228,214,.4);letter-spacing:.2em;font-size:12px}
-.cp-body.blurred b:not(.mut){filter:blur(7px)}
-.cp-note{margin-top:9px;font-size:10px;letter-spacing:.06em;color:rgba(233,228,214,.4);line-height:1.5}
-.cp-sec{margin-top:11px;padding-top:10px;border-top:1px solid var(--line)}
-.cp-sec-t{font-size:9.5px;letter-spacing:.3em;color:rgba(233,228,214,.5);text-transform:uppercase;margin-bottom:8px}
-.my-count{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
-.my-count b{font-family:'Marcellus',serif;font-size:30px;font-weight:400;color:var(--gold-2);min-width:52px;text-align:center}
-.my-count .pmbtns{display:flex;gap:6px}
-.last-check{font-size:11px;letter-spacing:.05em;margin:9px 0;min-height:15px;color:rgba(233,228,214,.6)}
-.last-check.ok{color:#9fc98f}.last-check.miss{color:var(--bad)}
-.train-meta{font-size:10.5px;letter-spacing:.1em;color:rgba(233,228,214,.5);margin-top:9px}
-.train-meta b{color:var(--gold-2)}
-.switch{display:flex;align-items:center;gap:9px;font-size:10.5px;letter-spacing:.2em;color:rgba(233,228,214,.6);cursor:pointer;text-transform:uppercase}
-.switch input{display:none}
-.sw{width:32px;height:17px;border-radius:12px;border:1px solid var(--line);position:relative;transition:.25s;flex:none}
-.sw::after{content:'';position:absolute;top:2.5px;left:3px;width:10px;height:10px;border-radius:50%;background:rgba(233,228,214,.5);transition:.25s}
-.switch input:checked + .sw{border-color:var(--gold);background:rgba(201,164,95,.12)}
-.switch input:checked + .sw::after{left:17px;background:var(--gold)}
+.cpanel .icon-btn{border-color:rgba(90,70,30,.4);color:#5a4a26;background:transparent}
+.cpanel .icon-btn:hover{border-color:#7a5a1e;color:#3a2d12;background:rgba(166,138,79,.12)}
+.cpanel.blurred .num{filter:blur(9px)}
+.cp-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:10px 2px;border-bottom:1px dashed rgba(90,70,30,.28);font-size:13.5px;letter-spacing:.04em;color:#5c5236}
+.cp-row b{font-family:'Marcellus',serif;font-weight:400;font-size:26px;color:#2c2a20;transition:filter .2s}
+.cp-row b.pos{color:#2e6b46}.cp-row b.neg{color:#a23b32}
+.cp-row b.adv{color:#7a5a1e}
+.cp-sec{margin-top:12px;padding-top:12px;border-top:2px solid #b89a5e}
+.cp-sec-t{font-size:10px;letter-spacing:.28em;color:#7a6a44;text-transform:uppercase;margin-bottom:10px}
+.cpanel .switch{color:#5c5236}
+.cpanel .sw{border-color:#a68a4f}
+.cpanel .sw::after{background:#8a7444}
+.cpanel .switch input:checked + .sw{border-color:#7a5a1e;background:rgba(166,138,79,.25)}
+.cpanel .switch input:checked + .sw::after{left:17px;background:#4a3a1c}
+.my-count{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 10px}
+.my-count b{font-family:'Marcellus',serif;font-size:48px;font-weight:400;color:#2c2a20;min-width:78px;text-align:center;line-height:1;transition:filter .2s}
+.my-count b.pos{color:#2e6b46}.my-count b.neg{color:#a23b32}
+.pmbtns{display:flex;gap:6px;flex-wrap:wrap}
+.cpanel .btn{border-color:#a68a4f;color:#4a3a1c}
+.cpanel .btn:hover:not(:disabled){background:rgba(166,138,79,.15);border-color:#7a5a1e;color:#3a2d12}
+.cp-btnrow{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.last-check{font-size:12.5px;letter-spacing:.03em;margin:0 0 10px;min-height:17px;color:#6a5d3a;line-height:1.45;transition:filter .2s}
+.last-check.ok{color:#2e6b46}.last-check.miss{color:#a23b32}
+.train-meta{font-size:11.5px;letter-spacing:.06em;color:#6a5d3a}
+.train-meta b{color:#4a3a1c;font-weight:500}
+.cp-note{margin-top:12px;padding-top:10px;border-top:1px dashed rgba(90,70,30,.28);font-size:11.5px;letter-spacing:.02em;line-height:1.6;color:#6a5d3a}
+.cp-note b{color:#4a3a1c;font-weight:500}
 
 /* тосты и модалка */
 .toasts{position:fixed;top:76px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;z-index:50;pointer-events:none}
@@ -323,7 +339,7 @@ body.phase-bet .box-bet.empty::after{
   .bet-ops{flex-direction:row}
   .kbd-info{display:none}
   .console{padding:10px 10px 14px}
-  .cpanel{width:min(264px,calc(100vw - 28px))}
+  .cpanel{top:72px}
 }
 </style>
 </head>
@@ -371,10 +387,11 @@ body.phase-bet .box-bet.empty::after{
 
     <svg class="arc" viewBox="0 0 700 128" aria-hidden="true">
       <defs>
-        <path id="arcP1" d="M 52 10 Q 350 172 648 10"/>
-        <path id="arcP2" d="M 110 20 Q 350 150 590 20"/>
+        <path id="arcP1" d="M 52 14 Q 350 148 648 14"/>
+        <path id="arcP2" d="M 118 28 Q 350 218 582 28"/>
       </defs>
       <use href="#arcP1" fill="none" stroke="rgba(201,164,95,.28)" stroke-width="1"/>
+      <use href="#arcP2" fill="none" stroke="rgba(201,164,95,.18)" stroke-width="1"/>
       <text class="arc-t1"><textPath href="#arcP1" startOffset="50%" text-anchor="middle">BLACKJACK PAYS 3 TO 2</textPath></text>
       <text class="arc-t2"><textPath href="#arcP2" startOffset="50%" text-anchor="middle">DEALER STANDS ON ALL 17 · INSURANCE PAYS 2:1</textPath></text>
     </svg>
@@ -388,9 +405,9 @@ body.phase-bet .box-bet.empty::after{
 
   <footer class="console">
     <div class="console-top">
-      <div class="kbd-info">1–5 фишка · Enter раздать · H S D P R · C счёт</div>
+      <label class="switch"><input type="checkbox" id="strategyToggle"/><span class="sw"></span>Советчик</label>
       <div class="hint" id="hint"></div>
-      <div class="kbd-info">ПКМ по полю — снять фишку</div>
+      <div class="kbd-info">1–5 фишка · Enter раздать · H S D P R · C счёт</div>
     </div>
     <div class="console-main">
       <section class="cs on" id="csBet">
@@ -437,34 +454,34 @@ body.phase-bet .box-bet.empty::after{
   </div>
 
   <div id="cpReal">
-    <div class="cp-row"><span>Текущий счёт (RC)</span><b id="rcVal">0</b></div>
-    <div class="cp-row"><span>Истинный счёт (TC)</span><b id="tcVal">0.0</b></div>
-    <div class="cp-row"><span>Колод в шу</span><b id="dkVal">6.0</b></div>
-    <div class="cp-row"><span>Совет по ставке</span><b id="betAdv">1×</b></div>
+    <div class="cp-row"><span>Текущий счёт (RC)</span><b class="num" id="rcVal">0</b></div>
+    <div class="cp-row"><span>Истинный счёт (TC)</span><b class="num" id="tcVal">+0.0</b></div>
+    <div class="cp-row"><span>Колод в шу</span><b class="num" id="dkVal">6.0</b></div>
+    <div class="cp-row"><span>Ставка по счёту</span><b class="num adv" id="betAdv">1× (мин)</b></div>
   </div>
 
   <div class="cp-sec">
-    <div class="cp-sec-t">Режим тренажёра</div>
+    <div class="cp-sec-t">Тренажёр подсчёта</div>
     <label class="switch"><input type="checkbox" id="trainToggle"/><span class="sw"></span>Считать самому</label>
     <div id="cpTrain" hidden>
       <div class="my-count">
-        <b id="myRC">0</b>
+        <b class="num" id="myRC">0</b>
         <div class="pmbtns">
           <button class="btn sm" id="myMinus">−1</button>
           <button class="btn sm" id="myPlus">+1</button>
           <button class="btn sm" id="myZero">0</button>
         </div>
       </div>
-      <div class="last-check" id="lastCheck"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn sm" id="checkNowBtn">Проверить сейчас</button>
+      <div class="last-check num" id="lastCheck"></div>
+      <div class="cp-btnrow">
+        <button class="btn sm" id="checkNowBtn">Проверить</button>
         <button class="btn sm" id="syncBtn">Синхронизировать</button>
       </div>
-      <div class="train-meta">Проверок: <b id="tmAtt">0</b> · Верных: <b id="tmCor">0</b> · Серия: <b id="tmStr">0</b> · Рекорд: <b id="tmBest">0</b></div>
+      <div class="train-meta">Проверок <b id="tmAtt">0</b> · Верных <b id="tmCor">0</b> · Серия <b id="tmStr">0</b> · Рекорд <b id="tmBest">0</b></div>
     </div>
   </div>
 
-  <p class="cp-note">2–6 → +1 · 7–9 → 0 · 10, валет, дама, король, туз → −1. Истинный счёт = RC, делённый на оставшиеся колоды. Чем выше TC — тем больше ставьте.</p>
+  <p class="cp-note">Раздача в игру: 2–6 → <b>+1</b> · 7–9 → <b>0</b> · 10, J, Q, K, туз → <b>−1</b>. Истинный счёт = RC ÷ колоды в шу. TC <b>+2 и выше</b> — поднимаем ставку, минус — сидим на минимуме. Плюс выгоден и для решений: при TC ≥ +3 страховка начинает окупаться.</p>
 </aside>
 
 <div class="toasts" id="toasts"></div>
@@ -630,22 +647,22 @@ function countCard(c){ state.rc += hiLo(c); updateShoeUI(); }
 function trueCount(){ return state.rc / Math.max(state.shoe.length / 52, 0.5); }
 function betAdvice(){
   const f = Math.floor(trueCount());
-  if(f <= 1) return '1× (min)';
+  if(f <= 1) return '1× (мин)';
   if(f === 2) return '2×';
   if(f === 3) return '4×';
   if(f === 4) return '6×';
-  return '8× и выше';
+  return '8×+';
 }
 function updateShoeUI(){
-  const left = state.shoe.length;
+  const left = state.shoe.length, tc = trueCount();
   $('#shoeCount').textContent = left;
   $('#shoeBar').style.width = (left / (DECKS * 52) * 100) + '%';
   const rcEl = $('#rcVal'), tcEl = $('#tcVal'), dkEl = $('#dkVal'), baEl = $('#betAdv');
   rcEl.textContent = sgn(state.rc);
-  rcEl.className = state.rc > 0 ? 'pos' : (state.rc < 0 ? 'neg' : '');
-  tcEl.textContent = (trueCount() >= 0 ? '+' : '') + trueCount().toFixed(1);
-  tcEl.className = trueCount() > 0.5 ? 'pos' : (trueCount() < -0.5 ? 'neg' : '');
-  dkEl.textContent = (state.shoe.length / 52).toFixed(1);
+  rcEl.className = 'num ' + (state.rc > 0 ? 'pos' : (state.rc < 0 ? 'neg' : ''));
+  tcEl.textContent = (tc >= 0 ? '+' : '') + tc.toFixed(1);
+  tcEl.className = 'num ' + (tc > 0.5 ? 'pos' : (tc < -0.5 ? 'neg' : ''));
+  dkEl.textContent = (left / 52).toFixed(1);
   baEl.textContent = betAdvice();
 }
 
@@ -742,7 +759,7 @@ function addChip(i){
   state.betOps.push({ i, v: activeChip });
   Sound.chip();
   const spot = boxEls[i].querySelector('.box-bet');
-  flyChip($( `.chip.mc${activeChip}` ) || $('#rack'), spot, activeChip);
+  flyChip($('#rack'), spot, activeChip);
   updateBetsUI();
 }
 function removeChip(i){
@@ -799,7 +816,7 @@ function updateBetsUI(){
   $('#rebetBtn').disabled = !rebetSum || rebetSum > state.balance;
   $('#rebuyBtn').hidden = !(state.balance < 10 && !sum);
   document.querySelectorAll('#rack .chip').forEach(b =>
-    b.classList.toggle('off', activeChip + sum > state.balance && activeChip > state.balance));
+    b.classList.toggle('off', sum + (+b.dataset.v) > state.balance));
 }
 function flyChip(fromEl, toEl, val){
   const r1 = fromEl.getBoundingClientRect(), r2 = toEl.getBoundingClientRect();
@@ -814,7 +831,7 @@ function flyChip(fromEl, toEl, val){
   setTimeout(() => f.remove(), 400);
 }
 function updateCardScale(){
-  const n = state.bets.filter(b => b > 0).length || 1;
+  const n = Math.max(state.bets.filter(b => b > 0).length, state.hands.reduce((m,h) => Math.max(m, state.hands.filter(x => x.box === h.box).length > 1 ? 2 : 1), 1), 1);
   const CW = { 1:'clamp(66px,9vw,94px)', 2:'clamp(62px,8vw,86px)',
                3:'clamp(56px,7vw,76px)', 4:'clamp(52px,6vw,66px)', 5:'clamp(48px,5.2vw,58px)' };
   $('#tableEl').style.setProperty('--card-w', CW[Math.min(n,5)]);
@@ -858,7 +875,7 @@ function updateDealerScore(){
   if(!state.dealer.cards.length){ sc.classList.remove('on'); return; }
   const vis = state.dealerHidden ? state.dealer.cards.slice(0, 1) : state.dealer.cards;
   const v = hv(vis);
-  sc.textContent = v.total;
+  sc.textContent = (v.soft && v.total < 21) ? `${v.total - 10} / ${v.total}` : v.total;
   sc.classList.add('on');
   sc.classList.remove('pulse'); void sc.offsetWidth; sc.classList.add('pulse');
 }
@@ -951,55 +968,113 @@ function setConsole(mode){
   document.body.classList.toggle('phase-bet', mode === 'bet');
 }
 
-/* ══════════════ Базовая стратегия ══════════════ */
+/* ══════════════ Советчик стратегии с объяснениями ══════════════ */
 const canDouble = h => !h.done && h.cards.length === 2 && state.balance >= h.bet;
 const canSplit = h => !h.done && isPair(h) && state.hands.length < MAX_HANDS && state.balance >= h.bet;
 const canSurrender = h => !h.done && !h.fromSplit && h.cards.length === 2
   && state.hands.filter(x => x.box === h.box).length === 1;
 
-function advice(h){
-  const cards = h.cards, v = hv(cards), up = state.dealer.cards[0].v;
+function advise(h){
+  const v = hv(h.cards), up = state.dealer.cards[0].v;
   const cd = canDouble(h), cs = canSplit(h), cr = canSurrender(h);
-  const ten = c => c.v === 10;
-  let a = 'H';
-  if(cs && cards.length === 2){
-    const r = cards[0].r;
-    if(r === 'A' || r === '8') a = 'P';
-    else if(ten(cards[0]) && ten(cards[1])) a = 'S';
-    else if(r === '9') a = (up >= 2 && up <= 6) || up === 8 || up === 9 ? 'P' : 'S';
-    else if(r === '7') a = up <= 7 ? 'P' : 'H';
-    else if(r === '6') a = up <= 6 ? 'P' : 'H';
-    else if(r === '5') a = (up >= 2 && up <= 9) ? 'D' : 'H';
-    else if(r === '4') a = (up === 5 || up === 6) ? 'P' : 'H';
-    else if(r === '3' || r === '2') a = up <= 7 ? 'P' : 'H';
-  }
-  if(a === 'H' && cr){
-    if(v.total === 16 && !v.soft && up >= 9 && cards[0].r !== '8') a = 'R';
-    else if(v.total === 15 && !v.soft && up === 10) a = 'R';
-  }
-  if(a === 'H'){
-    if(v.soft){
-      if(v.total >= 19) a = 'S';
-      else if(v.total === 18) a = (up >= 3 && up <= 6) ? 'D' : (up <= 8 ? 'S' : 'H');
-      else if(v.total === 17) a = (up >= 3 && up <= 6) ? 'D' : 'H';
-      else if(v.total >= 15) a = (up >= 4 && up <= 6) ? 'D' : 'H';
-      else a = (up >= 5 && up <= 6) ? 'D' : 'H';
-    } else {
-      if(v.total >= 17) a = 'S';
-      else if(v.total >= 13) a = up <= 6 ? 'S' : 'H';
-      else if(v.total === 12) a = (up >= 4 && up <= 6) ? 'S' : 'H';
-      else if(v.total === 11) a = up <= 10 ? 'D' : 'H';
-      else if(v.total === 10) a = up <= 9 ? 'D' : 'H';
-      else if(v.total === 9) a = (up >= 3 && up <= 6) ? 'D' : 'H';
-      else a = 'H';
+  const hard = !v.soft, t = v.total;
+  let a = 'H', why = '';
+
+  /* — пары — */
+  if(cs && h.cards.length === 2){
+    const r = h.cards[0].r;
+    if(r === 'A'){ a = 'P'; why = 'Туз в каждой руке: путь к двум сильным рукам или блэкджекам. Одна рука на 12 слишком слаба.'; }
+    else if(r === '8'){ a = 'P'; why = '16 — худшая сумма в игре. Сплит превращает её в две руки с выходом на 18.'; }
+    else if(r === '10'){ a = 'S'; why = '20 — вторая по силе рука. Сплит здесь разрушает почти готовый выигрыш.'; }
+    else if(r === '9'){
+      if((up >= 2 && up <= 6) || up === 8 || up === 9){ a = 'P'; why = 'Слабая карта дилера: две руки с выходом на 19 приносят больше, чем одна 18.'; }
+      else { a = 'S'; why = 'Против 7/10/туза твёрдая 18 достаточно крепка — сплит лишь увеличит риск.'; }
+    }
+    else if(r === '7'){
+      if(up <= 7){ a = 'P'; why = 'Дилер со слабой картой склонен перебрать — играем двумя руками по 14 вместо одной.'; }
+      else { a = 'H'; why = 'Против сильной карты сплит 14-х только удвоит убыток — добираем.'; }
+    }
+    else if(r === '6'){
+      if(up <= 6){ a = 'P'; why = 'Слабая карта дилера: две руки, начинающиеся с 6, бьют одну 12.'; }
+      else { a = 'H'; why = 'Против сильной карты это обычные 12 — добираем.'; }
+    }
+    else if(r === '5'){
+      if(up >= 2 && up <= 9){ a = 'D'; why = 'Пара пятёрок — это 10, лучший кандидат на удвоение. Сплит ломает сильную стартовую позицию.'; }
+      else { a = 'H'; why = 'Это те же 10, но против сильной карты дилера — удвоение не окупается, добираем.'; }
+    }
+    else if(r === '4'){
+      if(up === 5 || up === 6){ a = 'P'; why = 'Против 5-6 дилера и с правом удвоения после сплита — редкое выгодное окно.'; }
+      else { a = 'H'; why = 'Обычная 8 — добираем без экзотики.'; }
+    }
+    else if(r === '3' || r === '2'){
+      if(up <= 7){ a = 'P'; why = 'Слабая карта дилера позволяет давить двумя руками, начинающимися с мелкой карты.'; }
+      else { a = 'H'; why = 'Против сильной карты играем как сумму — просто добираем.'; }
     }
   }
-  if(a === 'D' && !cd) a = 'H';
-  if(a === 'P' && !cs) a = 'H';
-  if(a === 'R' && !cr) a = 'H';
-  return a;
+
+  /* — сдача — */
+  if(a === 'H' && cr && hard){
+    if(t === 16 && up >= 9 && h.cards[0].r !== '8'){ a = 'R'; why = '16 против 9/10/туза проигрывает заметно чаще половины случаев. Гарантированные −50% дешевле средней потери.'; }
+    else if(t === 15 && up === 10){ a = 'R'; why = '15 против десятки — одна из худших рук: сдача с потерей половины выгоднее игры.'; }
+  }
+
+  /* — мягкие руки — */
+  if(a === 'H'){
+    if(!hard){
+      if(t >= 19){ a = 'S'; why = (t >= 20 ? '20-21 — почти готовый выигрыш.' : '19 — сильная сумма:') + ' рисковать нечем и незачем.'; }
+      else if(t === 18){
+        if(up >= 3 && up <= 6){ a = 'D'; why = 'A7 не перебивает (туз считается за 1), а дилер со слабой картой часто проигрывает — удвоим давление.'; }
+        else if(up === 2 || up === 7 || up === 8){ a = 'S'; why = 'Против этих карт мягкая 18 стабильна; удвоение не окупает риск её ухудшения.'; }
+        else { a = 'H'; why = 'Против 9/10/туза мягкая 18 малоценна — добор может превратить её в настоящую 19-21.'; }
+      }
+      else if(t === 17){
+        if(up >= 3 && up <= 6){ a = 'D'; why = 'Мягкая 17 перебрать не может: агрессия без риска, а дилер с 3-6 сам уйдёт в перебор.'; }
+        else { a = 'H'; why = 'Мягкая 17 легко улучшается добором — берём карту.'; }
+      }
+      else if(t >= 15){
+        if(up >= 4 && up <= 6){ a = 'D'; why = 'Мягкая рука плюс самые перебойные карты дилера (4-6) — открытое окно для удвоения.'; }
+        else { a = 'H'; why = 'Добор мягкой руки бесплатен: перебора нет, пока туз считается за 1.'; }
+      }
+      else {
+        if(up >= 5 && up <= 6){ a = 'D'; why = 'Против самых слабых карт дилера (5-6) удваиваем даже мягкую 13-14.'; }
+        else { a = 'H'; why = 'Мягкая 13-14: добор без риска перебора, ждём свою карту.'; }
+      }
+    }
+    /* — жёсткие руки — */
+    else {
+      if(t >= 17){ a = 'S'; why = 'Стоим: с 17+ шанс переборить себя выше, чем шанс обыграть дилера.'; }
+      else if(t >= 13){
+        if(up <= 6){ a = 'S'; why = 'Дилер с 2-6 перебирает в 35-42% раздач — не помогает ему, заставляем брать.'; }
+        else { a = 'H'; why = 'Против сильной карты дилера стоять на 13-16 — почти верный проигрыш, добираем.'; }
+      }
+      else if(t === 12){
+        if(up >= 4 && up <= 6){ a = 'S'; why = 'Только против 4-6 стоячие 12 оправданы: переборы дилера здесь максимальны.'; }
+        else { a = 'H'; why = 'Против 2-3 и 7-A добор выгоднее: в шу много десяток, стоять на 12 — отдать руку.'; }
+      }
+      else if(t === 11){ a = 'D'; why = 'Лучший удвоитель в игре: десяток в колоде больше всего (4 номинала) — шанс собрать 21 максимален.'; }
+      else if(t === 10){
+        if(up <= 9){ a = 'D'; why = '10 против слабой карты дилера — основа прибыли базовой стратегии: удваиваем.'; }
+        else { a = 'H'; why = 'Против 10/туза дилера удвоение уже не окупается — добираем к 17-20.'; }
+      }
+      else if(t === 9){
+        if(up >= 3 && up <= 6){ a = 'D'; why = 'Дилер с 3-6 — главный переборщик: удвоение по 9 в плюс.'; }
+        else { a = 'H'; why = 'Без слабой карты дилера просто добираемся к 17+.'; }
+      }
+      else { a = 'H'; why = 'Сумма слабая: терять нечего — добираемся до играбельной руки.'; }
+    }
+  }
+
+  /* — фолбэки, если действие недоступно — */
+  if(a === 'D' && !cd){
+    if(t === 18 && !hard){ a = 'S'; why += ' Удвоение недоступно — стоим.'; }
+    else { a = 'H'; why += ' Удвоение недоступно — добираем.'; }
+  }
+  if(a === 'P' && !cs){ a = 'H'; why += ' Сплит недоступен — играем как обычную сумму.'; }
+  if(a === 'R' && !cr){ a = 'H'; why += ' Сдача недоступна — добираем.'; }
+  return { a, why };
 }
-const ADV_TXT = { H:'взять карту', S:'остановиться', D:'удвоить', P:'сплит', R:'сдаться' };
+const ACT_NAME = { H:'Ещё', S:'Хватит', D:'Удвоить', P:'Сплит', R:'Сдаться' };
+const ACT_MAP = { H:'actHit', S:'actStand', D:'actDouble', P:'actSplit', R:'actSurrender' };
 
 function updateActions(){
   if(state.phase !== 'player') return;
@@ -1012,11 +1087,13 @@ function updateActions(){
   document.querySelectorAll('#csPlay .btn').forEach(b => b.classList.remove('sugg'));
   const hint = $('#hint');
   if(state.settings.strategy){
-    const a = advice(h);
-    const map = { H:'actHit', S:'actStand', D:'actDouble', P:'actSplit', R:'actSurrender' };
-    document.getElementById(map[a]).classList.add('sugg');
-    hint.textContent = `Бокс ${h.box + 1}: стратегия — ${ADV_TXT[a]}`;
-  } else hint.textContent = state.hands.length > 1 ? `Играем бокс ${h.box + 1}` : '';
+    const { a, why } = advise(h);
+    document.getElementById(ACT_MAP[a]).classList.add('sugg');
+    const prefix = state.hands.length > 1 ? `Бокс ${h.box + 1}: ` : '';
+    hint.innerHTML = `${prefix}<b>${ACT_NAME[a]}</b><span class="why">${why}</span>`;
+  } else {
+    hint.textContent = state.hands.length > 1 ? `Играем бокс ${h.box + 1}` : '';
+  }
 }
 
 /* ══════════════ Ход игры ══════════════ */
@@ -1052,6 +1129,7 @@ async function deal(){
   state.dealer.cards = []; state.dealerHidden = true; state.holeEl = null; state.insurance = 0;
   $('#dealerTag').className = 'tag';
   state.hands.forEach(renderHand);
+  updateCardScale();
   updateHandDim();
   await sleep(300);
 
@@ -1069,6 +1147,9 @@ async function deal(){
     const amt = state.hands.reduce((a,h) => a + Math.floor(h.bet / 2), 0);
     $('#insAmt').textContent = fmt(amt) + ' фишек';
     $('#insYes').disabled = state.balance < amt || amt <= 0;
+    if(state.settings.strategy){
+      $('#hint').innerHTML = `<b>Пас</b><span class="why">Страховка при базовой стратегии минус EV: окупается только при истинном счёте ≥ +3.</span>`;
+    }
     busy = false;
     return;
   }
@@ -1173,7 +1254,6 @@ async function doSplit(){
   updateBalance();
   Sound.chip();
 
-  const moved = h.cards.pop();
   const slotEl = h.el.querySelector('.cards').lastElementChild;
   const nh = newHand(h.box, h.bet, h.chips.slice());
   nh.fromSplit = true; h.fromSplit = true;
@@ -1183,6 +1263,7 @@ async function doSplit(){
   nh.el.querySelector('.cards').classList.add('tight');
   h.el.querySelector('.cards').classList.add('tight');
   updateHandScore(h);
+  updateCardScale();
 
   await sleep(200);
   await drawTo(h);          await sleep(140);
@@ -1319,7 +1400,7 @@ async function settleRound(dealerBJ){
   updateBalance();
   save();
 
-  if(hadBJ && delta > 0){ verdict('БЛЭКДЖЕК', sgn(fmt(delta)).replace('+','+') , 'bj'); Sound.bj(); $('#verdict i').textContent = '+' + fmt(delta); }
+  if(hadBJ && delta > 0){ verdict('БЛЭКДЖЕК', '+' + fmt(delta), 'bj'); Sound.bj(); }
   else if(delta > 0){ verdict('ПОБЕДА', '+' + fmt(delta), 'win'); Sound.win(); }
   else if(delta < 0){
     verdict(dealerBJ ? 'БЛЭКДЖЕК ДИЛЕРА' : (deadOnly ? 'ПЕРЕБОР' : 'ПОРАЖЕНИЕ'), fmt(delta), 'lose');
@@ -1363,7 +1444,7 @@ async function endRound(){
 function renderMyRC(){
   const el = $('#myRC');
   el.textContent = sgn(state.myRC);
-  el.style.color = state.myRC > 0 ? '#9fc98f' : (state.myRC < 0 ? 'var(--bad)' : 'var(--gold-2)');
+  el.className = 'num ' + (state.myRC > 0 ? 'pos' : (state.myRC < 0 ? 'neg' : ''));
   $('#tmAtt').textContent = state.stats.tAtt;
   $('#tmCor').textContent = state.stats.tCor;
   $('#tmStr').textContent = state.stats.tStreak;
@@ -1377,10 +1458,16 @@ function trainCheck(auto){
   else state.stats.tStreak = 0;
   const el = $('#lastCheck');
   el.textContent = `Ваш счёт ${sgn(state.myRC)} · факт ${sgn(state.rc)} — ${ok ? 'верно' : 'мимо (' + sgn(-diff) + ')'}`;
-  el.className = 'last-check ' + (ok ? 'ok' : 'miss');
+  el.className = 'last-check num ' + (ok ? 'ok' : 'miss');
   renderMyRC();
   save();
-  if(auto) toast(ok ? 'Подсчёт верный: ' + sgn(state.rc) : `Подсчёт: ${sgn(state.myRC)}, факт ${sgn(state.rc)}`, ok ? '' : 'bad');
+  if(auto){
+    const hidden = $('#cpanel').classList.contains('blurred');
+    toast(hidden
+      ? (ok ? 'Подсчёт верный' : 'Подсчёт неверный — детали в панели')
+      : (ok ? 'Подсчёт верный: ' + sgn(state.rc) : `Подсчёт: ${sgn(state.myRC)}, факт ${sgn(state.rc)}`),
+      ok ? '' : 'bad');
+  }
 }
 function toggleTrain(on){
   state.settings.train = on;
@@ -1429,6 +1516,13 @@ function bindEvents(){
   $('#insYes').addEventListener('click', () => resolveInsurance(true));
   $('#insNo').addEventListener('click', () => resolveInsurance(false));
 
+  /* советчик */
+  $('#strategyToggle').addEventListener('change', e => {
+    state.settings.strategy = e.target.checked;
+    save();
+    updateActions();
+  });
+
   /* панель счёта */
   const cpanel = $('#cpanel');
   $('#countBtn').addEventListener('click', () => {
@@ -1440,7 +1534,10 @@ function bindEvents(){
     cpanel.classList.remove('open');
     $('#countBtn').classList.remove('lit');
   });
-  $('#cpBlur').addEventListener('click', () => $('#cpReal').classList.toggle('blurred'));
+  $('#cpBlur').addEventListener('click', () => {
+    cpanel.classList.toggle('blurred');
+    Sound.click();
+  });
   $('#trainToggle').addEventListener('change', e => toggleTrain(e.target.checked));
   $('#myPlus').addEventListener('click', () => { state.myRC++; renderMyRC(); Sound.click(); });
   $('#myMinus').addEventListener('click', () => { state.myRC--; renderMyRC(); Sound.click(); });
@@ -1450,11 +1547,9 @@ function bindEvents(){
     state.myRC = state.rc;
     renderMyRC();
     $('#lastCheck').textContent = 'Синхронизировано с реальным счётом';
-    $('#lastCheck').className = 'last-check';
+    $('#lastCheck').className = 'last-check num';
     Sound.undo();
   });
-
-  $('#strategyToggle') && null; /* заглушки нет — переключатель убран в панель ниже */
 
   /* Звук */
   const ICON_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></svg>';
@@ -1507,7 +1602,12 @@ function bindEvents(){
 
   /* Клавиатура */
   document.addEventListener('keydown', e => {
-    if(e.key === 'Escape'){ modal.classList.remove('open'); cpanel.classList.remove('open'); $('#countBtn').classList.remove('lit'); return; }
+    if(e.key === 'Escape'){
+      modal.classList.remove('open');
+      cpanel.classList.remove('open');
+      $('#countBtn').classList.remove('lit');
+      return;
+    }
     if(e.code === 'KeyC'){ $('#countBtn').click(); return; }
     if(busy) return;
     if(state.phase === 'betting'){
@@ -1538,6 +1638,7 @@ function bindEvents(){
 load();
 balShown = state.balance;
  $('#balance').textContent = fmt(balShown);
+ $('#strategyToggle').checked = state.settings.strategy;
 state.shoe = buildShoe();
 buildBoxes();
 bindEvents();
