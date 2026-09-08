@@ -639,7 +639,7 @@ const fmt = n => Math.round(n).toLocaleString('ru-RU');
 const sgn = n => (n > 0 ? '+' : '') + n;
 
 /* ══════════════ Состояние ══════════════ */
-const CHIP_VALUES = [10, 25, 100, 500, 1000];
+const CHIP_VALUES = [10, 25, 100, 500, 1000, 5000];
 const DECKS = 6, CUT = 78, MAX_HANDS = 6;
 /* дуга боксов: крайние выше и развёрнуты к дилеру, центральный ниже — как на реальном столе */
 const BOX_ARC = [
@@ -650,7 +650,7 @@ const BOX_ARC = [
   { y: -14, r: -2.6 }
 ];
 const state = {
-  phase: 'betting', balance: 200000,
+  phase: 'betting', balance: 2000,
   bets: [0,0,0,0,0], boxChips: [[],[],[],[],[]], betOps: [],
   lastBets: [0,0,0,0,0], lastBoxChips: [[],[],[],[],[]],
   hands: [], activeHand: 0,
