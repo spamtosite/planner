@@ -731,6 +731,11 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 .focus-sidebar{margin:12px 10px;padding:14px;border:1px solid #3a3d49;border-radius:16px;background:linear-gradient(145deg,#242632,#171820);box-shadow:0 8px 22px rgba(0,0,0,.16)}.focus-sidebar-head{font-size:12px;color:#dbe2f1}.focus-sidebar-name{font-size:12px;color:#aeb8ca;margin:7px 0 0}.focus-sidebar-time{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:31px;letter-spacing:1px;margin:12px 0}.focus-sidebar-actions button{min-height:33px;border-radius:9px}.focus-sidebar-open{background:#5b7cfa}.focus-sidebar-delete{background:#333641}
 @media(max-width:800px){.focusoverlay{padding:0;align-items:flex-end}.focuscard{border-radius:24px 24px 0 0;padding:28px 18px max(28px,env(safe-area-inset-bottom))}.focustime{gap:5px}.focus-digit{border-radius:8px}.rich-toolbar{top:0}.focus-sidebar{margin:10px 12px}}
 
+
+/* 2026-09-09: calendar titles remain one line; focus is temporarily disabled. */
+.tasktitle{white-space:nowrap!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:normal!important;word-break:keep-all!important;hyphens:none!important}
+#focusSidebar,#focusOverlay,#focusToggleBtn{display:none!important}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -743,7 +748,6 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 <div class="navgroup"><button id="navObjects" class="navbtn">Объекты</button><div class="sidebarfolders" id="objectSidebarFolders"></div></div>
 <div class="navgroup"><button id="navClients" class="navbtn">Клиенты</button><div class="sidebarfolders" id="sidebarFolders"></div></div>
 <div class="sidebarpending" id="sidebarPending"></div>
-<div class="focus-sidebar" id="focusSidebar"></div>
 <div class="backupbar">
   <button class="backupbtn" id="exportBtn">⬇ Экспорт</button>
   <button class="backupbtn" id="importBtn">⬆ Импорт</button>
@@ -4346,7 +4350,7 @@ const SIDEBAR_MIN=190,SIDEBAR_MAX=480;
       document.removeEventListener('mousemove',onMove);
       document.removeEventListener('mouseup',onUp);
       rz.classList.remove('active');
-      document.body.classList.add('resizing');
+      document.body.classList.remove('resizing');
       localStorage.setItem(SIDEBAR_W_KEY,String(parseInt(sb.style.width,10)));
     };
     document.addEventListener('mousemove',onMove);
@@ -4876,5 +4880,20 @@ const __renderDigitalFocusTime=updateFocusDisplay;updateFocusDisplay=function(){
   $('focusTimeDisplay').innerHTML=`<span class="focus-digit">${value[0]}</span><span class="focus-digit">${value[1]}</span><span class="focus-colon">:</span><span class="focus-digit">${value[3]}</span><span class="focus-digit">${value[4]}</span>`;
 };
 updateFocusDisplay();renderFocusSidebar();
+
+
+/* 2026-09-09: one-line calendar titles with width calculated from their natural text width. */
+function naturalTaskWidth(t){
+  if(__widthOverrides[t.id])return __widthOverrides[t.id];
+  const titleW=textWidth(visibleText(t.title),'600 13px system-ui, sans-serif')+142;
+  let maxSubW=0;
+  (t.subtasks||[]).forEach(s=>{maxSubW=Math.max(maxSubW,textWidth(visibleText(s.title),'11px system-ui, sans-serif')+SUB_ROW_CHROME)});
+  const timeLabelW=timeLabel(t)?textWidth(visibleText(timeLabel(t)),'700 10.5px system-ui, sans-serif')+16:0;
+  const objW=t.object?textWidth(visibleText(t.object),'600 10.5px system-ui, sans-serif')+16:0;
+  const clientW=t.clientName?textWidth(visibleText(t.clientName),'700 10.5px system-ui, sans-serif')+40:0;
+  const noteW=visibleText(taskDisplayNote(t)||'').split('\n').reduce((max,line)=>Math.max(max,textWidth(line,'10.5px system-ui, sans-serif')+100),0);
+  const resultW=t.done&&t.resultText?textWidth(visibleText(t.resultText),'700 10.5px system-ui, sans-serif')+100:0;
+  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleW,maxSubW,timeLabelW,objW,clientW,noteW,resultW)));
+}
 
 </script></body></html>
