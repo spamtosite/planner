@@ -76,7 +76,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer;border:0;backgro
 .taskobj{font-size:10.5px;color:#7c3aed;font-weight:600;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .taskactions{display:flex;gap:2px;margin-left:auto;flex:0 0 auto}
 .taskactions button{padding:2px 4px;color:#6b7280;font-size:11px}
-.focusbtn{padding:2px 6px;border-radius:6px;background:#eef4ff;color:#1d4ed8;font-size:10.5px;white-space:nowrap;flex:0 0 auto}.resultchip{padding:3px 7px;border-radius:7px;background:#ecfdf3;color:#15803d;border:1px solid #bbf7d0;font-size:10.5px;font-weight:700;white-space:nowrap;flex:0 0 auto}.resultchip:hover{background:#dcfce7}.taskresult{margin-top:5px;padding:5px 7px;border-radius:6px;background:#ecfdf3;color:#166534;font-size:10.5px;font-weight:700;white-space:normal;word-break:break-word}
+.resultchip{padding:3px 7px;border-radius:7px;background:#ecfdf3;color:#15803d;border:1px solid #bbf7d0;font-size:10.5px;font-weight:700;white-space:nowrap;flex:0 0 auto}.resultchip:hover{background:#dcfce7}.taskresult{margin-top:5px;padding:5px 7px;border-radius:6px;background:#ecfdf3;color:#166534;font-size:10.5px;font-weight:700;white-space:normal;word-break:break-word}
 .subtasks{margin:5px 0 0 24px;display:grid;gap:3px;min-width:0}
 .sub{display:flex;align-items:center;gap:6px;font-size:11px;flex-wrap:nowrap;min-width:0;border-radius:5px}
 .sub .subtext{flex:1 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 1.1s cubic-bezier(.22,.9,.3,1),font-weight 1.1s ease}
@@ -608,7 +608,7 @@ body.resizing iframe{pointer-events:none}
 @media(max-width:680px){.fcgrid3{grid-template-columns:1fr}.fcrow2{grid-template-columns:1fr}}
 
 /* Rich text notes */
-.rich-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:9px 0 7px;border-bottom:1px solid var(--line);margin-bottom:8px}.rich-chip{min-height:31px;padding:6px 11px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font-size:12px;font-weight:750;box-shadow:0 1px 2px #00000008;transition:transform .15s,background .15s,border-color .15s,color .15s}.rich-chip:hover{transform:translateY(-1px);background:#fff;border-color:#bcc5d0}.rich-chip.active{background:#e8f0ff;border-color:#2563eb;color:#1746a2;box-shadow:0 0 0 2px #2563eb20}.rich-chip[data-cmd="foreColor"][data-value="#dc2626"].active{background:#fee2e2;border-color:#dc2626;color:#991b1b}.rich-chip[data-cmd="foreColor"][data-value="#16a34a"].active{background:#dcfce7;border-color:#16a34a;color:#166534}.rich-chip[data-cmd="foreColor"][data-value="#2563eb"].active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}.rich-chip[data-cmd="hiliteColor"].active{background:#fef3c7;border-color:#f59e0b;color:#92400e}.rich-editor{min-height:88px;width:100%;border:1.5px solid var(--accent);border-radius:9px;padding:10px 11px;font:inherit;line-height:1.45;background:#fff;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none}.rich-source{display:none!important}.note-result-chip{display:grid;gap:3px;margin-top:10px;padding:10px 12px;border:1px solid #86efac;border-radius:11px;background:linear-gradient(135deg,#ecfdf3,#f0fdf4);box-shadow:0 3px 12px rgba(22,163,74,.10)}.note-result-chip .nr-label{font-size:10.5px;font-weight:850;letter-spacing:.05em;color:#15803d;text-transform:uppercase}.note-result-chip .nr-text{font-size:13px;font-weight:750;color:#166534;white-space:pre-wrap;overflow-wrap:anywhere}.tasknoteitem .rich-note{white-space:normal;overflow-wrap:anywhere}.rich-note mark{background:#fef08a;border-radius:3px;padding:0 1px}
+.rich-toolbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;padding:9px 0 7px;border-bottom:1px solid var(--line);margin-bottom:8px}.rich-chip{min-height:31px;padding:6px 11px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font-size:12px;font-weight:750;box-shadow:0 1px 2px #00000008;transition:transform .15s,background .15s,border-color .15s,color .15s}.rich-chip:hover{transform:translateY(-1px);background:#fff;border-color:#bcc5d0}.rich-chip.active{background:#e8f0ff;border-color:#2563eb;color:#1746a2;box-shadow:0 0 0 2px #2563eb20}.rich-chip[data-cmd="foreColor"][data-value="#dc2626"].active{background:#fee2e2;border-color:#dc2626;color:#991b1b}.rich-chip[data-cmd="foreColor"][data-value="#16a34a"].active{background:#dcfce7;border-color:#16a34a;color:#166534}.rich-chip[data-cmd="foreColor"][data-value="#2563eb"].active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8}.rich-editor{min-height:88px;width:100%;border:1.5px solid var(--accent);border-radius:9px;padding:10px 11px;font:inherit;line-height:1.45;background:#fff;outline:none;white-space:pre-wrap;overflow-wrap:anywhere}.rich-editor:empty:before{content:attr(data-placeholder);color:#9ca3af;pointer-events:none}.rich-source{display:none!important}.note-result-chip{display:grid;gap:3px;margin-top:10px;padding:10px 12px;border:1px solid #86efac;border-radius:11px;background:linear-gradient(135deg,#ecfdf3,#f0fdf4);box-shadow:0 3px 12px rgba(22,163,74,.10)}.note-result-chip .nr-label{font-size:10.5px;font-weight:850;letter-spacing:.05em;color:#15803d;text-transform:uppercase}.note-result-chip .nr-text{font-size:13px;font-weight:750;color:#166534;white-space:pre-wrap;overflow-wrap:anywhere}.tasknoteitem .rich-note{white-space:normal;overflow-wrap:anywhere}.rich-note mark{background:#fef08a;border-radius:3px;padding:0 1px}
 .spoiler{background:#cbd5e1;color:transparent;border-radius:4px;padding:0 3px;cursor:pointer;transition:background .2s ease,color .2s ease}
 .spoiler.revealed{background:#fef9c3;color:inherit}
 .spoiler:not(.revealed) *{visibility:hidden}
@@ -679,6 +679,41 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 .rich-editor div,.rich-editor p{margin:0;padding:0;line-height:1.35;min-height:0}
 .rich-editor br{display:block;content:"";line-height:0}
 .ccnoteitem .cctext,.rich-note,.foldbody{line-height:1.35}
+
+/* 2026-09: readable task and subtask comments */
+.taskbody{overflow:visible}
+.tasktitle{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.3}
+.sub{align-items:flex-start;flex-wrap:nowrap}
+.subcontent{min-width:0;flex:1 1 auto;display:grid;gap:2px}
+.sub .subtext{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;line-height:1.3}
+.sub .subtext.has-result{font-weight:750}
+.subresult{font-size:10.5px;color:var(--muted);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.35}
+.taskblock{overflow:hidden}
+.taskblock .tasknotes{min-width:0}
+/* Rich notes: no highlight tool; font selectors use the same compact control style. */
+.rich-font-select{min-height:31px;max-width:142px;padding:5px 8px;border:1px solid #dde2e7;border-radius:10px;background:#f8f9fb;color:#53606d;font:inherit;font-size:12px}
+.rich-font-select:focus{outline:2px solid #2563eb33;border-color:#2563eb}
+.rich-note mark{background:transparent;padding:0}
+/* Spoiler is a full-width editable container, without synthetic indents. */
+details.fold,details.fold[open]{display:block;width:100%;max-width:100%;box-sizing:border-box;margin:6px 0}
+details.fold[open] .foldbody{padding:8px 10px;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-height:1.35}
+/* Compact phone input for client cards. */
+.clientcard .ccnotesection .phonepin{width:fit-content;max-width:100%;padding:5px 7px;border-radius:10px}
+.clientcard .ccnotesection .phonepin .pp-body{flex:0 1 auto}
+.clientcard .ccnotesection .phonepin .pp-num{font-size:13px}
+.phone-add-compact{max-width:390px}
+/* Focus is available from the sidebar; the old floating launcher is deliberately hidden. */
+.focustogglebtn{display:none!important}
+.focus-sidebar{margin:0 10px 10px;padding:10px;border:1px solid rgba(255,255,255,.13);border-radius:10px;background:rgba(255,255,255,.06);color:#fff}
+.focus-sidebar-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px;font-weight:700}
+.focus-sidebar-name{margin-top:5px;font-size:11px;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.focus-sidebar-time{font-variant-numeric:tabular-nums;font-size:18px;font-weight:800;margin:8px 0}
+.focus-sidebar-actions{display:flex;gap:6px}.focus-sidebar-actions button{flex:1;border-radius:7px;padding:6px 8px;font-size:11px;font-weight:700}.focus-sidebar-open{background:#0a84ff;color:#fff}.focus-sidebar-delete{background:rgba(255,255,255,.1);color:#fff}
+.focus-view-btn{width:auto;height:auto;padding:9px 11px;border-radius:10px;font-size:12px;font-weight:700;background:rgba(255,255,255,.1);color:#fff}
+.focus-delete-btn{background:rgba(255,75,75,.18);color:#fff}
+@media(max-width:800px){.focus-sidebar{margin:8px 12px}.tasktitle{font-size:13px}.subresult{font-size:11px}}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -691,6 +726,7 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
 <div class="navgroup"><button id="navObjects" class="navbtn">Объекты</button><div class="sidebarfolders" id="objectSidebarFolders"></div></div>
 <div class="navgroup"><button id="navClients" class="navbtn">Клиенты</button><div class="sidebarfolders" id="sidebarFolders"></div></div>
 <div class="sidebarpending" id="sidebarPending"></div>
+<div class="focus-sidebar" id="focusSidebar"></div>
 <div class="backupbar">
   <button class="backupbtn" id="exportBtn">⬇ Экспорт</button>
   <button class="backupbtn" id="importBtn">⬆ Импорт</button>
@@ -722,7 +758,7 @@ body.modal-open{position:fixed;width:100%;overflow:hidden;overscroll-behavior:no
     </div>
     <div class="focuspresetrow" id="focusPresetRow"><button class="focuspresetchip" data-min="15">15 мин</button><button class="focuspresetchip active" data-min="25">25 мин</button><button class="focuspresetchip" data-min="45">45 мин</button><button class="focuspresetchip" data-min="60">60 мин</button><button class="focuspresetchip custom" id="focusCustomChip">✏ Своё</button></div>
     <div class="focuscustomrow" id="focusCustomRow"><input type="number" id="focusCustomInput" min="1" max="480" placeholder="30"><span>минут</span><button id="focusCustomApply">Задать</button></div>
-    <div class="focuscontrolsrow"><button class="focussidebtn" id="focusResetBtn" title="Сброс">↺</button><button class="focusmainbtn" id="focusMainBtn">▶</button><button class="focussidebtn" id="focusSkipBtn" title="Пропустить">⏭</button></div>
+    <div class="focuscontrolsrow"><button class="focussidebtn" id="focusResetBtn" title="Сброс">↺</button><button class="focusmainbtn" id="focusMainBtn">▶</button><button class="focussidebtn" id="focusSkipBtn" title="Пропустить">⏭</button></div><div class="focuscontrolsrow"><button class="focus-view-btn" id="focusSideViewBtn" type="button">Показывать в сайдбаре</button><button class="focus-view-btn focus-delete-btn" id="focusDeleteBtn" type="button">Удалить фокус</button></div>
     <div class="focusstatsrow"><div class="focusstat"><div class="focusstatval" id="focusStatSessions">0</div><div class="focusstatlbl">Сессий</div></div><div class="focusstat"><div class="focusstatval" id="focusStatMinutes">0</div><div class="focusstatlbl">Минут</div></div></div>
   </div>
 </div>
@@ -1358,7 +1394,6 @@ function taskInnerHtml(t){
       ${t.note?`<div class="tasknotes"><div class="tasknoteitem"><div class="tasknotebody rich-note">${renderRichText(t.note)}</div></div></div>`:''}
       ${t.done&&t.resultText?`<div class="taskresult">Итог: ${esc(t.resultText)}</div>`:''}
     </div>
-    <button class="focusbtn" data-action="focus">🎯</button>
     <button class="resultchip" data-action="result" title="Завершить задачу и записать итог">✅ + Итог</button>
     <div class="taskactions"><button data-action="edit">✎</button></div>
   </div>
@@ -2361,6 +2396,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     ?list.map(c=>{
       const open=activeClientUi().openClientId===c.id;
       const notes=c.notes||[];
+      const notesOrder=c.notesSort==='asc'?'asc':'desc';
+      const sortedNotes=notes.slice().sort((a,b)=>notesOrder==='asc'?(a.ts||0)-(b.ts||0):(b.ts||0)-(a.ts||0));
       const phones=c.phones||[];
       const off=open?((lookupCityTz(c.city)!==null)?lookupCityTz(c.city):parseTzOffset(c.tz)):null;
       let cardHtml='';
@@ -2397,7 +2434,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <div class="phonewrap">
               <div class="phonepin">
                 <span class="pp-body">
-                  <input class="pp-mgr-input" data-pmgr="${c.id}:${p.id}" value="${esc(p.mgr||'')}" placeholder="Имя менеджера">
+                  ${OBJ?`<input class="pp-mgr-input" data-pmgr="${c.id}:${p.id}" value="${esc(p.mgr||'')}" placeholder="Имя менеджера">`:''}
                   <span class="pp-num">${esc(p.val)}</span>
                 </span>
                 <button class="ccminibtn" data-phonecopy="${c.id}:${p.id}" title="Скопировать номер">📋</button>
@@ -2410,8 +2447,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
               </div>`:''}
             </div>`).join('')}
           </div>
-          <div class="rowpair rowadd">
-            <input id="ppNewMgr" placeholder="Имя менеджера" style="flex:0 0 100px">
+          <div class="rowpair rowadd phone-add-compact">
+            ${OBJ?'<input id="ppNewMgr" placeholder="Имя менеджера" style="flex:0 0 100px">':''}
             <input id="ccPhoneInput" inputmode="tel" placeholder="Номер: 89111111111 / 9111111111">
             <button class="ccnoteadd-btn" data-phoneadd="${c.id}">＋ Добавить</button>
           </div>
@@ -2445,10 +2482,10 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <button class="ccnoteadd-btn" data-pr-add="${c.id}">＋</button>
           </div>
         </div>`:'';
-        const notesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'}</div>
+        const notesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'} <button type="button" class="ccsortbtn" data-notes-sort="${c.id}" title="Изменить порядок заметок">${notesOrder==='desc'?'Новые сверху':'Старые сверху'}</button></div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
            <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
-            ${notes.length?notes.slice().reverse().map(n=>{
+            ${notes.length?sortedNotes.map(n=>{
               if(activeClientUi().editingNoteId===n.id){
                 return `<div class="ccnoteitem">
                   <textarea class="ccnoteedit-ta" data-noteedit-ta="${n.id}">${esc(n.text)}</textarea>
@@ -2660,7 +2697,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             data.tasks.forEach(t=>{
               if(t.clientName===oldName){
                 t.clientName=newName;
-                if(t.title.startsWith(oldName+' '))t.title=newName+t.title.slice(oldName.length);
+                if(t.title===oldName||t.title.startsWith(oldName+' '))t.title=newName+t.title.slice(oldName.length);
               }
             });
           }
@@ -3676,12 +3713,7 @@ function recomputeDone(t){if((t.subtasks||[]).length)t.done=t.subtasks.every(s=>
   $('subnotesavebtn').onclick=()=>{
     const v=input.value.trim();
     sub.resultNote=v;
-    const prefix=`[${sub.title}]`;
-    const lines=(t.note||'').split('\n').filter(line=>line.trim() && !line.startsWith(prefix+' ') && line!==prefix);
-    if(v){
-      lines.push(`${prefix} ${v}`);
-    }
-    t.note=lines.join('\n');
+    removeSubtaskResultFromTaskNote(t,sub.title);
     syncTaskResultToClient(t);
     save();
     close();
@@ -3709,7 +3741,6 @@ function bindTasks(){
     };
     el.querySelector('.tasktitle').onclick=()=>openModal(t.id);
     el.querySelector('[data-action="edit"]')?.addEventListener('click',()=>openModal(t.id));
-    el.querySelector('[data-action="focus"]')?.addEventListener('click',()=>openFocusFor(t.id));
     el.querySelector('[data-action="result"]')?.addEventListener('click',e=>{e.stopPropagation();openTaskResultDialog(t)});
     el.querySelector('.addsub')?.addEventListener('click',(e)=>{e.stopPropagation();state.addingSubtaskFor=t.id;delete window.__realHeights;render()});
     const subForm=el.querySelector('.subaddform');
@@ -3798,7 +3829,7 @@ function enableTaskDrag(){
     const t=data.tasks.find(x=>x.id===id);
     if(!t||!t.time)return;
     el.addEventListener('mousedown',e=>{
-      if(e.target.closest('.check,.vbtn,.markbox,.subnoteicon,.addsub,.subaddform,[data-action],.focusbtn,.taskclient'))return;
+      if(e.target.closest('.check,.vbtn,.markbox,.subnoteicon,.addsub,.subaddform,[data-action],.taskclient'))return;
       e.preventDefault();
       const origStartMin=timeMin(t.time);
       if(!isFinite(origStartMin))return;
@@ -4558,9 +4589,8 @@ function sanitizeRichHtml(value){
   const box=document.createElement('div');box.innerHTML=normalizeNoteBreaks(value);
   /* 1) свернутые блоки: все строки — в один сплошной .foldbody (выделение становится цельным) */
   box.querySelectorAll('details').forEach(d=>foldFlattenBody(d));
-  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','MARK','BR','DIV','SPAN','FONT','P','LI','UL','OL','A','DETAILS','SUMMARY']);
+  const allowed=new Set(['B','STRONG','I','EM','S','STRIKE','U','BR','DIV','SPAN','FONT','P','LI','UL','OL','A','DETAILS','SUMMARY']);
   const allowedColors=new Set(['rgb(220, 38, 38)','rgb(22, 163, 74)','rgb(37, 99, 235)','#dc2626','#16a34a','#2563eb']);
-  const allowedBgs=new Set(['rgb(254, 240, 138)','#fef08a','rgb(253, 224, 71)']);
   const aligns=new Set(['left','center','right','justify']);
   [...box.querySelectorAll('*')].forEach(el=>{
     if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return}
@@ -4574,12 +4604,14 @@ function sanitizeRichHtml(value){
     const keep={};
     const color=(el.style.color||el.getAttribute('color')||'').toLowerCase().replace(/\s+/g,' ');
     if(allowedColors.has(color)||allowedColors.has(color.replace(/\s/g,'')))keep.color=allowedColors.has(color)?color:color.replace(/\s/g,'');
-    const bg=(el.style.backgroundColor||'').toLowerCase().replace(/\s+/g,' ');
-    if(allowedBgs.has(bg))keep.backgroundColor=bg;
     const align=(el.style.textAlign||'').toLowerCase();
     if(aligns.has(align))keep.textAlign=align;
     const fw=el.style.fontWeight;
     if(fw==='bold'||fw==='700')keep.fontWeight='700';
+    const fontFamily=(el.style.fontFamily||el.getAttribute('face')||'').replace(/[<>]/g,'').trim();
+    if(/^(Arial|Georgia|Verdana|Tahoma|Courier New)$/i.test(fontFamily))keep.fontFamily=fontFamily;
+    const fontSize=String(el.getAttribute('size')||el.style.fontSize||'').trim();
+    if(/^[2-5]$/.test(fontSize)||/^(small|medium|large|x-large)$/.test(fontSize))keep.fontSize=fontSize;
     const fs=el.style.fontStyle;
     if(fs==='italic')keep.fontStyle='italic';
     const td=el.style.textDecorationLine||el.style.textDecoration;
@@ -4620,7 +4652,7 @@ function renderRichText(value){
 }
 fmtNotes=function(value){return renderRichText(value)};
 fmtNote=function(value){return renderRichText(value)};
-function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><button type="button" class="rich-chip" data-cmd="hiliteColor" data-value="#fef08a" title="Выделить жёлтым">🖍</button><button type="button" class="rich-chip" data-cmd="fold" title="Свернуть блок">▼ Блок</button><button type="button" class="rich-chip" data-cmd="link" title="Вставить ссылку">🔗 Ссылка</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
+function richToolbar(){return `<div class="rich-toolbar" data-rich-toolbar><button type="button" class="rich-chip" data-cmd="bold" title="Жирный"><b>B</b></button><button type="button" class="rich-chip" data-cmd="italic" title="Курсив"><i>I</i></button><button type="button" class="rich-chip" data-cmd="strikeThrough" title="Зачёркнутый"><s>S</s></button><button type="button" class="rich-chip" data-cmd="underline" title="Подчёркнутый"><u>U</u></button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#dc2626">Красный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#16a34a">Зелёный</button><button type="button" class="rich-chip" data-cmd="foreColor" data-value="#2563eb">Синий</button><select class="rich-font-select" data-cmd="fontName" title="Шрифт"><option value="">Шрифт</option><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Verdana">Verdana</option><option value="Tahoma">Tahoma</option><option value="Courier New">Courier New</option></select><select class="rich-font-select" data-cmd="fontSize" title="Размер текста"><option value="">Размер</option><option value="2">Маленький</option><option value="3">Обычный</option><option value="4">Крупный</option><option value="5">Очень крупный</option></select><button type="button" class="rich-chip" data-cmd="fold" title="Свернуть выделенный текст">▼ Спойлер</button><button type="button" class="rich-chip" data-cmd="link" title="Вставить ссылку">🔗 Ссылка</button><button type="button" class="rich-chip" data-cmd="removeFormat">Очистить</button></div>`}
 function enhanceRichTextarea(textarea,placeholder='Комментарий менеджера…'){
   if(!textarea||textarea.dataset.richReady)return;
   textarea.dataset.richReady='1';textarea.classList.add('rich-source');
@@ -4682,16 +4714,17 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
     e.preventDefault();editor.focus();
     const cmd=btn.dataset.cmd;
     if(cmd==='foreColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e2){}const current=normColor(document.queryCommandValue('foreColor'));document.execCommand('foreColor',false,current===btn.dataset.value?'#1f2328':btn.dataset.value)}
-    else if(cmd==='hiliteColor'){try{document.execCommand('styleWithCSS',false,true)}catch(e2){}document.execCommand('hiliteColor',false,btn.dataset.value)}
     else if(cmd==='fold')applyFold();
     else if(cmd==='link')applyLink();
     else document.execCommand(cmd,false,null);
     sync();refresh();
   }));
+  wrap.querySelectorAll('.rich-font-select').forEach(select=>select.addEventListener('change',()=>{if(!select.value)return;editor.focus();try{document.execCommand('styleWithCSS',false,false)}catch(e){}document.execCommand(select.dataset.cmd,false,select.value);sync();refresh();select.value=''}));
   editor.addEventListener('input',()=>{sync();refresh()});editor.addEventListener('keyup',refresh);editor.addEventListener('mouseup',refresh);editor.addEventListener('focus',refresh);
 }
 function enhanceVisibleRichEditors(){
   document.querySelectorAll('.ccnoteedit-ta').forEach(x=>enhanceRichTextarea(x,'Комментарий менеджера…'));
+  const clientNote=$('ccNoteInput');if(clientNote)enhanceRichTextarea(clientNote,'Новая заметка…');
   const f=$('fNote');if(f&&$('overlay').style.display==='flex')enhanceRichTextarea(f,'Заметка задачи…');
 }
 const __openModalWithRich=openModal;
@@ -4761,4 +4794,59 @@ document.addEventListener('click',e=>{
   if(e.target.closest('a'))return;
   sp.classList.toggle('revealed');
 },true);
+
+/* 2026-09: task comments, per-card note order and sidebar focus. */
+function escapeRegExp(value){return String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+function removeSubtaskResultFromTaskNote(task,title){
+  const lineRe=new RegExp('^\\['+escapeRegExp(title)+'\\](?:\\s.*)?$');
+  task.note=String(task.note||'').split('\n').filter(line=>!lineRe.test(line.trim())).join('\n').trim();
+}
+function taskDisplayNote(task){
+  const titles=new Set((task.subtasks||[]).map(s=>s.title));
+  return String(task.note||'').split('\n').filter(line=>{
+    const match=line.trim().match(/^\[(.+?)\](?:\s.*)?$/);
+    return !(match&&titles.has(match[1]));
+  }).join('\n').trim();
+}
+function subHtml(t){
+  return (t.subtasks||[]).map((s,i)=>`<div class="sub" data-si="${i}">
+    <div class="subverdict"><button class="markbox success ${s.status==='success'?'active':''}" data-si="${i}" data-verdict="success" title="Успешно">✓</button><button class="markbox failed ${s.status==='failed'?'active':''}" data-si="${i}" data-verdict="failed" title="Не выполнено">✕</button></div>
+    <div class="subcontent"><span class="subtext ${s.status||''} ${s.resultNote?'has-result':''}" title="${esc(s.title)}">${esc(s.title)}</span>${s.resultNote?`<div class="subresult">${esc(s.resultNote)}</div>`:''}</div>
+    <span class="subnoteicon ${s.resultNote?'has':''}" title="${s.resultNote?esc(s.resultNote):'Нет заметки'}">📝</span>
+  </div>`).join('');
+}
+function taskInnerHtml(t){
+  const isAdding=state.addingSubtaskFor===t.id;
+  const displayNote=taskDisplayNote(t);
+  return `<div class="taskrow"><button class="check ${t.done?'on':''}">${t.done?'✓':''}</button><div class="taskbody">${timeLabel(t)?`<div class="taskmeta" style="color:var(--accent);font-weight:700">${esc(timeLabel(t))}</div>`:''}<div class="tasktitle" title="${esc(t.title)}">${esc(t.title)}</div>${t.clientName?`<div class="taskclient" data-openclient="${t.id}" title="Открыть карточку клиента">👤 ${esc(t.clientName)}</div>`:''}${t.object?`<div class="taskobj" data-object-name="${esc(t.object)}" title="${esc(t.object)}${t.manager?' · '+esc(t.manager):''}">🏢 ${esc(t.object)}${t.manager?' · '+esc(t.manager):''}</div>`:''}${displayNote?`<div class="tasknotes"><div class="tasknoteitem"><div class="tasknotebody rich-note">${renderRichText(displayNote)}</div></div></div>`:''}${t.done&&t.resultText?`<div class="taskresult">Итог: ${esc(t.resultText)}</div>`:''}</div><button class="resultchip" data-action="result" title="Завершить задачу и записать итог">✅ + Итог</button><div class="taskactions"><button data-action="edit">✎</button></div></div>${(t.subtasks||[]).length?`<div class="subtasks">${subHtml(t)}</div>`:''}${isAdding?`<div class="subaddform"><input type="text" class="subaddinput" placeholder="Название подзадачи" autofocus><button class="subaddok">Добавить</button></div>`:`<button class="addsub">+ подзадача</button>`}`;
+}
+function estimateContentHeight(t){
+  let h=44+(t.object?15:0)+(t.clientName?15:0);
+  const note=taskDisplayNote(t); if(note)h+=6+Math.max(15,Math.ceil(visibleText(note).length/30)*15);
+  (t.subtasks||[]).forEach(s=>{h+=22;if(s.resultNote)h+=Math.max(15,Math.ceil(String(s.resultNote).length/31)*15)+3});
+  if(t.done&&t.resultText)h+=30;
+  return h+(state.addingSubtaskFor===t.id?30:32);
+}
+document.addEventListener('click',e=>{const btn=e.target.closest('[data-notes-sort]');if(!btn)return;const c=(activeClientData().items[activeClientUi().openFolderId]||[]).find(x=>x.id===btn.dataset.notesSort);if(!c)return;c.notesSort=c.notesSort==='asc'?'desc':'asc';save();renderFolderView()});
+document.addEventListener('keydown',e=>{const editor=e.target.closest('.rich-editor');if(!editor||e.key!=='Enter'||e.shiftKey)return;const source=editor.closest('.rich-wrap')?.previousElementSibling;if(source?.id!=='ccNoteInput')return;e.preventDefault();source.__richSync?.();document.querySelector('.ccsavebtn')?.click()});
+function focusTimeText(){return `${pad(Math.floor(focus.remainingSec/60))}:${pad(focus.remainingSec%60)}`}
+function renderFocusSidebar(){
+  const host=$('focusSidebar');if(!host)return;
+  const active=focus.taskId!==null;
+  if(!active){host.innerHTML='<div class="focus-sidebar-head"><span>🎯 Фокус</span><button class="focus-sidebar-open" type="button" data-focus-start>Начать</button></div>';host.querySelector('[data-focus-start]').onclick=()=>openFocusFor(null);return}
+  const task=focusTaskObj();
+  host.innerHTML=`<div class="focus-sidebar-head"><span>🎯 Фокус ${focus.running?'идёт':'на паузе'}</span></div><div class="focus-sidebar-name">${esc(task?task.title:'Свободный фокус')}</div><div class="focus-sidebar-time">${focusTimeText()}</div><div class="focus-sidebar-actions"><button class="focus-sidebar-open" type="button" data-focus-open>Открыть</button><button class="focus-sidebar-delete" type="button" data-focus-delete>Удалить</button></div>`;
+  host.querySelector('[data-focus-open]').onclick=()=>{focus.presentation='fullscreen';$('focusOverlay').classList.add('active');renderFocusRing()};
+  host.querySelector('[data-focus-delete]').onclick=deleteFocus;
+}
+function deleteFocus(){stopFocusTimer();focus.taskId=null;focus.totalSec=25*60;focus.remainingSec=25*60;focus.phase='work';$('focusOverlay').classList.remove('active');renderFocusSidebar()}
+function openFocusFor(id){focus.taskId=id||null;focus.presentation='fullscreen';const t=focusTaskObj();$('focusTaskName').textContent=t?t.title:'Свободный фокус';setFocusDuration(25,true);updateFocusStats();$('focusOverlay').classList.add('active');renderFocusRing();renderFocusSidebar()}
+function minimizeFocus(){focus.presentation='sidebar';$('focusOverlay').classList.remove('active');renderFocusSidebar()}
+$('focusMinimize').onclick=minimizeFocus;
+$('focusSideViewBtn').onclick=minimizeFocus;
+$('focusDeleteBtn').onclick=deleteFocus;
+const __updateFocusDisplayWithSidebar=updateFocusDisplay;updateFocusDisplay=function(){__updateFocusDisplayWithSidebar();renderFocusSidebar()};
+const __stopFocusTimerWithSidebar=stopFocusTimer;stopFocusTimer=function(){__stopFocusTimerWithSidebar();renderFocusSidebar()};
+renderFocusSidebar();
+
 </script></body></html>
