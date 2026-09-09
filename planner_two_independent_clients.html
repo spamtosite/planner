@@ -714,6 +714,23 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 .focus-delete-btn{background:rgba(255,75,75,.18);color:#fff}
 @media(max-width:800px){.focus-sidebar{margin:8px 12px}.tasktitle{font-size:13px}.subresult{font-size:11px}}
 
+
+/* 2026-09-09: readability, sticky editor controls and redesigned focus timer */
+.tasktitle{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:normal;word-break:normal;hyphens:none}
+.taskbody{min-width:0}
+.rich-wrap{position:relative;min-width:0}
+.rich-toolbar{position:sticky;top:0;z-index:12;background:rgba(250,251,252,.98);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:10px 0 8px;margin:0 0 8px;box-shadow:0 5px 10px -10px rgba(15,23,42,.55)}
+.rich-editor,.rich-editor div,.rich-editor p,.rich-editor li{margin:0!important;padding:0!important;line-height:1.42!important}
+.rich-editor div+div,.rich-editor p+p{margin-top:0!important}
+.focusoverlay{background:#101114;align-items:stretch;justify-content:stretch;padding:clamp(18px,4vw,52px)}
+.focuscard{width:min(760px,100%);max-width:none;margin:auto;background:linear-gradient(145deg,#1a1b21,#101114);border:1px solid #32343e;border-radius:28px;padding:clamp(24px,5vw,48px);box-shadow:0 30px 100px rgba(0,0,0,.6);color:#f8fafc}
+.focustopbar{margin-bottom:18px}.focuslabel{color:#9ba3b5}.focusxbtn{width:34px;height:34px}
+.focustaskname{font-size:16px;color:#cbd5e1;text-align:center;margin:0 0 20px}.focusring-wrap{width:100%;height:auto;margin:0 auto 26px}.focusring-wrap>svg{display:none}.focusring-center{position:static;display:block}.focusphase{text-align:center;margin-top:12px;color:#8e96a8}
+.focustime{display:flex;align-items:center;justify-content:center;gap:8px;font-size:clamp(52px,11vw,104px);line-height:1;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:0}.focus-digit{display:inline-grid;place-items:center;min-width:.74em;padding:.07em .04em .1em;border:1px solid #3c3f4b;border-radius:11px;background:linear-gradient(180deg,#292b35,#1c1d25);box-shadow:inset 0 1px 1px rgba(255,255,255,.09),0 10px 24px rgba(0,0,0,.22)}.focus-colon{color:#d4d8e1;transform:translateY(-.04em)}
+.focuspresetrow{margin-bottom:18px}.focuspresetchip{background:#252731;border-color:#3a3c48}.focuspresetchip:hover{background:#313440}.focuspresetchip.active,.focusmainbtn{background:#5b7cfa}.focusmainbtn{box-shadow:0 10px 28px rgba(91,124,250,.32)}.focusmainbtn.running{background:#f59e0b}.focuscustomrow input{background:#242630}.focusstatsrow{border-color:#30323c}
+.focus-sidebar{margin:12px 10px;padding:14px;border:1px solid #3a3d49;border-radius:16px;background:linear-gradient(145deg,#242632,#171820);box-shadow:0 8px 22px rgba(0,0,0,.16)}.focus-sidebar-head{font-size:12px;color:#dbe2f1}.focus-sidebar-name{font-size:12px;color:#aeb8ca;margin:7px 0 0}.focus-sidebar-time{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:31px;letter-spacing:1px;margin:12px 0}.focus-sidebar-actions button{min-height:33px;border-radius:9px}.focus-sidebar-open{background:#5b7cfa}.focus-sidebar-delete{background:#333641}
+@media(max-width:800px){.focusoverlay{padding:0;align-items:flex-end}.focuscard{border-radius:24px 24px 0 0;padding:28px 18px max(28px,env(safe-area-inset-bottom))}.focustime{gap:5px}.focus-digit{border-radius:8px}.rich-toolbar{top:0}.focus-sidebar{margin:10px 12px}}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -4720,6 +4737,13 @@ function enhanceRichTextarea(textarea,placeholder='Комментарий мен
     sync();refresh();
   }));
   wrap.querySelectorAll('.rich-font-select').forEach(select=>select.addEventListener('change',()=>{if(!select.value)return;editor.focus();try{document.execCommand('styleWithCSS',false,false)}catch(e){}document.execCommand(select.dataset.cmd,false,select.value);sync();refresh();select.value=''}));
+  editor.addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return;
+    if(textarea.id==='ccNoteInput'&&!e.shiftKey)return;
+    e.preventDefault();
+    document.execCommand('insertLineBreak',false,null);
+    sync();refresh();
+  });
   editor.addEventListener('input',()=>{sync();refresh()});editor.addEventListener('keyup',refresh);editor.addEventListener('mouseup',refresh);editor.addEventListener('focus',refresh);
 }
 function enhanceVisibleRichEditors(){
@@ -4833,11 +4857,10 @@ function focusTimeText(){return `${pad(Math.floor(focus.remainingSec/60))}:${pad
 function renderFocusSidebar(){
   const host=$('focusSidebar');if(!host)return;
   const active=focus.taskId!==null;
-  if(!active){host.innerHTML='<div class="focus-sidebar-head"><span>🎯 Фокус</span><button class="focus-sidebar-open" type="button" data-focus-start>Начать</button></div>';host.querySelector('[data-focus-start]').onclick=()=>openFocusFor(null);return}
   const task=focusTaskObj();
-  host.innerHTML=`<div class="focus-sidebar-head"><span>🎯 Фокус ${focus.running?'идёт':'на паузе'}</span></div><div class="focus-sidebar-name">${esc(task?task.title:'Свободный фокус')}</div><div class="focus-sidebar-time">${focusTimeText()}</div><div class="focus-sidebar-actions"><button class="focus-sidebar-open" type="button" data-focus-open>Открыть</button><button class="focus-sidebar-delete" type="button" data-focus-delete>Удалить</button></div>`;
-  host.querySelector('[data-focus-open]').onclick=()=>{focus.presentation='fullscreen';$('focusOverlay').classList.add('active');renderFocusRing()};
-  host.querySelector('[data-focus-delete]').onclick=deleteFocus;
+  host.innerHTML=`<div class="focus-sidebar-head"><span>🎯 Таймер фокуса</span><span>${active?(focus.running?'Идёт':'Пауза'):'Готов'}</span></div><div class="focus-sidebar-name">${active?esc(task?task.title:'Свободный фокус'):'Настрой время и начни сессию'}</div><div class="focus-sidebar-time">${active?focusTimeText():'25:00'}</div><div class="focus-sidebar-actions"><button class="focus-sidebar-open" type="button" data-focus-open>${active?'Открыть таймер':'Настроить'}</button>${active?'<button class="focus-sidebar-delete" type="button" data-focus-delete>Удалить</button>':''}</div>`;
+  host.querySelector('[data-focus-open]').onclick=()=>{if(!active)openFocusFor(null);else{focus.presentation='fullscreen';$('focusOverlay').classList.add('active');renderFocusRing()}};
+  host.querySelector('[data-focus-delete]')?.addEventListener('click',deleteFocus);
 }
 function deleteFocus(){stopFocusTimer();focus.taskId=null;focus.totalSec=25*60;focus.remainingSec=25*60;focus.phase='work';$('focusOverlay').classList.remove('active');renderFocusSidebar()}
 function openFocusFor(id){focus.taskId=id||null;focus.presentation='fullscreen';const t=focusTaskObj();$('focusTaskName').textContent=t?t.title:'Свободный фокус';setFocusDuration(25,true);updateFocusStats();$('focusOverlay').classList.add('active');renderFocusRing();renderFocusSidebar()}
@@ -4847,6 +4870,11 @@ $('focusSideViewBtn').onclick=minimizeFocus;
 $('focusDeleteBtn').onclick=deleteFocus;
 const __updateFocusDisplayWithSidebar=updateFocusDisplay;updateFocusDisplay=function(){__updateFocusDisplayWithSidebar();renderFocusSidebar()};
 const __stopFocusTimerWithSidebar=stopFocusTimer;stopFocusTimer=function(){__stopFocusTimerWithSidebar();renderFocusSidebar()};
-renderFocusSidebar();
+const __renderDigitalFocusTime=updateFocusDisplay;updateFocusDisplay=function(){
+  __renderDigitalFocusTime();
+  const value=focusTimeText();
+  $('focusTimeDisplay').innerHTML=`<span class="focus-digit">${value[0]}</span><span class="focus-digit">${value[1]}</span><span class="focus-colon">:</span><span class="focus-digit">${value[3]}</span><span class="focus-digit">${value[4]}</span>`;
+};
+updateFocusDisplay();renderFocusSidebar();
 
 </script></body></html>
