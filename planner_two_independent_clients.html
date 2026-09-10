@@ -744,6 +744,13 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 .clientcard>.ccgrid,.clientcard>.ccgrid+.ccnotesection{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.clientcard>.ccnotesection{min-width:0}.clientcard>.ccgrid+.ccnotesection+.ccnotesection,.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
 @media(max-width:800px){.clientcard{display:grid;grid-template-columns:1fr;gap:12px}.clientcard>.ccgrid,.clientcard>.ccgrid+.ccnotesection,.clientcard>.ccgrid+.ccnotesection+.ccnotesection,.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{grid-column:1!important;grid-row:auto!important}.clientcard>.ccgrid{order:0}.clientcard>.ccgrid+.ccnotesection{order:1}.clientcard>.ccgrid+.ccnotesection+.ccnotesection{order:2}.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{order:3}}
 
+
+/* 2026-09-10: client card — details and related tasks left; note workspace right. */
+.clientcard{grid-template-columns:minmax(260px,310px) minmax(0,1fr)!important;grid-template-rows:min-content min-content min-content!important}
+.clientcard>.ccgrid{grid-column:1!important;grid-row:1!important}.clientcard>.ccgrid+.ccnotesection{grid-column:1!important;grid-row:2!important}.clientcard>.client-tasks-section{grid-column:1!important;grid-row:3!important}.clientcard>.client-notes-section{grid-column:2!important;grid-row:1 / span 3!important;align-self:stretch!important}
+.clientcard>.client-notes-section{display:grid;grid-template-rows:auto auto minmax(0,1fr)}
+@media(max-width:800px){.clientcard{grid-template-columns:1fr!important;grid-template-rows:auto!important}.clientcard>.ccgrid,.clientcard>.ccgrid+.ccnotesection,.clientcard>.client-tasks-section,.clientcard>.client-notes-section{grid-column:1!important;grid-row:auto!important}.clientcard>.ccgrid{order:0}.clientcard>.ccgrid+.ccnotesection{order:1}.clientcard>.client-tasks-section{order:2}.clientcard>.client-notes-section{order:3}}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -2449,7 +2456,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
         });
         const TASKS_LIMIT=8;
         const shownTasks=linkedTasks.slice(0,TASKS_LIMIT);
-        const tasksHtml=linkedTasks.length?`<div class="ccnotesection"><div class="cctitle">${OBJ?'Задачи объекта':'Задачи клиента'}${linkedTasks.length>TASKS_LIMIT?` · ${shownTasks.length} из ${linkedTasks.length}`:''}</div>
+        const tasksHtml=linkedTasks.length?`<div class="ccnotesection client-tasks-section"><div class="cctitle">${OBJ?'Задачи объекта':'Задачи клиента'}${linkedTasks.length>TASKS_LIMIT?` · ${shownTasks.length} из ${linkedTasks.length}`:''}</div>
           <div class="cctasklist">${shownTasks.map(t=>`
             <div class="cctaskrow ${t.done?'done':''}" data-copentask="${t.id}" title="Открыть задачу в календаре">
               <span class="cctaskst">${t.done?'✅':'⬜'}</span>
@@ -2510,7 +2517,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <button class="ccnoteadd-btn" data-pr-add="${c.id}">＋</button>
           </div>
         </div>`:'';
-        const notesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'} <button type="button" class="ccsortbtn" data-notes-sort="${c.id}" title="Изменить порядок заметок">${notesOrder==='desc'?'Новые сверху':'Старые сверху'}</button></div>
+        const notesHtml=`<div class="ccnotesection client-notes-section"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'} <button type="button" class="ccsortbtn" data-notes-sort="${c.id}" title="Изменить порядок заметок">${notesOrder==='desc'?'Новые сверху':'Старые сверху'}</button></div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
            <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
             ${notes.length?sortedNotes.map(n=>{
