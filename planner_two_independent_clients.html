@@ -737,8 +737,12 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 #focusSidebar,#focusOverlay,#focusToggleBtn{display:none!important}
 
 
-/* 2026-09-10: folders match the primary navigation and have no emoji icons. */
+/* 2026-09-10: CRM client-card layout — work area left, profile information right. */
 .sidebarfolderitem{padding:10px 12px!important;color:var(--muted)!important;font-size:14px!important;font-weight:400!important;gap:8px;background:transparent!important}.sidebarfolderitem:hover{background:var(--line)!important;color:var(--text)!important}.sidebarfolderitem.active{background:#e8edf8!important;color:#2563eb!important}.sidebarfolderitem .fcount{font-weight:400!important;color:var(--muted)!important}.sidebarfolderitem.sfadd{border:0!important;justify-content:flex-start!important;margin-top:0!important}.sidebarfolderadd{padding:4px 12px!important}.mobilesectionitem[data-mfolder]{padding-left:12px!important;font-weight:400!important;color:var(--muted)!important}.mobilesectionitem[data-mfolder]:active{background:#e8edf8!important;color:#2563eb!important}.mobilesectionicon{display:none!important}
+.clientcard{grid-template-columns:minmax(0,1fr) minmax(260px,310px);grid-auto-rows:min-content;align-items:start;column-gap:18px;row-gap:14px}
+.clientcard>.ccgrid{grid-column:2;grid-row:1}.clientcard>.ccgrid+.ccnotesection{grid-column:2;grid-row:2}.clientcard>.ccgrid+.ccnotesection+.ccnotesection{grid-column:1;grid-row:1}.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{grid-column:1;grid-row:2}
+.clientcard>.ccgrid,.clientcard>.ccgrid+.ccnotesection{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.clientcard>.ccnotesection{min-width:0}.clientcard>.ccgrid+.ccnotesection+.ccnotesection,.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}
+@media(max-width:800px){.clientcard{display:grid;grid-template-columns:1fr;gap:12px}.clientcard>.ccgrid,.clientcard>.ccgrid+.ccnotesection,.clientcard>.ccgrid+.ccnotesection+.ccnotesection,.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{grid-column:1!important;grid-row:auto!important}.clientcard>.ccgrid{order:0}.clientcard>.ccgrid+.ccnotesection{order:1}.clientcard>.ccgrid+.ccnotesection+.ccnotesection{order:2}.clientcard>.ccgrid+.ccnotesection+.ccnotesection+.ccnotesection{order:3}}
 
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
