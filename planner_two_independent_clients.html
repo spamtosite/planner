@@ -2602,9 +2602,11 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
   document.querySelectorAll('[data-toggle]').forEach(h=>{
     h.onclick=(e)=>{
       if(e.target.closest('button,input'))return;
-      activeClientUi().openClientId=activeClientUi().openClientId===h.dataset.toggle?null:h.dataset.toggle;
+      const opensCard=activeClientUi().openClientId!==h.dataset.toggle;
+      activeClientUi().openClientId=opensCard?h.dataset.toggle:null;
       activeClientUi().editingNoteId=null;
       renderFolderView();
+      if(opensCard)requestAnimationFrame(()=>scrollClientCardToTop(h.dataset.toggle));
     };
   });
   /* №58: drag карточки с живым призраком, приглушением источника и подсветкой папки */
@@ -4912,6 +4914,18 @@ function naturalTaskWidth(t){
   const noteW=visibleText(taskDisplayNote(t)||'').split('\n').reduce((max,line)=>Math.max(max,textWidth(line,'10.5px system-ui, sans-serif')+100),0);
   const resultW=t.done&&t.resultText?textWidth(visibleText(t.resultText),'700 10.5px system-ui, sans-serif')+100:0;
   return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleW,maxSubW,timeLabelW,objW,clientW,noteW,resultW)));
+}
+
+
+/* Align a newly expanded client card to the top of the scrollable work area. */
+function scrollClientCardToTop(clientId){
+  const content=$('content');
+  const card=content?.querySelector(`[data-client-card="${clientId}"]`);
+  if(!content||!card)return;
+  const contentRect=content.getBoundingClientRect();
+  const cardRect=card.getBoundingClientRect();
+  const top=Math.max(0,content.scrollTop+(cardRect.top-contentRect.top)-14);
+  content.scrollTo({top,behavior:'smooth'});
 }
 
 </script></body></html>
