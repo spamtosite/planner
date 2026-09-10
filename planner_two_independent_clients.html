@@ -737,8 +737,11 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 #focusSidebar,#focusOverlay,#focusToggleBtn{display:none!important}
 
 
-/* 2026-09-10: Objects section and map setup are deliberately disabled. */
-#mapsSettings,#googleMapsKeyInput,#googleMapsKeySave,#googleMapsKeyStatus,[data-workspace="planner"],[data-workspace="objects"]{display:none!important}
+/* 2026-09-10: client folders use the same neutral style as primary navigation. */
+.sidebarfolderitem{padding:10px 12px!important;color:#d1d5db!important;font-size:14px!important;font-weight:400!important;gap:8px}
+.sidebarfolderitem:hover{background:#263142!important;color:#fff!important}.sidebarfolderitem.active{background:#263142!important;color:#fff!important}
+.sidebarfolderitem .fcount{font-weight:400!important;color:#9ca3af!important}.sidebarfolderitem.sfadd{border:0!important;justify-content:flex-start!important;margin-top:0!important;background:transparent!important;color:#d1d5db!important}.sidebarfolderitem.sfadd:hover{background:#263142!important;color:#fff!important}
+.sidebarfolderadd{padding:4px 12px!important}.mobilesectionitem[data-mfolder]{padding-left:12px!important;font-weight:400!important}.mobilesectionicon{display:none!important}
 
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
@@ -3146,12 +3149,12 @@ function renderSidebarFolders(){
       const active=secActive&&state.view==='folder'&&ui.openFolderId===f.id;
       const nameHtml=ui.renamingFolderId===f.id
         ?`<input class="cnameedit" data-frenameinput="${sec}" value="${esc(f.name)}">`
-        :`${cfg.icon}<span class="sfname">${esc(f.name)}</span>`;
+        :`<span class="sfname">${esc(f.name)}</span>`;
       return `<div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}" data-fsec="${sec}">${nameHtml}<span class="fcount">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" data-fsec="${sec}" title="Переименовать папку">✎</button></div>`;
     }).join('');
     const addBlock=ui.addingFolderSidebar
       ?`<div class="sidebarfolderadd"><input id="sfInput_${sec}" placeholder="Название папки"><button id="sfOk_${sec}">OK</button></div>`
-      :`<div class="sidebarfolderitem sfadd" id="sfAdd_${sec}">＋ Новая папка</div>`;
+      :`<div class="sidebarfolderitem sfadd" id="sfAdd_${sec}">Новая папка</div>`;
     wrap.innerHTML=rows+addBlock;
     wrap.querySelectorAll('[data-folder]').forEach(el=>{
       el.onclick=(e)=>{
@@ -3183,12 +3186,12 @@ function renderSidebarFolders(){
       const cnt=(items[f.id]||[]).length;
       const nameHtml=ui.renamingFolderId===f.id
         ?`<input class="cnameedit" data-frenameinput="${sec}" value="${esc(f.name)}">`
-        :`<span class="mobilesectionicon">${cfg.icon}</span><span class="mobilesectionlabel">${esc(f.name)}</span>`;
+        :`<span class="mobilesectionlabel">${esc(f.name)}</span>`;
       return `<div class="mobilesectionitem" data-mfolder="${f.id}" data-fsec="${sec}" style="padding-left:30px">${nameHtml}<span class="mobilesectionarrow">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" data-fsec="${sec}" title="Переименовать папку">✎</button></div>`;
     }).join('');
     const addBlock=ui.addingFolderMobile
       ?`<div class="sidebarfolderadd" style="padding:8px 12px 8px 30px"><input id="mfInput_${sec}" placeholder="Название папки"><button id="mfOk_${sec}">OK</button></div>`
-      :`<div class="mobilesectionitem" id="mfAdd_${sec}" style="padding-left:30px;color:var(--accent);cursor:pointer"><span class="mobilesectionicon">➕</span><span class="mobilesectionlabel">Новая папка</span></div>`;
+      :`<div class="mobilesectionitem" id="mfAdd_${sec}" style="padding-left:12px;color:var(--accent);cursor:pointer"><span class="mobilesectionlabel">Новая папка</span></div>`;
     mlist.innerHTML=rows+addBlock;
     mlist.querySelectorAll('[data-mfolder]').forEach(el=>{
       el.onclick=(e)=>{
@@ -3540,12 +3543,11 @@ let __mobileScreen='sections';
 
 function mobileNavList(){
   return [
-    {id:'today',icon:'☀',label:'Сегодня'},
-    {id:'calendar',icon:'📅',label:'Календарь'},
-    {id:'monthgoals',icon:'🎯',label:'Задачи на месяц'},
-    {id:'clientsPrimary',icon:'👥',label:state.clientPrimaryUi.mobileFoldersExpanded?'Клиенты ▾':'Клиенты ›'},
-    /* ИЗМ (шаг 8): второй раздел — «Объекты» */
-    {id:'settings',icon:'⚙',label:'Настройки'}
+    {id:'today',label:'Сегодня'},
+    {id:'calendar',label:'Календарь'},
+    {id:'monthgoals',label:'Задачи на месяц'},
+    {id:'clientsPrimary',label:state.clientPrimaryUi.mobileFoldersExpanded?'Клиенты ▾':'Клиенты ›'},
+    {id:'settings',label:'Настройки'}
   ];
 }
 
@@ -3553,7 +3555,7 @@ function buildMobileSectionsHtml(){
   const items=mobileNavList();
   return `<div class="mobilesections">
     <div class="mobilesectionsbrand">Мой ежедневник</div>
-    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionicon">${it.icon}</span><span class="mobilesectionlabel">${it.label}</span></button>${it.id==='clientsPrimary'?'<div id="mobileFoldersListPrimary"></div>':it.id==='clientsSecondary'?'<div id="mobileFoldersListSecondary"></div>':''}`).join('')}
+    ${items.map(it=>`<button class="mobilesectionitem" data-section="${it.id}"><span class="mobilesectionlabel">${it.label}</span></button>${it.id==='clientsPrimary'?'<div id="mobileFoldersListPrimary"></div>':it.id==='clientsSecondary'?'<div id="mobileFoldersListSecondary"></div>':''}`).join('')}
   </div>`;
 }
 
