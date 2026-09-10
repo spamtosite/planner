@@ -751,6 +751,11 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 .clientcard>.client-notes-section{display:grid;grid-template-rows:auto auto minmax(0,1fr)}
 @media(max-width:800px){.clientcard{grid-template-columns:1fr!important;grid-template-rows:auto!important}.clientcard>.ccgrid,.clientcard>.ccgrid+.ccnotesection,.clientcard>.client-tasks-section,.clientcard>.client-notes-section{grid-column:1!important;grid-row:auto!important}.clientcard>.ccgrid{order:0}.clientcard>.ccgrid+.ccnotesection{order:1}.clientcard>.client-tasks-section{order:2}.clientcard>.client-notes-section{order:3}}
 
+
+/* 2026-09-10: independent vertical columns prevent note height from creating gaps. */
+.clientcard{display:block!important}.clientcard>.client-info-column,.clientcard>.client-notes-column{min-width:0}.clientcard>.client-info-column{display:flex;flex-direction:column;gap:12px;width:min(310px,32%);float:left;margin-right:18px}.clientcard>.client-notes-column{display:block;overflow:hidden;min-height:1px}.clientcard::after{content:"";display:block;clear:both}.client-info-column>.ccgrid,.client-info-column>.ccnotesection,.client-notes-column>.ccnotesection{grid-column:auto!important;grid-row:auto!important;margin:0!important;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.client-notes-column>.ccnotesection{display:grid;gap:8px}.client-info-column>.client-tasks-section{order:3}.client-info-column>.ccgrid{order:1}.client-info-column>.ccgrid+.ccnotesection{order:2}
+@media(max-width:800px){.clientcard>.client-info-column{float:none;width:auto;margin:0;gap:12px}.clientcard>.client-notes-column{display:block;margin-top:12px}.clientcard>.client-info-column,.clientcard>.client-notes-column{width:100%}}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -2537,6 +2542,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
           </div>`;
         /* ИЗМ (шаг 5.5): поля карточки — разные для объекта и клиента */
         cardHtml+=`<div class="clientcard">
+          <div class="${OBJ?'client-object-column':'client-info-column'}">
           <div class="ccgrid">
             <label class="citylab">${OBJ?'Город / район':'Город'}<div class="cityrow"><input data-cf="city" data-cid="${c.id}" value="${esc(c.city||'')}">${cityTime}</div></label>
             ${OBJ?`
@@ -2549,7 +2555,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
           </div>
           ${OBJ?`<div class="objcols">${deadlinesHtml}${pricesHtml}${phonesHtml}</div>`:phonesHtml}
           ${tasksHtml}
-          ${notesHtml}
+          </div>
+          ${OBJ?notesHtml:`<div class="client-notes-column">${notesHtml}</div>`}
         </div>`;
       }
       const headInner=activeClientUi().editingClientId===c.id
