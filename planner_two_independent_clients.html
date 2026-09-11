@@ -760,6 +760,10 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 /* 2026-09-11: long task text uses no more than one third of the visible timeline width. */
 .timeline-text-limited{max-width:var(--timeline-text-max,33vw)!important;overflow-wrap:anywhere;word-break:normal}
 
+
+/* 2026-09-11: negative task result. */
+.resultchip-failed{background:#fef2f2!important;border-color:#fecaca!important;color:#b91c1c!important}.resultchip-failed:hover{background:#fee2e2!important}.taskresult.failed{background:#fef2f2!important;color:#991b1b!important;border:1px solid #fecaca}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -1436,9 +1440,9 @@ function taskInnerHtml(t){
       ${t.clientName?`<div class="taskclient" data-openclient="${t.id}" title="Открыть карточку клиента">👤 ${esc(t.clientName)}</div>`:''}
       ${t.object?`<div class="taskobj" data-object-name="${esc(t.object)}" title="${esc(t.object)}${t.manager?' · '+esc(t.manager):''}">🏢 ${esc(t.object)}${t.manager?' · '+esc(t.manager):''}</div>`:''}
       ${t.note?`<div class="tasknotes"><div class="tasknoteitem"><div class="tasknotebody rich-note">${renderRichText(t.note)}</div></div></div>`:''}
-      ${t.done&&t.resultText?`<div class="taskresult">Итог: ${esc(t.resultText)}</div>`:''}
+      ${t.done&&t.resultText?`<div class="taskresult ${taskResultStatus(t)==='failed'?'failed':''}">${taskResultStatus(t)==='failed'?'Причина':'Итог'}: ${esc(t.resultText)}</div>`:''}
     </div>
-    <button class="resultchip" data-action="result" title="Завершить задачу и записать итог">✅ + Итог</button>
+    <button class="resultchip" data-action="result" title="Положительный результат">✅ + Итог</button><button class="resultchip resultchip-failed" data-action="result-failed" title="Отрицательный результат">❌ + Причина</button>
     <div class="taskactions"><button data-action="edit">✎</button></div>
   </div>
   ${(t.subtasks||[]).length?`<div class="subtasks">${subHtml(t)}</div>`:''}
@@ -3306,7 +3310,7 @@ function buildMobileDayListHtml(d){
           <div class="mobiledaytime">${timeStr}</div>
           <div class="mobiledaytitle" title="${esc(t.title)}">${esc(t.title)}</div>
           ${hasSubs?'<span class="msubarrow">▸</span>':''}
-          <button class="resultchip" data-result="${t.id}" title="Завершить с итогом">✅ + Итог</button>
+          <button class="resultchip" data-result="${t.id}" title="Положительный результат">✅ + Итог</button><button class="resultchip resultchip-failed" data-result-failed="${t.id}" title="Отрицательный результат">❌ + Причина</button>
           <button class="mobileeditbtn" data-edit="${t.id}" title="Редактировать">✎</button>
           ${subsHtml}
         </div>`;
@@ -3318,7 +3322,7 @@ function bindMobileDayList(d){
   document.querySelectorAll('.mobiledayrow').forEach(row=>{
     const id=row.dataset.id;
     row.addEventListener('click',e=>{
-      if(e.target.closest('[data-check],[data-edit],[data-result],.markbox,.subnoteicon'))return;
+      if(e.target.closest('[data-check],[data-edit],[data-result],[data-result-failed],.markbox,.subnoteicon'))return;
       const t=data.tasks.find(x=>x.id===id);
       if(t&&(t.subtasks||[]).length){
         if(__mobileExpanded.has(id))__mobileExpanded.delete(id);else __mobileExpanded.add(id);
@@ -4870,7 +4874,7 @@ function subHtml(t){
 function taskInnerHtml(t){
   const isAdding=state.addingSubtaskFor===t.id;
   const displayNote=taskDisplayNote(t);
-  return `<div class="taskrow"><button class="check ${t.done?'on':''}">${t.done?'✓':''}</button><div class="taskbody">${timeLabel(t)?`<div class="taskmeta" style="color:var(--accent);font-weight:700">${esc(timeLabel(t))}</div>`:''}<div class="tasktitle" title="${esc(t.title)}">${esc(t.title)}</div>${t.clientName?`<div class="taskclient" data-openclient="${t.id}" title="Открыть карточку клиента">👤 ${esc(t.clientName)}</div>`:''}${t.object?`<div class="taskobj" data-object-name="${esc(t.object)}" title="${esc(t.object)}${t.manager?' · '+esc(t.manager):''}">🏢 ${esc(t.object)}${t.manager?' · '+esc(t.manager):''}</div>`:''}${displayNote?`<div class="tasknotes"><div class="tasknoteitem"><div class="tasknotebody rich-note">${renderRichText(displayNote)}</div></div></div>`:''}${t.done&&t.resultText?`<div class="taskresult">Итог: ${esc(t.resultText)}</div>`:''}</div><button class="resultchip" data-action="result" title="Завершить задачу и записать итог">✅ + Итог</button><div class="taskactions"><button data-action="edit">✎</button></div></div>${(t.subtasks||[]).length?`<div class="subtasks">${subHtml(t)}</div>`:''}${isAdding?`<div class="subaddform"><input type="text" class="subaddinput" placeholder="Название подзадачи" autofocus><button class="subaddok">Добавить</button></div>`:`<button class="addsub">+ подзадача</button>`}`;
+  return `<div class="taskrow"><button class="check ${t.done?'on':''}">${t.done?'✓':''}</button><div class="taskbody">${timeLabel(t)?`<div class="taskmeta" style="color:var(--accent);font-weight:700">${esc(timeLabel(t))}</div>`:''}<div class="tasktitle" title="${esc(t.title)}">${esc(t.title)}</div>${t.clientName?`<div class="taskclient" data-openclient="${t.id}" title="Открыть карточку клиента">👤 ${esc(t.clientName)}</div>`:''}${t.object?`<div class="taskobj" data-object-name="${esc(t.object)}" title="${esc(t.object)}${t.manager?' · '+esc(t.manager):''}">🏢 ${esc(t.object)}${t.manager?' · '+esc(t.manager):''}</div>`:''}${displayNote?`<div class="tasknotes"><div class="tasknoteitem"><div class="tasknotebody rich-note">${renderRichText(displayNote)}</div></div></div>`:''}${t.done&&t.resultText?`<div class="taskresult ${taskResultStatus(t)==='failed'?'failed':''}">${taskResultStatus(t)==='failed'?'Причина':'Итог'}: ${esc(t.resultText)}</div>`:''}</div><button class="resultchip" data-action="result" title="Положительный результат">✅ + Итог</button><button class="resultchip resultchip-failed" data-action="result-failed" title="Отрицательный результат">❌ + Причина</button><div class="taskactions"><button data-action="edit">✎</button></div></div>${(t.subtasks||[]).length?`<div class="subtasks">${subHtml(t)}</div>`:''}${isAdding?`<div class="subaddform"><input type="text" class="subaddinput" placeholder="Название подзадачи" autofocus><button class="subaddok">Добавить</button></div>`:`<button class="addsub">+ подзадача</button>`}`;
 }
 function estimateContentHeight(t){
   let h=44+(t.object?15:0)+(t.clientName?15:0);
@@ -4973,5 +4977,31 @@ function naturalTaskWidth(t){
 }
 let __timelineResizeTimer=null;
 window.addEventListener('resize',()=>{clearTimeout(__timelineResizeTimer);__timelineResizeTimer=setTimeout(()=>{delete window.__realHeights;__widthOverrides={};if(state.view==='day')render()},120)});
+
+
+/* Positive and negative outcomes for tasks. Existing outcomes remain positive by default. */
+function taskResultStatus(task){return task.resultStatus==='failed'?'failed':'success'}
+function linkedNoteText(task){
+  const base=String(task.note||'').trim();
+  if(!task.done||!task.resultText)return base;
+  const label=taskResultStatus(task)==='failed'?'Отрицательный результат':'Итог';
+  return `${base}${base?'\n\n':''}${label}: ${String(task.resultText).trim()}`;
+}
+function openTaskResultDialog(task,status='success'){
+  if(!task)return;
+  document.querySelectorAll('.reasonask-overlay').forEach(x=>x.remove());
+  const failed=status==='failed';
+  const pop=document.createElement('div');pop.className='reasonask-overlay';
+  pop.innerHTML=`<div class="reasonask"><div class="reasonask-title">${failed?'❌ Закрыть задачу с причиной':'✅ Завершить задачу с итогом'}</div><div style="font-size:12px;color:var(--muted)">${esc(task.title)}</div><textarea id="taskResultInput" placeholder="${failed?'Например: клиент отказался или не удалось дозвониться':'Например: договорились на просмотр'}">${esc(task.resultText||'')}</textarea><div class="reasonask-btns"><button class="reasonask-gray" id="taskResultCancel">Отмена</button><button class="noteask-yes" id="taskResultSave">${failed?'Сохранить причину':'Сохранить итог'}</button></div></div>`;
+  document.body.appendChild(pop);const close=()=>pop.remove();pop.addEventListener('click',e=>{if(e.target===pop)close()});pop.querySelector('#taskResultCancel').onclick=close;
+  pop.querySelector('#taskResultSave').onclick=()=>{const result=pop.querySelector('#taskResultInput').value.trim();if(!result){toast(failed?'Введите причину':'Введите итог');return}task.resultText=result;task.resultStatus=failed?'failed':'success';task.done=true;syncTaskResultToClient(task);save();close();renderSidebarPending();delete window.__realHeights;render();toast(failed?'Задача закрыта, причина сохранена':'Задача завершена, итог сохранён')};
+  setTimeout(()=>pop.querySelector('#taskResultInput').focus(),30);
+}
+document.addEventListener('click',e=>{
+  const button=e.target.closest('[data-action="result-failed"],[data-result-failed]');if(!button)return;
+  e.preventDefault();e.stopPropagation();
+  const id=button.dataset.resultFailed||button.closest('[data-id]')?.dataset.id;
+  const task=data.tasks.find(t=>t.id===id);if(task)openTaskResultDialog(task,'failed');
+});
 
 </script></body></html>
