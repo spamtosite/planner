@@ -4947,4 +4947,31 @@ render=function(...args){const result=__renderWithTimelineTextLimit(...args);req
 window.addEventListener('resize',applyTimelineTextLimit);
 requestAnimationFrame(applyTimelineTextLimit);
 
+
+/* 2026-09-11: comments expand their task up to one third of the timeline, not beyond it. */
+function timelineTextLimitPx(){
+  const timeline=document.querySelector('.timeline');
+  const content=$('content');
+  const width=(timeline?.clientWidth||content?.clientWidth||window.innerWidth)-75;
+  return Math.max(180,Math.floor(width/3));
+}
+function naturalTaskWidth(t){
+  if(__widthOverrides[t.id])return __widthOverrides[t.id];
+  const titleW=textWidth(visibleText(t.title),'600 13px system-ui, sans-serif')+142;
+  const timeLabelW=timeLabel(t)?textWidth(visibleText(timeLabel(t)),'700 10.5px system-ui, sans-serif')+16:0;
+  const objW=t.object?textWidth(visibleText(t.object),'600 10.5px system-ui, sans-serif')+16:0;
+  const clientW=t.clientName?textWidth(visibleText(t.clientName),'700 10.5px system-ui, sans-serif')+40:0;
+  const subTitleW=(t.subtasks||[]).reduce((max,s)=>Math.max(max,textWidth(visibleText(s.title),'11px system-ui, sans-serif')+SUB_ROW_CHROME),0);
+  const textNeed=Math.max(
+    ...visibleText(taskDisplayNote(t)||'').split('\n').map(line=>textWidth(line,'10.5px system-ui, sans-serif')+100),
+    t.done&&t.resultText?textWidth(visibleText(t.resultText),'700 10.5px system-ui, sans-serif')+100:0,
+    ...(t.subtasks||[]).map(s=>s.resultNote?textWidth(visibleText(s.resultNote),'10.5px system-ui, sans-serif')+76:0),
+    0
+  );
+  const commentW=Math.min(timelineTextLimitPx(),Math.ceil(textNeed));
+  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleW,timeLabelW,objW,clientW,subTitleW,commentW)));
+}
+let __timelineResizeTimer=null;
+window.addEventListener('resize',()=>{clearTimeout(__timelineResizeTimer);__timelineResizeTimer=setTimeout(()=>{delete window.__realHeights;__widthOverrides={};if(state.view==='day')render()},120)});
+
 </script></body></html>
