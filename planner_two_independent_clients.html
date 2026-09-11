@@ -756,6 +756,10 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 .clientcard{display:block!important}.clientcard>.client-info-column,.clientcard>.client-notes-column{min-width:0}.clientcard>.client-info-column{display:flex;flex-direction:column;gap:12px;width:min(310px,32%);float:left;margin-right:18px}.clientcard>.client-notes-column{display:block;overflow:hidden;min-height:1px}.clientcard::after{content:"";display:block;clear:both}.client-info-column>.ccgrid,.client-info-column>.ccnotesection,.client-notes-column>.ccnotesection{grid-column:auto!important;grid-row:auto!important;margin:0!important;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px}.client-notes-column>.ccnotesection{display:grid;gap:8px}.client-info-column>.client-tasks-section{order:3}.client-info-column>.ccgrid{order:1}.client-info-column>.ccgrid+.ccnotesection{order:2}
 @media(max-width:800px){.clientcard>.client-info-column{float:none;width:auto;margin:0;gap:12px}.clientcard>.client-notes-column{display:block;margin-top:12px}.clientcard>.client-info-column,.clientcard>.client-notes-column{width:100%}}
 
+
+/* 2026-09-11: long task text uses no more than one third of the visible timeline width. */
+.timeline-text-limited{max-width:var(--timeline-text-max,33vw)!important;overflow-wrap:anywhere;word-break:normal}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -4911,9 +4915,8 @@ function naturalTaskWidth(t){
   const timeLabelW=timeLabel(t)?textWidth(visibleText(timeLabel(t)),'700 10.5px system-ui, sans-serif')+16:0;
   const objW=t.object?textWidth(visibleText(t.object),'600 10.5px system-ui, sans-serif')+16:0;
   const clientW=t.clientName?textWidth(visibleText(t.clientName),'700 10.5px system-ui, sans-serif')+40:0;
-  const noteW=visibleText(taskDisplayNote(t)||'').split('\n').reduce((max,line)=>Math.max(max,textWidth(line,'10.5px system-ui, sans-serif')+100),0);
-  const resultW=t.done&&t.resultText?textWidth(visibleText(t.resultText),'700 10.5px system-ui, sans-serif')+100:0;
-  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleW,maxSubW,timeLabelW,objW,clientW,noteW,resultW)));
+  /* Notes, results and comments wrap at one third of the visible timeline; they never make a task wider. */
+  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleW,maxSubW,timeLabelW,objW,clientW)));
 }
 
 
@@ -4927,5 +4930,21 @@ function scrollClientCardToTop(clientId){
   const top=Math.max(0,content.scrollTop+(cardRect.top-contentRect.top)-14);
   content.scrollTo({top,behavior:'smooth'});
 }
+
+
+/* Limit only note, result and subtask-comment line width; task titles keep their one-line natural width. */
+function applyTimelineTextLimit(){
+  const timeline=document.querySelector('.timeline');
+  if(!timeline)return;
+  const max=Math.max(150,Math.floor(timeline.clientWidth/3));
+  document.querySelectorAll('.timeline .tasknotebody,.timeline .taskresult,.timeline .subresult').forEach(el=>{
+    el.classList.add('timeline-text-limited');
+    el.style.setProperty('--timeline-text-max',max+'px');
+  });
+}
+const __renderWithTimelineTextLimit=render;
+render=function(...args){const result=__renderWithTimelineTextLimit(...args);requestAnimationFrame(applyTimelineTextLimit);return result};
+window.addEventListener('resize',applyTimelineTextLimit);
+requestAnimationFrame(applyTimelineTextLimit);
 
 </script></body></html>
