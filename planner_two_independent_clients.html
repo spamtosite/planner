@@ -2836,7 +2836,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     const nt={id:uid(),text:v,ts:Date.now(),type:noteType};
     cl.notes=cl.notes||[];
     cl.notes.push(nt);
-    save();renderFolderView();
+    save();render();renderSidebarPending();
     /* ИЗМ (шаг 5.8): предложение создать задачу — только для клиентов */
     if(!OBJ)maybeCreateTaskFromNote(cl.name, v, nt);
   };
@@ -2946,12 +2946,12 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
           cl.notes=(cl.notes||[]).filter(n=>n.id!==nid);
           save();close();
           if(__driveConnected)driveUpload();
-          renderFolderView();renderSidebarPending();
+          render();renderSidebarPending();
           toast('Заметка и задача удалены');
         };
       }else{
         cl.notes=(cl.notes||[]).filter(n=>n.id!==nid);
-        save();renderFolderView();
+        save();render();renderSidebarPending();
       }
     };
   });
