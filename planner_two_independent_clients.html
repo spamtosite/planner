@@ -4110,6 +4110,9 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+const WB_B='(?<![a-zA-Zа-яА-Я0-9])',WB_A='(?![a-zA-Zа-яА-Я0-9])';
+const RU_WEEKDAYS={'понедельник':1,'пн':1,'вторник':2,'вт':2,'среда':3,'ср':3,'четверг':4,'чт':4,'пятница':5,'пт':5,'суббота':6,'сб':6,'воскресенье':0,'вс':0};
+const VERB_STRIP_RE=new RegExp('^(звонок|позвонить|перезвонить|созвон|созвониться|видеопоказ)\\s+','i');
 function parseQuickAdd(raw){
   let s=raw.trim();
   let d=new Date();
