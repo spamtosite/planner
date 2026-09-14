@@ -11,7 +11,8 @@ const ASSETS = [
   './icon-512.png',
   './fav.png',
   './planner.html',
-  './planneresults.html'
+  './planneresults.html',
+  './planner_two_independent_clients.html'
 ];
 
 self.addEventListener('install', event => {
