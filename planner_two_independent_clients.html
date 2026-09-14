@@ -985,26 +985,11 @@ function driveInit(){
     return;
   }
   if(localStorage.getItem('drive_auto')==='1'){
-    driveSetStatus('Автоподключение…');
-    const attempt=n=>{
-      driveSilentReauth().then(ok=>{
-        if(ok){driveAfterConnect();return}
-        if(n<3){
-          driveSetStatus('Автоподключение… попытка '+(n+1));
-          setTimeout(()=>attempt(n+1),1200*n);
-        }else{
-          driveSetStatus('Нет связи с Drive — коснитесь статуса, чтобы подключить');
-        }
-      });
-    };
-    attempt(1);
+    driveSetStatus('Синхронизация приостановлена — подключите Drive вручную');
   }
 }
 
-document.addEventListener('touchstart',function onTouchReauth(){
-  if(__driveConnected||localStorage.getItem('drive_auto')!=='1')return;
-  driveSilentReauth().then(ok=>{if(ok)driveAfterConnect()});
-},{passive:true});
+
 
 /* №65.3: GSI-вход (как до №63, без redirect и воркера) */
 function driveConnect(){
@@ -1054,11 +1039,9 @@ async function driveApi(path,options={},retry=true){
     headers:{...(options.headers||{}),'Authorization':'Bearer '+__driveToken}
   });
   if(res.status===401 && retry){
-    const ok=await driveSilentReauth();
-    if(ok)return driveApi(path,options,false);
     __driveConnected=false;
     try{localStorage.removeItem('drive_token');localStorage.removeItem('drive_token_exp')}catch(e){}
-    driveSetStatus('Нужна повторная авторизация');
+    driveSetStatus('Синхронизация приостановлена — подключите Drive вручную');
     throw new Error('unauthorized');
   }
   return res;
