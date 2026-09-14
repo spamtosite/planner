@@ -766,7 +766,7 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 
 /* Communication history: explicit type control and readable visual grouping. */
 .ccnoteadd{display:flex;align-items:center;gap:8px}.ccnote-type{appearance:none;-webkit-appearance:none;min-width:142px;height:34px;padding:0 31px 0 11px;border:1px solid #d7dce5;border-radius:9px;background:#f8f9fc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%2368768a' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;color:#344054;font:600 12px system-ui,sans-serif;cursor:pointer;outline:none}.ccnote-type:hover{border-color:#aab5c5;background-color:#fff}.ccnote-type:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.13);background-color:#fff}.ccnoteitem{border-left:3px solid transparent;padding-left:10px}.ccnoteitem-call{border-left-color:#3b82f6;background:#f7faff}.ccnoteitem-message{border-left-color:#8b5cf6;background:#faf8ff}.ccnoteitem-meeting{border-left-color:#f59e0b;background:#fffcf5}.ccnoteitem-showing{border-left-color:#10b981;background:#f4fdf9}.ccnote-badge{display:inline-flex;align-items:center;margin-left:5px;padding:2px 6px;border-radius:999px;font-size:10px;font-weight:700;line-height:1.2;vertical-align:middle}.ccnote-badge-call{background:#e6f1ff;color:#2563b8}.ccnote-badge-message{background:#eee9ff;color:#6d45c1}.ccnote-badge-meeting{background:#fff1cf;color:#9a5b00}.ccnote-badge-showing{background:#ddf8ec;color:#087e55}@media(max-width:640px){.ccnoteadd{align-items:stretch}.ccnote-type{min-width:0;flex:1}.ccnoteadd .ccsavebtn{flex:0 0 auto}}
-.taskactions [data-action="reschedule"]{color:#5b35c9!important;font-size:15px!important;font-weight:800!important;padding:0 4px!important}.reschedulemenu{position:fixed;z-index:9999;min-width:168px;padding:6px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 12px 28px rgba(20,30,50,.18);display:grid;gap:2px}.reschedulemenu button{border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:7px;color:var(--text);font:600 12px system-ui,sans-serif;cursor:pointer}.reschedulemenu button:hover{background:#f1edff;color:#6d36d8}
+.taskactions [data-action="reschedule"]{color:#5b35c9!important;font-size:15px!important;font-weight:800!important;padding:0 4px!important}.reschedulemenu{position:fixed;z-index:9999;min-width:168px;padding:6px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 12px 28px rgba(20,30,50,.18);display:grid;gap:2px}.reschedulemenu button{border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:7px;color:var(--text);font:600 12px system-ui,sans-serif;cursor:pointer}.reschedulemenu button:hover{background:#f1edff;color:#6d36d8}.birthday-reminder{margin:0 0 12px;padding:10px;border:1px solid #f4c84f;border-radius:12px;background:linear-gradient(135deg,#fff9dd,#fff1b8);box-shadow:0 5px 14px rgba(202,138,4,.14)}.birthday-reminder-title{font-size:12px;font-weight:800;color:#8a5700;margin-bottom:7px}.birthday-reminder-client{width:100%;border:0;border-radius:8px;padding:8px;background:rgba(255,255,255,.72);color:#5f4300;text-align:left;font:700 12px system-ui,sans-serif;cursor:pointer}.birthday-reminder-client:hover{background:#fff}.birthday-reminder-client span{float:right;font-size:10px;color:#a16207;font-weight:700}
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -2530,6 +2530,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <label>Застройщик<input data-cf="developer" data-cid="${c.id}" value="${esc(c.developer||'')}" placeholder="Застройщик"></label>
             `:`
             <label>Бюджет<input data-cf="budget" data-cid="${c.id}" data-money="1" value="${c.budget?fcMoneyFull(c.budget):''}" placeholder="Бюджет, млн"></label>
+            <label>Дата рождения<input type="date" data-cf="birthday" data-cid="${c.id}" value="${esc(c.birthday||'')}"></label>
             <label>ПВ<input data-cf="pv" data-cid="${c.id}" data-money="1" value="${c.pv?fcMoneyFull(c.pv):''}" placeholder="ПВ, млн"></label>
             <label>ID сделки в CRM<input data-cf="crmid" data-cid="${c.id}" value="${esc(c.crmid||'')}" inputmode="numeric" placeholder="напр. 2525138"></label>
             `}
@@ -3657,7 +3658,10 @@ function renderSidebarPending(){
   const today=tasksFor(new Date()).filter(t=>!t.done);
   const past=data.tasks.filter(t=>!t.done&&t.date&&t.date<todayIso)
     .sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'99:99').localeCompare(b.time||'99:99'));
-  if(!today.length&&!past.length){
+  const birthdayKey=todayIso.slice(5);
+  const birthdayClients=[...Object.entries(data.folderClients||{}),...Object.entries(data.folderClients2||{})]
+    .flatMap(([folderId,clients])=>(clients||[]).filter(client=>String(client.birthday||'').slice(5)===birthdayKey).map(client=>({folderId,client})));
+  if(!today.length&&!past.length&&!birthdayClients.length){
     wrap.innerHTML=`<div class="sidebarpending-title">Сегодня</div><div class="sidebarpending-empty">Нет незавершённых задач</div>`;
     return;
   }
@@ -3687,10 +3691,12 @@ function renderSidebarPending(){
       <span class="sidebarpending-name" title="${esc(t.title)}">${esc(t.title)}</span>
     </div>`;
   }).join('');
-  let html='';
+  const birthdayHtml=birthdayClients.length?`<div class="birthday-reminder"><div class="birthday-reminder-title">🎉 Сегодня день рождения</div>${birthdayClients.map(({folderId,client})=>`<button class="birthday-reminder-client" data-birthday-client="${client.id}" data-birthday-folder="${folderId}">🎂 ${esc(client.name)}<span>Поздравить</span></button>`).join('')}</div>`:'';
+  let html=birthdayHtml;
   if(past.length)html+=`<div class="sidebarpending-title" style="color:#dc2626">Просрочено · ${past.length}</div>${pastItems}`;
   if(today.length)html+=`<div class="sidebarpending-title">Сегодня · ${today.length}</div>${todayItems}`;
   wrap.innerHTML=html;
+  wrap.querySelectorAll('[data-birthday-client]').forEach(el=>{el.onclick=()=>{const folderId=el.dataset.birthdayFolder,clientId=el.dataset.birthdayClient;state.clientSection=(data.folderClients2||{})[folderId]?'secondary':'primary';activeClientUi().openClientId=clientId;openFolderView(folderId)}});
   wrap.querySelectorAll('.sidebarpending-item').forEach(el=>{
     el.onclick=()=>{
       const id=el.dataset.id;
