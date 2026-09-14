@@ -2445,6 +2445,14 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
               <span class="cctaskdate">${t.date?`${t.date.slice(8,10)}.${t.date.slice(5,7)}`:''}${t.time?' '+esc(t.time):''}</span>
               <span class="cctaskname">${esc(t.title)}</span>
             </div>`).join('')}</div></div>`:'';
+        const nextAction=c.nextAction||{};
+        const nextActionHtml=!OBJ?`<div class="ccnotesection client-next-action">
+          <div class="cctitle">Следующее действие</div>
+          <textarea data-next-action-title="${c.id}" rows="2" placeholder="Например: Перезвонить и обсудить варианты">${esc(nextAction.title||'')}</textarea>
+          <div class="rowpair"><input type="date" data-next-action-date="${c.id}" value="${esc(nextAction.date||iso(new Date()))}"><input type="time" data-next-action-time="${c.id}" value="${esc(nextAction.time||'')}"></div>
+          <button type="button" class="ccsavebtn" data-next-action-create="${c.id}" data-next-action-folder="${f.id}">Создать связанную задачу</button>
+          ${nextAction.taskId?`<div class="cctask" data-open-task="${nextAction.taskId}" style="cursor:pointer">🗓 Открыть созданную задачу</div>`:''}
+        </div>`:'';
         const phonesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Телефоны отдела продаж':'Телефоны'}</div>
           <div class="phonepins">
           ${phones.map(p=>`
@@ -2530,7 +2538,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
             <label>ID сделки в CRM<input data-cf="crmid" data-cid="${c.id}" value="${esc(c.crmid||'')}" inputmode="numeric" placeholder="напр. 2525138"></label>
             `}
           </div>
-          ${OBJ?`<div class="objcols">${deadlinesHtml}${pricesHtml}${phonesHtml}</div>`:phonesHtml}
+          ${OBJ?`<div class="objcols">${deadlinesHtml}${pricesHtml}${phonesHtml}</div>`:`${nextActionHtml}${phonesHtml}`}
           ${tasksHtml}
           </div>
           ${OBJ?notesHtml:`<div class="client-notes-column">${notesHtml}</div>`}
@@ -4855,5 +4863,28 @@ function naturalTaskWidth(t){
 }
 let __timelineResizeTimer=null;
 window.addEventListener('resize',()=>{clearTimeout(__timelineResizeTimer);__timelineResizeTimer=setTimeout(()=>{delete window.__realHeights;__widthOverrides={};if(state.view==='day')render()},120)});
+
+/* CRM: create a calendar task from a client's next action. */
+document.addEventListener('click',event=>{
+  const button=event.target.closest('[data-next-action-create]');
+  if(!button)return;
+  const clientId=button.dataset.nextActionCreate;
+  const folderId=button.dataset.nextActionFolder;
+  const client=folderClientsOf(folderId).find(item=>item.id===clientId);
+  if(!client)return;
+  const card=button.closest('[data-client-card]');
+  const title=card?.querySelector(`[data-next-action-title="${clientId}"]`)?.value.trim()||'';
+  const date=card?.querySelector(`[data-next-action-date="${clientId}"]`)?.value||'';
+  const time=card?.querySelector(`[data-next-action-time="${clientId}"]`)?.value||'';
+  if(!title){toast('Укажи, что нужно сделать');card?.querySelector(`[data-next-action-title="${clientId}"]`)?.focus();return;}
+  if(!date){toast('Выбери дату');return;}
+  const task={id:uid(),title,date,time,endTime:null,note:'',subtasks:[],done:false,focusSessions:0,focusMinutes:0,clientId:client.id,clientFolderId:folderId,clientName:client.name};
+  data.tasks.push(task);
+  client.nextAction={title,date,time,taskId:task.id};
+  delete window.__realHeights;
+  save();
+  toast(`Создана задача для «${client.name}»`);
+  renderFolderView();
+});
 
 </script></body></html>
