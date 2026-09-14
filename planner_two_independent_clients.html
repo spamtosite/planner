@@ -4110,6 +4110,283 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+function parseQuickAdd(raw){
+  let s=raw.trim();
+  let d=new Date();
+  let dateFound=false;
+  let matchedTpl=findTemplateInText(s);
+  if(matchedTpl){
+    const re=new RegExp(matchedTpl.code.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'i');
+    s=s.replace(re,'').trim();
+  }
+  let time=null,end=null;
+
+  const rangeRe=/(?:в\s+промежутке\s+)?с\s+(\d{1,2})(?::(\d{2}))?\s+до\s+(\d{1,2})(?::(\d{2}))?/i;
+  const dashRangeRe=/(?<!\d)(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})(?!\d)/;
+  const singleTimeRe=/(?<![a-zA-Zа-яА-Я0-9])в\s+(\d{1,2})(?:[.:\-](\d{2}))?(?!\d)/i;
+  const afterRe=/(?<![a-zA-Zа-яА-Я0-9])после\s+(\d{1,2})(?::(\d{2}))?(?!\d)/i;
+  const dotTimeRe=/(?<!\d)([0-1]?\d|2[0-3])[.\-]([0-5]\d)(?!\d)(?!\s*[.\-]\s*\d)/;
+
+  let mr=s.match(rangeRe);
+  if(mr){
+    time=pad(Math.min(23,+mr[1]))+':'+pad(Math.min(59,+(mr[2]||0)));
+    end=pad(Math.min(23,+mr[3]))+':'+pad(Math.min(59,+(mr[4]||0)));
+    s=(s.slice(0,mr.index)+' '+s.slice(mr.index+mr[0].length)).trim();
+  }else{
+    let md=s.match(dashRangeRe);
+    if(md){
+      time=pad(Math.min(23,+md[1]))+':'+pad(Math.min(59,+md[2]));
+      end=pad(Math.min(23,+md[3]))+':'+pad(Math.min(59,+md[4]));
+      s=(s.slice(0,md.index)+' '+s.slice(md.index+md[0].length)).trim();
+    }else{
+      let ms=s.match(singleTimeRe);
+      if(ms){
+        time=pad(Math.min(23,+ms[1]))+':'+pad(Math.min(59,+(ms[2]||0)));
+        s=(s.slice(0,ms.index)+' '+s.slice(ms.index+ms[0].length)).trim();
+      }else{
+        let ma=s.match(afterRe);
+        if(ma){
+          time=pad(Math.min(23,+ma[1]))+':'+pad(Math.min(59,+(ma[2]||0)));
+          s=(s.slice(0,ma.index)+' '+s.slice(ma.index+ma[0].length)).trim();
+        }else{
+          let md2=s.match(dotTimeRe);
+          if(md2){
+            time=pad(+md2[1])+':'+pad(+md2[2]);
+            s=(s.slice(0,md2.index)+' '+s.slice(md2.index+md2[0].length)).trim();
+          }
+        }
+      }
+    }
+  }
+
+  const throughRe=/через\s+(\d+)?\s*(недели|неделю|недель|день|дня|дней)/i;
+  let mt=s.match(throughRe);
+  if(mt){
+    const num=mt[1]?+mt[1]:1;
+    const unit=mt[2].toLowerCase();
+    if(unit.startsWith('недел'))d.setDate(d.getDate()+num*7);
+    else d.setDate(d.getDate()+num);
+    s=(s.slice(0,mt.index)+' '+s.slice(mt.index+mt[0].length)).trim();
+    dateFound=true;
+  }else if(new RegExp(WB_B+'послезавтра'+WB_A,'i').test(s)){
+    d.setDate(d.getDate()+2);
+    s=s.replace(new RegExp(WB_B+'послезавтра'+WB_A,'i'),' ').trim();
+    dateFound=true;
+  }else if(new RegExp(WB_B+'завтра'+WB_A,'i').test(s)){
+    d.setDate(d.getDate()+1);
+    s=s.replace(new RegExp(WB_B+'завтра'+WB_A,'i'),' ').trim();
+    dateFound=true;
+  }else if(new RegExp(WB_B+'сегодня'+WB_A,'i').test(s)){
+    s=s.replace(new RegExp(WB_B+'сегодня'+WB_A,'i'),' ').trim();
+  }else{
+    for(const name in RU_WEEKDAYS){
+      let re=new RegExp(WB_B+name+WB_A,'i');
+      if(re.test(s)){
+        let idx=RU_WEEKDAYS[name],cur=d.getDay(),diff=(idx-cur+7)%7;
+        if(diff===0)diff=7;
+        d.setDate(d.getDate()+diff);
+        s=s.replace(re,' ').trim();
+        dateFound=true;
+        break;
+      }
+    }
+  }
+
+  s=s.replace(VERB_STRIP_RE,'');
+  s=s.replace(/\s{2,}/g,' ').replace(/^[\s,.\-]+|[\s,.\-]+$/g,'').replace(/\s+[-–]\s*\d{0,2}$/,'').trim();
+
+  return {title:s||raw.trim(),titleClean:s,date:iso(d),time,endTime:end,template:matchedTpl,dateFound};
+}
+function quick(){
+  const raw=$('quickInput').value;if(!raw.trim())return;
+  const {title,date,time,endTime,template}=parseQuickAdd(raw);
+  const subtasks=template?(template.subtasks||[]).map(x=>({title:x,status:'pending'})):[];
+  data.tasks.push({id:uid(),title,date,time,endTime,note:'',subtasks,done:false,focusSessions:0,focusMinutes:0});
+  delete window.__realHeights;save();$('quickInput').value='';
+  const tmr=new Date();tmr.setDate(tmr.getDate()+1);
+  const when=date===iso(new Date())?'сегодня':date===iso(tmr)?'завтра':fmt(parse(date));
+  const tlabel=time?(endTime?`${time}–${endTime}`:time):'';
+  toast(`Добавлено: «${title}»${tlabel?', '+tlabel:''} (${when})${template?' · шаблон '+template.code:''}`);
+  state.date=parse(date);state.view='day';setTabs();render();
+}
+ $('quickAddBtn').onclick=quick;
+ $('quickInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();quick()}});
+ $('addBtn').onclick=()=>openModal();
+ $('tplManageQuick').onclick=openTplModal;
+ $('cancelBtn').onclick=closeModal;
+ $('saveBtn').onclick=saveModal;
+ $('deleteBtn').onclick=()=>{
+  if(state.editing){
+    delete __widthOverrides[state.editing];
+    const del=data.tasks.find(x=>x.id===state.editing);
+    if(!del)return;
+    closeModal();
+    confirmTaskDeleteWithReason(del,(reason)=>{
+      delete __widthOverrides[state.editing];
+      addTombstones([del]);
+      data.tasks=data.tasks.filter(x=>x.id!==state.editing);
+      delete window.__realHeights;save();
+      if(__driveConnected)driveUpload();
+      render();
+      toast(reason?'Задача удалена — причина записана в заметки клиента':'Задача удалена');
+    });
+  }
+};
+ $('deleteSeriesBtn').onclick=()=>{
+  if(!state.editing)return;
+  const t=data.tasks.find(x=>x.id===state.editing);
+  if(!t||!t.seriesId)return;
+  const seriesId=t.seriesId;
+  const count=data.tasks.filter(x=>x.seriesId===seriesId).length;
+  if(!confirm(`Удалить все ${count} задач(и) этой серии из календаря?\n\nЭто действие нельзя отменить.`))return;
+  const delSeries=data.tasks.filter(x=>x.seriesId===seriesId);
+  addTombstones(delSeries);
+  data.tasks=data.tasks.filter(x=>x.seriesId!==seriesId);
+  __widthOverrides={};
+  delete window.__realHeights;
+  save();
+  if(__driveConnected)driveUpload();
+  closeModal();
+  render();
+  toast(`Удалено ${count} задач(и) серии`);
+};
+ $('navToday').onclick=()=>{state.date=new Date();state.view='day';setTabs();render()};
+ $('navCalendar').onclick=()=>{state.view='month';setTabs();render()};
+ $('navMonthGoals').onclick=()=>{state.view='monthgoals';setTabs();render()};
+ $('navClients').onclick=()=>{state.clientPrimaryUi.foldersExpanded=!state.clientPrimaryUi.foldersExpanded;renderSidebarFolders()};
+const SIDEBAR_W_KEY='daily_planner_sidebar_w';
+const SIDEBAR_MIN=190,SIDEBAR_MAX=480;
+(function(){
+  const sb=document.querySelector('.sidebar');
+  const rz=$('sidebarResizer');
+  if(!sb||!rz)return;
+  const saved=parseInt(localStorage.getItem(SIDEBAR_W_KEY),10);
+  if(saved&&!isNaN(saved)){
+    const w=Math.max(SIDEBAR_MIN,Math.min(SIDEBAR_MAX,saved));
+    sb.style.width=w+'px';
+  }
+  rz.addEventListener('mousedown',e=>{
+    if(isMobileLayout())return;
+    e.preventDefault();
+    const startX=e.clientX,startW=sb.getBoundingClientRect().width;
+    rz.classList.add('active');
+    document.body.classList.add('resizing');
+    const onMove=me=>{
+      const w=Math.max(SIDEBAR_MIN,Math.min(SIDEBAR_MAX,Math.round(startW+(me.clientX-startX))));
+      sb.style.width=w+'px';
+    };
+    const onUp=()=>{
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      rz.classList.remove('active');
+      document.body.classList.remove('resizing');
+      localStorage.setItem(SIDEBAR_W_KEY,String(parseInt(sb.style.width,10)));
+    };
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+  });
+})();
+renderQuickTplBar();
+render();
+attachSwipeNav();
+const mobileBackBtn=document.getElementById('mobileBackBtn');
+if(mobileBackBtn)mobileBackBtn.onclick=backToMobileSections;
+function exportBackup(){
+  const payload={...data,__meta:{exportedAt:new Date().toISOString(),app:'daily_planner_templates',version:1}};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const d=new Date();
+  a.href=url;
+  a.download=`planner-backup-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  toast('Бэкап сохранён');
+}
+
+function importBackup(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    let parsed;
+    try{
+      parsed=JSON.parse(e.target.result);
+    }catch(err){
+      toast('Файл поврежден или не JSON');
+      return;
+    }
+    if(!parsed||!Array.isArray(parsed.tasks)){
+      toast('Это не похоже на файл бэкапа ежедневника');
+      return;
+    }
+    const count=parsed.tasks.length;
+    if(!confirm(`Заменить текущие данные на данные из файла?\n\nВ файле: ${count} задач, ${(parsed.clients||[]).length} клиентов, ${(parsed.templates||[]).length} шаблонов.\n\nТекущие данные будут перезаписаны без возможности отмены.`))return;
+    data={
+      tasks:parsed.tasks||[],
+      clients:parsed.clients||[],
+      clientChecks:parsed.clientChecks||{},
+      templates:parsed.templates||[],
+      clientFolders:parsed.clientFolders||[],
+      folderClients:parsed.folderClients||{},
+      clientFolders2:parsed.clientFolders2||[],
+      folderClients2:parsed.folderClients2||{},
+      objectFolders:parsed.objectFolders||[],
+      folderObjects:parsed.folderObjects||{},
+      monthGoals:parsed.monthGoals||{},
+      tombstones:parsed.tombstones||{}
+    };
+    save();
+    delete window.__realHeights;
+    __widthOverrides={};
+    render();
+    renderQuickTplBar();
+    toast(`Импортировано: ${count} задач`);
+  };
+  reader.onerror=()=>toast('Не удалось прочитать файл');
+  reader.readAsText(file);
+}
+
+ $('exportBtn').onclick=exportBackup;
+ $('importBtn').onclick=()=>$('importFileInput').click();
+ $('importFileInput').addEventListener('change',e=>{
+  const file=e.target.files[0];
+  if(file)importBackup(file);
+  e.target.value='';
+});
+setInterval(()=>renderSidebarPending(),60000);
+window.addEventListener('online',()=>{
+  if(__driveConnected){
+    if((__drivePendingUpload||__driveDirty)&&!__driveSyncing&&navigator.onLine)setTimeout(()=>driveUpload(),800);
+    return;
+  }
+  if(localStorage.getItem('drive_auto')!=='1')return;
+  if(!window.google||!google.accounts){driveInit();return}
+  driveSetStatus('Сеть вернулась — подключение…');
+  const retryOnline=n=>{
+    driveSilentReauth().then(ok=>{
+      if(ok){driveAfterConnect();return}
+      if(n<3)setTimeout(()=>retryOnline(n+1),1200*n);
+      else driveSetStatus('Нет связи с Drive — коснитесь статуса, чтобы подключить');
+    });
+  };
+  retryOnline(1);
+});
+setInterval(()=>{
+  if(__driveConnected)return;
+  if(localStorage.getItem('drive_auto')!=='1')return;
+  if(document.visibilityState!=='visible')return;
+  driveSilentReauth().then(ok=>{if(ok)driveAfterConnect()});
+},60000);
+if(localStorage.getItem('daily_planner_storage_mode')==='drive')driveInit();
+document.getElementById('driveConnectBtn').onclick=requestDriveConnect;
+document.getElementById('driveStatus').style.cursor='pointer';
+document.getElementById('driveStatus').onclick=()=>{if(!__driveConnected)driveConnect()};
+
+window.addEventListener('resize',()=>{render()});
+if('serviceWorker' in navigator){
+  try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}
+}
 /* ================== №59: поиск клиентов (имя / телефон / ID CRM) ================== */
 function searchNormPhone(s){return String(s||'').replace(/\D/g,'')}
 function searchPhoneTail(digits){return digits.length>10?digits.slice(-10):digits}
