@@ -791,6 +791,63 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 <div class="tplbar" id="quickTplBar"></div>
 <section class="content" id="content"></section></main></div>
 
+
+
+
+
+<div class="overlay" id="overlay"><div class="modal"><h2 id="modalTitle">Новая задача</h2><div class="formgrid">
+  <div class="field full"><label>Название</label><input id="fTitle"></div>
+  <div class="field full"><label>Клиент (необязательно)</label><input id="fClient" list="clientList" placeholder="Начните печатать имя…"><datalist id="clientList"></datalist></div>
+  <div class="field full objectrow mob-hide">
+    <div><label style="font-size:12px;color:var(--muted);font-weight:600">Объект (ЖК)</label><input id="fObject" list="objectList" placeholder="Выберите или укажите новый ЖК"><datalist id="objectList"></datalist></div>
+    <div><label style="font-size:12px;color:var(--muted);font-weight:600">Менеджер продаж</label><input id="fManager" placeholder="Имя, телефон"></div>
+  </div>
+  <div class="field"><label>Дата</label><input id="fDate" type="date"></div>
+  <div class="field"><label>Время начала</label><input id="fTime" type="time"></div>
+  <div class="field full mob-hide"><label>Время окончания (включительно)</label><input id="fEndTime" type="time"></div>
+  <div class="field full mob-hide"><label>Заметка / результат</label><textarea id="fNote"></textarea></div>
+  <div class="field full mob-hide" id="recurField">
+    <label>Повторить — создаёт НЕЗАВИСИМЫЕ копии на выбранные дни</label>
+    <div class="recur" id="recurDays">
+      <button type="button" class="daypill" data-d="1">Пн</button>
+      <button type="button" class="daypill" data-d="2">Вт</button>
+      <button type="button" class="daypill" data-d="3">Ср</button>
+      <button type="button" class="daypill" data-d="4">Чт</button>
+      <button type="button" class="daypill" data-d="5">Пт</button>
+      <button type="button" class="daypill" data-d="6">Сб</button>
+      <button type="button" class="daypill" data-d="0">Вс</button>
+    </div>
+    <div class="recurquick">
+      <button type="button" class="recurquickbtn" id="recurWorkdaysBtn">Рабочие дни (Пн–Пт)</button>
+      <button type="button" class="recurquickbtn" id="recurWeekendBtn">Выходные (Сб–Вс)</button>
+      <button type="button" class="recurquickbtn" id="recurAllBtn">Все дни</button>
+      <button type="button" class="recurquickbtn" id="recurClearBtn">Сбросить</button>
+    </div>
+    <div class="recurweeksrow">
+      <label style="font-size:12px;color:var(--muted);font-weight:600">Сколько недель создавать</label>
+      <select id="fWeeks">
+        <option value="1">1 неделя</option><option value="2">2 недели</option><option value="4" selected>4 недели</option><option value="8">8 недель</option><option value="12">12 недель</option>
+      </select>
+    </div>
+    <div class="recurpreview" id="recurPreview"></div>
+  </div>
+  <div class="field full"><label>Подзадачи — по одной на строку</label><textarea id="fSubtasks" placeholder="Подготовить данные
+Проверить результат"></textarea></div>
+</div><div class="modalfoot"><button class="danger hidden" id="deleteBtn">Удалить</button>
+<button class="danger hidden" id="deleteSeriesBtn">Удалить всю серию</button><div class="modalbuttons"><button class="secondary" id="cancelBtn">Отмена</button><button class="primary" id="saveBtn">Сохранить</button></div></div><div class="modalhint">Esc или «Отмена» — закрыть без сохранения</div></div></div>
+<div class="overlay" id="tplOverlay"><div class="tplmodal">
+  <h2 style="margin:0 0 16px">Шаблоны быстрого ввода</h2>
+  <div class="tpllist" id="tplList"></div>
+  <div class="formgrid">
+    <div class="field"><label>Код-триггер (например «ВП»)</label><input id="tCode" placeholder="ВП" maxlength="10"></div>
+    <div class="field"><label>Название шаблона</label><input id="tName" placeholder="Видеопоказ"></div>
+    <div class="field full"><label>Подзадачи — по одной на строку</label><textarea id="tSubs" placeholder="Подтвердить с клиентом видеопоказ
+Договориться с ОП
+Провести ВП"></textarea></div>
+  </div>
+  <div class="modalfoot"><div></div><div class="modalbuttons"><button class="secondary" id="tplCloseBtn">Закрыть</button><button class="primary" id="tplSaveBtn">Сохранить шаблон</button></div></div>
+</div></div>
+
 <div class="toast" id="toast"></div>
 <script>
 const KEY='daily_planner_templates_v1';
