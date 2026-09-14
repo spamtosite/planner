@@ -764,6 +764,9 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 /* 2026-09-14: task outcomes preserve line breaks and indentation exactly as entered. */
 .taskresult{white-space:pre-wrap!important;overflow-wrap:anywhere;tab-size:2}
 
+/* Communication history: explicit type control and readable visual grouping. */
+.ccnoteadd{display:flex;align-items:center;gap:8px}.ccnote-type{appearance:none;-webkit-appearance:none;min-width:142px;height:34px;padding:0 31px 0 11px;border:1px solid #d7dce5;border-radius:9px;background:#f8f9fc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%2368768a' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center;color:#344054;font:600 12px system-ui,sans-serif;cursor:pointer;outline:none}.ccnote-type:hover{border-color:#aab5c5;background-color:#fff}.ccnote-type:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,.13);background-color:#fff}.ccnoteitem{border-left:3px solid transparent;padding-left:10px}.ccnoteitem-call{border-left-color:#3b82f6;background:#f7faff}.ccnoteitem-message{border-left-color:#8b5cf6;background:#faf8ff}.ccnoteitem-meeting{border-left-color:#f59e0b;background:#fffcf5}.ccnoteitem-showing{border-left-color:#10b981;background:#f4fdf9}.ccnote-badge{display:inline-flex;align-items:center;margin-left:5px;padding:2px 6px;border-radius:999px;font-size:10px;font-weight:700;line-height:1.2;vertical-align:middle}.ccnote-badge-call{background:#e6f1ff;color:#2563b8}.ccnote-badge-message{background:#eee9ff;color:#6d45c1}.ccnote-badge-meeting{background:#fff1cf;color:#9a5b00}.ccnote-badge-showing{background:#ddf8ec;color:#087e55}@media(max-width:640px){.ccnoteadd{align-items:stretch}.ccnote-type{min-width:0;flex:1}.ccnoteadd .ccsavebtn{flex:0 0 auto}}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="searchwrap">
@@ -2510,8 +2513,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
                   <div class="ccnoteedit-btns"><button class="ccsave" data-notesave="${c.id}:${n.id}">Сохранить</button><button class="cccancel" data-notecancel>Отмена</button></div>
                 </div>`;
               }
-              return `<div class="ccnoteitem">
-                <div class="ccts" style="order:-1">${fmtTs(n.ts)}${n.type&&n.type!=='comment'?` · ${({call:'Звонок',message:'Сообщение',meeting:'Встреча',showing:'Показ'})[n.type]||'Комментарий'}`:''}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
+              return `<div class="ccnoteitem ccnoteitem-${esc(n.type||'comment')}">
+                <div class="ccts" style="order:-1">${fmtTs(n.ts)}${n.type&&n.type!=='comment'?` <span class="ccnote-badge ccnote-badge-${esc(n.type)}">${({call:'☎ Звонок',message:'✉ Сообщение',meeting:'◷ Встреча',showing:'◉ Показ'})[n.type]||'Комментарий'}</span>`:''}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
                 <div class="cctext">${fmtNote(n.text)}</div>
                 ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
                 <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
