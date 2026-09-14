@@ -2445,12 +2445,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
               <span class="cctaskdate">${t.date?`${t.date.slice(8,10)}.${t.date.slice(5,7)}`:''}${t.time?' '+esc(t.time):''}</span>
               <span class="cctaskname">${esc(t.title)}</span>
             </div>`).join('')}</div></div>`:'';
-        const nextActionHtml=!OBJ?`<div class="ccnotesection client-next-action">
-          <div class="cctitle">Следующее действие</div>
-          <textarea data-next-action-title="${c.id}" rows="2" placeholder="Например: Позвонить по решению ипотеки" style="width:100%;min-height:64px;box-sizing:border-box;resize:none;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;font:inherit;line-height:1.4"></textarea>
-          <div class="rowpair"><input type="date" data-next-action-date="${c.id}" value="${iso(new Date())}"><input type="time" data-next-action-time="${c.id}"></div>
-          <button type="button" class="ccsavebtn" data-next-action-create="${c.id}" data-next-action-folder="${f.id}">Создать связанную задачу</button>
-        </div>`:'';
+        const nextActionHtml=!OBJ?`<div class="ccnotesection client-next-action"><div class="cctitle">Следующее действие</div><textarea data-next-action-title="${c.id}" rows="2" placeholder="Например: Позвонить по решению ипотеки" style="width:100%;min-height:64px;box-sizing:border-box;resize:none;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;font:inherit;line-height:1.4"></textarea><div class="rowpair"><input type="date" data-next-action-date="${c.id}" value="${iso(new Date())}"><input type="time" data-next-action-time="${c.id}"></div><button type="button" class="ccsavebtn" data-next-action-create="${c.id}" data-next-action-folder="${f.id}">Создать связанную задачу</button></div>`:'';
         const phonesHtml=`<div class="ccnotesection"><div class="cctitle">${OBJ?'Телефоны отдела продаж':'Телефоны'}</div>
           <div class="phonepins">
           ${phones.map(p=>`
@@ -2507,7 +2502,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
         </div>`:'';
         const notesHtml=`<div class="ccnotesection client-notes-section"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'} <button type="button" class="ccsortbtn" data-notes-sort="${c.id}" title="Изменить порядок заметок">${notesOrder==='desc'?'Новые сверху':'Старые сверху'}</button></div>
            <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
-           <div class="ccnoteadd"><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
+           <div class="ccnoteadd"><select class="ccnote-type" id="ccNoteType"><option value="comment">Комментарий</option><option value="call">Звонок</option><option value="message">Сообщение</option><option value="meeting">Встреча</option><option value="showing">Показ</option></select><button class="ccsavebtn" data-cid="${c.id}">Сохранить</button></div>
             ${notes.length?sortedNotes.map(n=>{
               if(activeClientUi().editingNoteId===n.id){
                 return `<div class="ccnoteitem">
@@ -2516,7 +2511,7 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
                 </div>`;
               }
               return `<div class="ccnoteitem">
-                <div class="ccts" style="order:-1">${fmtTs(n.ts)}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
+                <div class="ccts" style="order:-1">${fmtTs(n.ts)}${n.type&&n.type!=='comment'?` · ${({call:'Звонок',message:'Сообщение',meeting:'Встреча',showing:'Показ'})[n.type]||'Комментарий'}`:''}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
                 <div class="cctext">${fmtNote(n.text)}</div>
                 ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
                 <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
@@ -2833,7 +2828,8 @@ document.getElementById('firstCallBtn').onclick=()=>openFirstCallModal(null);
     const cl=list.find(x=>x.id===cid);if(!cl)return;
     try{noteInput.__richSync&&noteInput.__richSync()}catch(e){}
     const v=noteInput.value.trim();if(!v)return;
-    const nt={id:uid(),text:v,ts:Date.now()};
+    const noteType=$('ccNoteType')?.value||'comment';
+    const nt={id:uid(),text:v,ts:Date.now(),type:noteType};
     cl.notes=cl.notes||[];
     cl.notes.push(nt);
     save();renderFolderView();
@@ -4866,23 +4862,15 @@ window.addEventListener('resize',()=>{clearTimeout(__timelineResizeTimer);__time
 document.addEventListener('click',event=>{
   const button=event.target.closest('[data-next-action-create]');
   if(!button)return;
-  const clientId=button.dataset.nextActionCreate;
-  const folderId=button.dataset.nextActionFolder;
-  const client=folderClientsOf(folderId).find(item=>item.id===clientId);
-  if(!client)return;
+  const clientId=button.dataset.nextActionCreate,folderId=button.dataset.nextActionFolder;
+  const client=folderClientsOf(folderId).find(item=>item.id===clientId);if(!client)return;
   const card=button.closest('[data-client-card]');
   const note=card?.querySelector(`[data-next-action-title="${clientId}"]`)?.value.trim()||'';
-  const date=card?.querySelector(`[data-next-action-date="${clientId}"]`)?.value||'';
-  const time=card?.querySelector(`[data-next-action-time="${clientId}"]`)?.value||'';
+  const date=card?.querySelector(`[data-next-action-date="${clientId}"]`)?.value||'',time=card?.querySelector(`[data-next-action-time="${clientId}"]`)?.value||'';
   if(!note){toast('Укажи, что нужно сделать');card?.querySelector(`[data-next-action-title="${clientId}"]`)?.focus();return;}
   if(!date){toast('Выбери дату');return;}
-  const task={id:uid(),title:client.name,date,time,endTime:null,note,subtasks:[],done:false,focusSessions:0,focusMinutes:0,clientId:client.id,clientFolderId:folderId,clientName:client.name};
-  data.tasks.push(task);
-  delete client.nextAction;
-  delete window.__realHeights;
-  save();
-  toast(`Создана задача для «${client.name}»`);
-  renderFolderView();
+  data.tasks.push({id:uid(),title:client.name,date,time,endTime:null,note,subtasks:[],done:false,focusSessions:0,focusMinutes:0,clientId:client.id,clientFolderId:folderId,clientName:client.name});
+  delete client.nextAction;delete window.__realHeights;save();toast(`Создана задача для «${client.name}»`);renderFolderView();
 });
 
 </script></body></html>
