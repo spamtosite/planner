@@ -3774,6 +3774,17 @@ function refreshDayProgressNow(){
   const fill=$('dayProgressFill');if(fill)fill.style.width=pct+'%';wrap.classList.toggle('complete',tasks.length>0&&done===tasks.length);
 }
 
+function syncSidebarTaskNow(task){
+  const wrap=$('sidebarPending');if(!wrap)return;
+  if(task.done){
+    wrap.querySelectorAll(`.sidebarpending-item[data-id="${task.id}"]`).forEach(item=>item.remove());
+    const todayIso=iso(new Date());const openToday=data.tasks.filter(item=>!item.done&&item.date===todayIso).length;
+    const openPast=data.tasks.filter(item=>!item.done&&item.date&&item.date<todayIso).length;
+    wrap.querySelectorAll('.sidebarpending-title').forEach(title=>{if(title.textContent.startsWith('Сегодня'))title.textContent=openToday?`Сегодня · ${openToday}`:'Сегодня';if(title.textContent.startsWith('Просрочено'))title.textContent=openPast?`Просрочено · ${openPast}`:'';});
+  }
+  requestAnimationFrame(()=>renderSidebarPending());
+}
+
 function bindTasks(){
   document.querySelectorAll('.task,.taskblock').forEach(el=>{
     let t=data.tasks.find(x=>x.id===el.dataset.id);if(!t)return;
@@ -3787,11 +3798,13 @@ function bindTasks(){
       el.classList.toggle('done',willBeDone);
       const check=el.querySelector('.check');if(check){check.classList.toggle('on',willBeDone);check.textContent=willBeDone?'✓':'';}
       refreshDayProgressNow();
+      syncSidebarTaskNow(t);
       save();renderSidebarPending();
       __widthOverrides={};delete window.__realHeights;
       setTimeout(()=>{
         render();
         if(willBeDone){try{if(syncTaskResultToClient(t))save()}catch(error){console.error(error)}}
+        syncSidebarTaskNow(t);
         requestAnimationFrame(()=>renderSidebarPending());
       },willBeDone?520:0);
     };
