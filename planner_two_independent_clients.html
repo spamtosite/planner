@@ -2126,7 +2126,7 @@ function openNegativeResultDialog(task){
   const pop=document.createElement('div');pop.className='reasonask-overlay';
   pop.innerHTML=`<div class="reasonask"><div class="reasonask-title" style="color:#b4233c">✕ Не выполнено</div><div style="font-size:12px;color:var(--muted)">${esc(task.title)}</div><textarea id="negativeResultInput" placeholder="Причина или результат">${esc(task.resultText||'')}</textarea><div class="reasonask-btns"><button class="reasonask-gray" id="negativeResultCancel">Отмена</button><button class="noteask-no" id="negativeResultSave">Сохранить</button></div></div>`;
   document.body.appendChild(pop);const close=()=>pop.remove();pop.querySelector('#negativeResultCancel').onclick=close;
-  pop.querySelector('#negativeResultSave').onclick=()=>{const text=pop.querySelector('#negativeResultInput').value.trim();if(!text){toast('Укажи причину или результат');return}task.resultText=text;task.outcome='failed';task.done=true;syncTaskResultToClient(task);save();close();renderSidebarPending();delete window.__realHeights;render();toast('Задача закрыта как невыполненная')};
+  pop.querySelector('#negativeResultSave').onclick=()=>{const text=pop.querySelector('#negativeResultInput').value.trim();if(!text){toast('Укажи причину или результат');return}task.resultText=text;task.outcome='failed';task.done=true;syncTaskResultToClient(task);save();close();renderSidebarPending();delete window.__realHeights;render();requestAnimationFrame(()=>renderSidebarPending());toast('Задача закрыта как невыполненная')};
   setTimeout(()=>pop.querySelector('#negativeResultInput').focus(),30);
 }
 
@@ -2152,6 +2152,7 @@ function openTaskResultDialog(task){
     renderSidebarPending();
     delete window.__realHeights;
     render();
+    requestAnimationFrame(()=>renderSidebarPending());
     toast('Задача завершена, итог сохранён');
   };
   setTimeout(()=>pop.querySelector('#taskResultInput').focus(),30);
@@ -3788,7 +3789,11 @@ function bindTasks(){
       refreshDayProgressNow();
       save();renderSidebarPending();
       __widthOverrides={};delete window.__realHeights;
-      setTimeout(()=>{render();if(willBeDone){try{if(syncTaskResultToClient(t))save()}catch(error){console.error(error)}}},willBeDone?520:0);
+      setTimeout(()=>{
+        render();
+        if(willBeDone){try{if(syncTaskResultToClient(t))save()}catch(error){console.error(error)}}
+        requestAnimationFrame(()=>renderSidebarPending());
+      },willBeDone?520:0);
     };
     el.querySelector('.tasktitle').onclick=()=>openModal(t.id);
     el.querySelector('[data-action="edit"]')?.addEventListener('click',()=>openModal(t.id));
