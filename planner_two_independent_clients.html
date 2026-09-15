@@ -4925,4 +4925,17 @@ document.addEventListener('click',event=>{
 
 function openRescheduleMenu(task,anchor){document.querySelectorAll('.reschedulemenu').forEach(x=>x.remove());const menu=document.createElement('div');menu.className='reschedulemenu';menu.innerHTML='<button data-move="0">Сегодня</button><button data-move="1">Завтра</button><button data-move="2">Послезавтра</button><button data-move="date">Выбрать дату…</button>';const r=anchor.getBoundingClientRect();menu.style.top=Math.min(innerHeight-170,r.bottom+6)+'px';menu.style.left=Math.max(8,Math.min(innerWidth-180,r.left-130))+'px';const close=()=>menu.remove();menu.onclick=e=>{const a=e.target.dataset.move;if(a===undefined)return;let date;if(a==='date'){date=prompt('Дата в формате ГГГГ-ММ-ДД',task.date||iso(new Date()))||'';if(!/^\d{4}-\d{2}-\d{2}$/.test(date)){if(date)toast('Укажи дату в формате ГГГГ-ММ-ДД');close();return}}else{const d=new Date();d.setDate(d.getDate()+Number(a));date=iso(d)}task.date=date;save();delete window.__realHeights;toast(`Задача перенесена: ${whenStr(task.date,task.time)}`);close();render()};document.body.appendChild(menu);setTimeout(()=>document.addEventListener('click',close,{once:true}),0)}
 
+function repaintClientCardAfterNote(){
+  setTimeout(()=>{
+    if(state.view!=='folder')return;
+    try{renderFolderView();renderSidebarPending()}catch(error){console.error('Не удалось обновить карточку клиента',error)}
+  },40);
+}
+document.addEventListener('click',event=>{
+  if(event.target.closest('.ccnote-save-btn,[data-note-del],[data-notesave]'))repaintClientCardAfterNote();
+},true);
+document.addEventListener('keydown',event=>{
+  if(event.key==='Enter'&&!event.shiftKey&&event.target.closest('.rich-editor'))repaintClientCardAfterNote();
+},true);
+
 </script></body></html>
