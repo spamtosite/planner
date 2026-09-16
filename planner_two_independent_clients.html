@@ -882,7 +882,7 @@ function restoreUiState(){
     if(!saved||typeof saved!=='object')return;
     const validViews=new Set(['day','week','month','monthgoals','folder']);
     if(validViews.has(saved.view))state.view=saved.view;
-    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.date||''))state.date=parse(saved.date);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.date||''))state.date=new Date(`${saved.date}T00:00:00`);
     if(saved.clientSection==='primary'||saved.clientSection==='secondary')state.clientSection=saved.clientSection;
     if(typeof saved.clientsCollapsed==='boolean')state.clientsCollapsed=saved.clientsCollapsed;
     ['clientPrimaryUi','clientSecondaryUi'].forEach(key=>{
