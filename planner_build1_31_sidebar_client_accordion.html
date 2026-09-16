@@ -2960,6 +2960,15 @@ function openClientCardFromTask(task){
   openFolderView(folderId);
 }
 
+function cancelPendingFolderCreation(event){
+  if(event.target.closest('.sidebarfolderadd,[id^="sfAdd_"],[id^="sfInput_"],[id^="sfOk_"],[id^="mfAdd_"],[id^="mfInput_"],[id^="mfOk_"]'))return;
+  const primary=state.clientPrimaryUi,secondary=state.clientSecondaryUi;
+  if(!primary.addingFolderSidebar&&!primary.addingFolderMobile&&!secondary.addingFolderSidebar&&!secondary.addingFolderMobile)return;
+  primary.addingFolderSidebar=false;primary.addingFolderMobile=false;
+  secondary.addingFolderSidebar=false;secondary.addingFolderMobile=false;
+  renderSidebarFolders();
+}
+document.addEventListener('click',cancelPendingFolderCreation);
 function renderSidebarFolders(){
   /* ИЗМ: два независимых списка — клиенты в #sidebarFolders, объекты в #objectSidebarFolders */
   const SECS={
