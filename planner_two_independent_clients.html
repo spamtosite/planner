@@ -882,7 +882,7 @@ function restoreUiState(){
     if(!saved||typeof saved!=='object')return;
     const validViews=new Set(['day','week','month','monthgoals','folder']);
     if(validViews.has(saved.view))state.view=saved.view;
-    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.date||''))state.date=new Date(`${saved.date}T00:00:00`);
+    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.date||''))state.date=new Date(saved.date+'T00:00:00');
     if(saved.clientSection==='primary'||saved.clientSection==='secondary')state.clientSection=saved.clientSection;
     if(typeof saved.clientsCollapsed==='boolean')state.clientsCollapsed=saved.clientsCollapsed;
     ['clientPrimaryUi','clientSecondaryUi'].forEach(key=>{
@@ -905,8 +905,6 @@ function persistUiState(){
     }));
   }catch(error){}
 }
-restoreUiState();
-window.addEventListener('pagehide',persistUiState);
 
 let modalSubtasks=[];let templateSubtasks=[];
 function cloneSubtasks(items){return (items||[]).map(item=>({...item,title:String(item.title||'').trim()})).filter(item=>item.title)}
@@ -4155,9 +4153,29 @@ const SIDEBAR_MIN=190,SIDEBAR_MAX=480;
     document.addEventListener('mouseup',onUp);
   });
 })();
-bindSubtaskEditors();
-renderQuickTplBar();
-render();
+function bootPlanner(){
+  try{
+    restoreUiState();
+    bindSubtaskEditors();
+    renderQuickTplBar();
+    render();
+    const content=$('content');
+    if(content&&!content.children.length){
+      sessionStorage.removeItem(UI_STATE_KEY);
+      state.view='day';state.date=new Date();
+      state.clientPrimaryUi.openFolderId=null;state.clientPrimaryUi.openClientId=null;
+      state.clientSecondaryUi.openFolderId=null;state.clientSecondaryUi.openClientId=null;
+      render();
+    }
+  }catch(error){
+    console.error('Ошибка запуска ежедневника; состояние интерфейса сброшено',error);
+    try{sessionStorage.removeItem(UI_STATE_KEY)}catch(e){}
+    state.view='day';state.date=new Date();
+    try{render()}catch(renderError){console.error('Не удалось отрисовать ежедневник',renderError)}
+  }
+}
+window.addEventListener('pagehide',persistUiState);
+bootPlanner();
 attachSwipeNav();
 const mobileBackBtn=document.getElementById('mobileBackBtn');
 if(mobileBackBtn)mobileBackBtn.onclick=backToMobileSections;
