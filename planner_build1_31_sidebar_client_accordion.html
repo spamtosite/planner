@@ -780,6 +780,9 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 /* A selected client is part of the main workspace: one vertical scroll only. */
 .main{min-height:0}.content{min-height:0;overflow-y:auto;overflow-x:hidden}.clientcard{max-height:none!important;overflow:visible!important}.clientcard .rich-editor{max-height:45vh;overflow-y:auto}
 
+/* Modal layers must stay above the sticky rich-text toolbar. */
+.overlay{z-index:1000}.tplmodal{position:relative;z-index:1001}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="brand">Мой ежедневник</div>
@@ -2399,7 +2402,7 @@ function renderFolderView(){
   $('content').innerHTML=viewHeadHtml(`<span class="datebig">${secIcon} ${esc(f.name)}</span>`,true)
     +`<div class="folderaddrow"><input id="fvInput" placeholder="${OBJ?'Название объекта / ЖК':'Имя клиента'}"><button class="primary" id="fvAdd">Добавить</button></div>`
     +`<div class="folderclientlist ${activeClientUi().openClientId?'has-open':''}">${itemsHtml}</div>`
-    +`<div class="modalfoot"><button class="danger" id="fvDelFolder">Удалить папку</button><div></div></div>`;
+    +``;
   bindViewHead();
   const inp=$('fvInput');
   const add=()=>{
@@ -2880,7 +2883,7 @@ function renderFolderView(){
   });
   const prValEnter=$('prNewVal');
   if(prValEnter)prValEnter.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();document.querySelector(`[data-pr-add="${activeClientUi().openClientId}"]`)?.click()}};
-  $('fvDelFolder').onclick=()=>{
+  const fvDelFolder=$('fvDelFolder');if(fvDelFolder)fvDelFolder.onclick=()=>{
     const cnt=list.length;
     if(!confirm(`Удалить папку «${f.name}»${cnt?` вместе с ${cnt} запис(ью/ями)`:''}?`))return;
     addTombstones([f]);
