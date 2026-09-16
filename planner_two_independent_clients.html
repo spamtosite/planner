@@ -873,6 +873,39 @@ data.tasks.forEach(t=>{
   if(t.endTime&&!/^\d{1,2}:\d{2}$/.test(t.endTime))t.endTime=null;
 });
 let state={view:'day',date:new Date(),editing:null,addingSubtaskFor:null,addingClient:false,recurDays:[],quickTplMatch:null,pickerYear:new Date().getFullYear(),clientsCollapsed:false,clientSection:'primary',clientPrimaryUi:{openFolderId:null,foldersExpanded:false,mobileFoldersExpanded:false,addingFolderSidebar:false,addingFolderMobile:false,renamingFolderId:null,openClientId:null,editingNoteId:null,editingClientId:null},clientSecondaryUi:{openFolderId:null,foldersExpanded:false,mobileFoldersExpanded:false,addingFolderSidebar:false,addingFolderMobile:false,renamingFolderId:null,openClientId:null,editingNoteId:null,editingClientId:null}};
+const UI_STATE_KEY='daily_planner_ui_state_v1';
+function restoreUiState(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem(UI_STATE_KEY)||'null');
+    if(!saved||typeof saved!=='object')return;
+    const validViews=new Set(['day','week','month','monthgoals','folder']);
+    if(validViews.has(saved.view))state.view=saved.view;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(saved.date||''))state.date=parse(saved.date);
+    if(saved.clientSection==='primary'||saved.clientSection==='secondary')state.clientSection=saved.clientSection;
+    if(typeof saved.clientsCollapsed==='boolean')state.clientsCollapsed=saved.clientsCollapsed;
+    ['clientPrimaryUi','clientSecondaryUi'].forEach(key=>{
+      const source=saved[key],target=state[key];
+      if(!source||typeof source!=='object')return;
+      ['openFolderId','openClientId'].forEach(prop=>{if(typeof source[prop]==='string')target[prop]=source[prop]});
+      ['foldersExpanded','mobileFoldersExpanded'].forEach(prop=>{if(typeof source[prop]==='boolean')target[prop]=source[prop]});
+    });
+    const active=state.clientSection==='secondary'?state.clientSecondaryUi:state.clientPrimaryUi;
+    const folders=state.clientSection==='secondary'?data.objectFolders:data.clientFolders;
+    if(state.view==='folder'&&!folders.some(folder=>folder.id===active.openFolderId))state.view='day';
+  }catch(error){console.warn('Не удалось восстановить открытый раздел',error)}
+}
+function persistUiState(){
+  try{
+    sessionStorage.setItem(UI_STATE_KEY,JSON.stringify({
+      view:state.view,date:iso(state.date),clientSection:state.clientSection,clientsCollapsed:state.clientsCollapsed,
+      clientPrimaryUi:{openFolderId:state.clientPrimaryUi.openFolderId,openClientId:state.clientPrimaryUi.openClientId,foldersExpanded:state.clientPrimaryUi.foldersExpanded,mobileFoldersExpanded:state.clientPrimaryUi.mobileFoldersExpanded},
+      clientSecondaryUi:{openFolderId:state.clientSecondaryUi.openFolderId,openClientId:state.clientSecondaryUi.openClientId,foldersExpanded:state.clientSecondaryUi.foldersExpanded,mobileFoldersExpanded:state.clientSecondaryUi.mobileFoldersExpanded}
+    }));
+  }catch(error){}
+}
+restoreUiState();
+window.addEventListener('pagehide',persistUiState);
+
 let modalSubtasks=[];let templateSubtasks=[];
 function cloneSubtasks(items){return (items||[]).map(item=>({...item,title:String(item.title||'').trim()})).filter(item=>item.title)}
 function renderEditorSubtasks(kind){const items=kind==='task'?modalSubtasks:templateSubtasks,list=$(kind==='task'?'fSubtasksList':'tSubsList');if(!list)return;list.innerHTML=items.length?items.map((item,index)=>`<div class="subtask-editor-item"><span>${esc(typeof item==='string'?item:item.title)}</span><button type="button" data-editor-remove="${index}" title="Удалить подзадачу">✕</button></div>`).join(''):'<div class="subtask-editor-empty">Подзадач пока нет</div>';list.querySelectorAll('[data-editor-remove]').forEach(button=>button.onclick=()=>{items.splice(+button.dataset.editorRemove,1);renderEditorSubtasks(kind)})}
