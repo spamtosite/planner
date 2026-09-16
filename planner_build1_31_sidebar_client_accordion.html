@@ -774,6 +774,9 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 /* Sidebar client accordion; the workspace renders only the chosen client. */
 .sidebarfoldergroup{display:grid;gap:2px}.sidebarclientlist{display:grid;gap:1px;padding:0 0 4px 15px}.sidebarclientitem{width:100%;padding:7px 10px;border-radius:7px;text-align:left;color:#cbd5e1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sidebarclientitem:hover{background:#263142;color:#fff}.sidebarclientitem.active{background:#334155;color:#fff;font-weight:700}.sidebarclientempty{padding:6px 10px;color:#8b93a1;font-size:11px}.folderclientlist:not(.has-open) .folderclientitem{display:none}
 
+/* High-contrast client entries and conditional long-name animation. */
+.sidebarclientlist{padding:2px 0 6px 15px}.sidebarclientitem{display:block;width:100%;min-width:0;overflow:hidden;padding:8px 10px;border-radius:7px;text-align:left;background:transparent;color:#24292f!important;font-size:12.5px;font-weight:600;line-height:1.25}.sidebarclientitem:hover{background:#e8edf8!important;color:#1f2937!important}.sidebarclientitem.active{background:#2563eb!important;color:#fff!important;font-weight:700}.sidebarclientlabel{display:inline-block;white-space:nowrap;will-change:transform}.sidebarclientlabel.is-overflowing{animation:sidebarClientMarquee 7s ease-in-out 1.2s infinite alternate}@keyframes sidebarClientMarquee{0%,12%{transform:translateX(0)}88%,100%{transform:translateX(calc(-1 * var(--sidebar-marquee-distance,0px)))}}@media(prefers-reduced-motion:reduce){.sidebarclientlabel.is-overflowing{animation:none}}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="brand">Мой ежедневник</div>
@@ -2970,7 +2973,7 @@ function renderSidebarFolders(){
       const nameHtml=ui.renamingFolderId===f.id
         ?`<input class="cnameedit" data-frenameinput="${sec}" value="${esc(f.name)}">`
         :`<span class="sfname">${esc(f.name)}</span>`;
-      const children=active?(items[f.id]||[]).map(client=>`<button type="button" class="sidebarclientitem ${ui.openClientId===client.id?'active':''}" data-sidebar-client="${client.id}" data-sidebar-folder="${f.id}" data-fsec="${sec}" title="Открыть карточку">${esc(client.name)}</button>`).join('')||`<div class="sidebarclientempty">Пока нет ${sec==='secondary'?'объектов':'клиентов'}</div>`:'';
+      const children=active?(items[f.id]||[]).map(client=>`<button type="button" class="sidebarclientitem ${ui.openClientId===client.id?'active':''}" data-sidebar-client="${client.id}" data-sidebar-folder="${f.id}" data-fsec="${sec}" title="${esc(client.name)}"><span class="sidebarclientlabel">${esc(client.name)}</span></button>`).join('')||`<div class="sidebarclientempty">Пока нет ${sec==='secondary'?'объектов':'клиентов'}</div>`:'';
       return `<div class="sidebarfoldergroup"><div class="sidebarfolderitem ${active?'active':''}" data-folder="${f.id}" data-fsec="${sec}">${nameHtml}<span class="fcount">${cnt||''}</span><button class="cheadbtn" data-frename="${f.id}" data-fsec="${sec}" title="Переименовать папку">✎</button></div>${children?`<div class="sidebarclientlist">${children}</div>`:''}</div>`;
     }).join('');
     const addBlock=ui.addingFolderSidebar
@@ -3042,6 +3045,7 @@ function renderSidebarFolders(){
   renderDesktop($('objectSidebarFolders'),'secondary');
   renderMobileList($('mobileFoldersListPrimary'),'primary');
   renderMobileList($('mobileFoldersListSecondary'),'secondary');
+  requestAnimationFrame(()=>{document.querySelectorAll('.sidebarclientitem').forEach(item=>{const label=item.querySelector('.sidebarclientlabel');if(!label)return;label.classList.remove('is-overflowing');const distance=Math.ceil(label.scrollWidth-item.clientWidth+20);if(distance>2){label.style.setProperty('--sidebar-marquee-distance',distance+'px');label.classList.add('is-overflowing')}})});
   document.querySelectorAll('[data-frename]').forEach(b=>{
     b.onclick=(e)=>{
       e.stopPropagation();
