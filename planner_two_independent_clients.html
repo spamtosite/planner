@@ -769,6 +769,8 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 .taskactions [data-action="reschedule"]{color:#5b35c9!important;font-size:15px!important;font-weight:800!important;padding:0 4px!important}.reschedulemenu{position:fixed;z-index:9999;min-width:168px;padding:6px;border:1px solid var(--line);border-radius:10px;background:#fff;box-shadow:0 12px 28px rgba(20,30,50,.18);display:grid;gap:2px}.reschedulemenu button{border:0;background:transparent;text-align:left;padding:9px 10px;border-radius:7px;color:var(--text);font:600 12px system-ui,sans-serif;cursor:pointer}.reschedulemenu button:hover{background:#f1edff;color:#6d36d8}.birthday-reminder{margin:0 0 12px;padding:10px;border:1px solid #f4c84f;border-radius:12px;background:linear-gradient(135deg,#fff9dd,#fff1b8);box-shadow:0 5px 14px rgba(202,138,4,.14)}.birthday-reminder-title{font-size:12px;font-weight:800;color:#8a5700;margin-bottom:7px}.birthday-reminder-client{width:100%;border:0;border-radius:8px;padding:8px;background:rgba(255,255,255,.72);color:#5f4300;text-align:left;font:700 12px system-ui,sans-serif;cursor:pointer}.birthday-reminder-client:hover{background:#fff}.birthday-reminder-client span{float:right;font-size:10px;color:#a16207;font-weight:700}.birthdayrow{display:flex;align-items:center;gap:8px}.birthdayrow input{min-width:0;flex:1}.birthday-age{flex:0 0 auto;padding:4px 7px;border-radius:999px;background:#f1edff;color:#6841bf;font-size:11px;font-weight:700;white-space:nowrap}.nextactionbtn,.ccnote-save-btn{border:0;border-radius:8px;padding:8px 12px;background:var(--accent);color:#fff;font:700 12px system-ui,sans-serif;cursor:pointer}.nextactionbtn:hover,.ccnote-save-btn:hover{filter:brightness(.96)}.ccnoteadd{display:flex;gap:8px;align-items:center}.failed-resultchip{background:#fee2e2!important;color:#b91c1c!important;border-color:#fecaca!important}.taskresult-failed{background:#fff1f2!important;color:#b4233c!important;border-color:#fecdd3!important}.taskrow{align-items:flex-start}.taskbody{min-width:0;flex:1 1 auto}.resultchip{flex:0 0 auto;white-space:nowrap;width:25px;min-width:25px;padding-left:0!important;padding-right:0!important;overflow:hidden;text-align:center}.failed-resultchip{background:#fee2e2!important;color:#b91c1c!important;border-color:#fecaca!important}.taskactions{position:relative;z-index:2}.taskresult-failed{background:#fff1f2!important;color:#b4233c!important;border-color:#fecdd3!important}
 .subtask-editor{display:grid;gap:8px}.subtask-editor-add{display:flex;gap:8px}.subtask-editor-add input{min-width:0;flex:1}.subtask-editor-list{display:grid;gap:5px}.subtask-editor-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:#fafbfc}.subtask-editor-item span{min-width:0;flex:1;overflow-wrap:anywhere}.subtask-editor-item button{color:var(--danger);padding:2px 5px;font-weight:800}.subtask-editor-empty{padding:7px 2px;color:var(--muted);font-size:12px}.tplitemactions{display:flex;gap:6px;align-items:center}.tplitemedit{color:var(--accent);font-weight:700;font-size:12px;padding:5px 7px;border-radius:6px}.tplitemedit:hover{background:#eef4ff}.taskblock.failed{border-left-color:#dc2626!important;background:#fff7f7}.taskblock.failed .tasktitle{text-decoration:line-through;color:#991b1b}.check.failed{border-color:#dc2626!important;background:#dc2626!important;color:#fff}.mobiledayrow.failed{background:#fff1f2!important;border-left:3px solid #dc2626}.mobiledayrow.failed .mobiledaytitle{text-decoration:line-through;color:#991b1b}.mobiledaycheck.failed{border-color:#dc2626!important;background:#dc2626!important}.cctaskrow.failed .cctaskst{color:#b91c1c;font-weight:800}
 
+.ccnoteitem{display:flex;align-items:flex-start;gap:8px}.ccnotemain,.ccnoteeditbody{min-width:0;flex:1}.ccnotecheck{width:19px;height:19px;flex:0 0 auto;margin-top:2px;padding:0;border:2px solid #9aa1a9;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:11px;line-height:1;background:#fff}.ccnotecheck.on{background:var(--green);border-color:var(--green)}.ccnoteitem.done{opacity:.68}.ccnoteitem.done .cctext{text-decoration:line-through}.ccnotes-completed{margin-top:10px;border-top:1px solid var(--line);padding-top:7px}.ccnotes-completed-head{width:100%;padding:5px 1px;text-align:left;color:var(--muted);font-size:12px;font-weight:700}.ccnotes-completed-list{display:grid;gap:7px;margin-top:5px}.cctask.done{color:var(--green)}.cctask.failed{color:#b4233c}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 </div>
@@ -2269,7 +2271,10 @@ function parsePriceToken(tok){
 }
 function parsePricesMulti(v){return String(v||'').split('/').map(t=>parsePriceToken(t)).filter(x=>x>0)}
 /* ================== /анкета ================== */
-  function renderFolderView(){
+  function linkedTaskForClientNote(note){return note&&note.taskId?data.tasks.find(task=>task.id===note.taskId):null}
+function isClientNoteCompleted(note){const task=linkedTaskForClientNote(note);return note&&note.taskId?!!(task&&task.done):!!note.done}
+function clientNoteMarkup(note,client){const linked=!!note.taskId,task=linked?linkedTaskForClientNote(note):null,done=isClientNoteCompleted(note),mark=linked?(task?.outcome==='failed'?'✕':'✓'):done?'✓':'';const check=!linked?`<button class="ccnotecheck ${done?'on':''}" data-note-complete="${client.id}:${note.id}" title="${done?'Вернуть в актуальные':'Отметить завершённой'}">${mark}</button>`:'';const linkedLabel=linked?`<div class="cctask ${done?'done':''} ${task?.outcome==='failed'?'failed':''}" data-open-task="${note.taskId}" style="cursor:pointer">${mark} 🗓 Связанная задача в календаре</div>`:'';if(activeClientUi().editingNoteId===note.id)return `<div class="ccnoteitem ${done?'done':''}">${check}<div class="ccnoteeditbody"><textarea class="ccnoteedit-ta" data-noteedit-ta="${note.id}">${esc(note.text)}</textarea><div class="ccnoteedit-btns"><button class="ccsave" data-notesave="${client.id}:${note.id}">Сохранить</button><button class="cccancel" data-notecancel>Отмена</button></div></div></div>`;return `<div class="ccnoteitem ccnoteitem-${esc(note.type||'comment')} ${done?'done':''}">${check}<div class="ccnotemain"><div class="ccts" style="order:-1">${fmtTs(note.ts)}${note.type&&note.type!=='comment'?` <span class="ccnote-badge ccnote-badge-${esc(note.type)}">${({call:'☎ Звонок',message:'✉ Сообщение',meeting:'◷ Встреча',showing:'◉ Показ'})[note.type]||'Комментарий'}</span>`:''}${note.edited?' · изменено':''}${note.ai?' · 🤖':''}</div><div class="cctext">${fmtNote(note.text)}</div>${linkedLabel}<div class="ccacts"><button data-note-edit="${client.id}:${note.id}">✎ Редактировать</button><button data-note-del="${client.id}:${note.id}">✕ Удалить</button></div></div></div>`}
+function renderFolderView(){
   const f=activeClientData().folders.find(x=>x.id===activeClientUi().openFolderId);
   if(!f){state.view='day';setTabs();render();return}
   const list=folderClientsOf(f.id);
@@ -2282,6 +2287,9 @@ function parsePricesMulti(v){return String(v||'').split('/').map(t=>parsePriceTo
       const notes=c.notes||[];
       const notesOrder=c.notesSort==='asc'?'asc':'desc';
       const sortedNotes=notes.slice().sort((a,b)=>notesOrder==='asc'?(a.ts||0)-(b.ts||0):(b.ts||0)-(a.ts||0));
+      const activeNotes=sortedNotes.filter(note=>!isClientNoteCompleted(note));
+      const completedNotes=sortedNotes.filter(note=>isClientNoteCompleted(note));
+      const completedOpen=!!c.notesCompletedOpen;
       const phones=c.phones||[];
       const off=open?((lookupCityTz(c.city)!==null)?lookupCityTz(c.city):parseTzOffset(c.tz)):null;
       let cardHtml='';
@@ -2367,24 +2375,7 @@ function parsePricesMulti(v){return String(v||'').split('/').map(t=>parsePriceTo
             <button class="ccnoteadd-btn" data-pr-add="${c.id}">＋</button>
           </div>
         </div>`:'';
-        const notesHtml=`<div class="ccnotesection client-notes-section"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'} <button type="button" class="ccsortbtn" data-notes-sort="${c.id}" title="Изменить порядок заметок">${notesOrder==='desc'?'Новые сверху':'Старые сверху'}</button></div>
-           <textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea>
-           <div class="ccnoteadd"><select class="ccnote-type" id="ccNoteType"><option value="comment">Комментарий</option><option value="call">Звонок</option><option value="message">Сообщение</option><option value="meeting">Встреча</option><option value="showing">Показ</option></select><button class="ccnote-save-btn" data-cid="${c.id}">Сохранить</button></div>
-            ${notes.length?sortedNotes.map(n=>{
-              if(activeClientUi().editingNoteId===n.id){
-                return `<div class="ccnoteitem">
-                  <textarea class="ccnoteedit-ta" data-noteedit-ta="${n.id}">${esc(n.text)}</textarea>
-                  <div class="ccnoteedit-btns"><button class="ccsave" data-notesave="${c.id}:${n.id}">Сохранить</button><button class="cccancel" data-notecancel>Отмена</button></div>
-                </div>`;
-              }
-              return `<div class="ccnoteitem ccnoteitem-${esc(n.type||'comment')}">
-                <div class="ccts" style="order:-1">${fmtTs(n.ts)}${n.type&&n.type!=='comment'?` <span class="ccnote-badge ccnote-badge-${esc(n.type)}">${({call:'☎ Звонок',message:'✉ Сообщение',meeting:'◷ Встреча',showing:'◉ Показ'})[n.type]||'Комментарий'}</span>`:''}${n.edited?' · изменено':''}${n.ai?' · 🤖':''}</div>
-                <div class="cctext">${fmtNote(n.text)}</div>
-                ${n.taskId?`<div class="cctask" data-open-task="${n.taskId}" style="cursor:pointer">🗓 Связанная задача в календаре</div>`:''}
-                <div class="ccacts"><button data-note-edit="${c.id}:${n.id}">✎ Редактировать</button><button data-note-del="${c.id}:${n.id}">✕ Удалить</button></div>
-              </div>`;
-            }).join(''):'<div class="folderempty">Заметок пока нет</div>'}
-          </div>`;
+        const notesHtml=`<div class="ccnotesection client-notes-section"><div class="cctitle">${OBJ?'Заметки об объекте':'Заметки о клиенте'} <button type="button" class="ccsortbtn" data-notes-sort="${c.id}" title="Изменить порядок заметок">${notesOrder==='desc'?'Новые сверху':'Старые сверху'}</button></div><textarea id="ccNoteInput" rows="1" placeholder="Новая заметка — Enter отправить, Shift+Enter новая строка" style="width:100%;min-height:40px;max-height:200px;resize:vertical;border:1px solid #d9dde2;border-radius:8px;padding:9px 10px;background:#fff;box-sizing:border-box;font:inherit"></textarea><div class="ccnoteadd"><select class="ccnote-type" id="ccNoteType"><option value="comment">Комментарий</option><option value="call">Звонок</option><option value="message">Сообщение</option><option value="meeting">Встреча</option><option value="showing">Показ</option></select><button class="ccnote-save-btn" data-cid="${c.id}">Сохранить</button></div><div class="ccnotes-active">${activeNotes.length?activeNotes.map(note=>clientNoteMarkup(note,c)).join(''):'<div class="folderempty">Актуальных заметок нет</div>'}</div>${completedNotes.length?`<div class="ccnotes-completed"><button type="button" class="ccnotes-completed-head" data-notes-completed-toggle="${c.id}">${completedOpen?'▾':'▸'} Завершённые · ${completedNotes.length}</button>${completedOpen?`<div class="ccnotes-completed-list">${completedNotes.map(note=>clientNoteMarkup(note,c)).join('')}</div>`:''}</div>`:''}</div>`;
         /* ИЗМ (шаг 5.5): поля карточки — разные для объекта и клиента */
         cardHtml+=`<div class="clientcard">
           <div class="${OBJ?'client-object-column':'client-info-column'}">
@@ -2697,6 +2688,8 @@ function parsePricesMulti(v){return String(v||'').split('/').map(t=>parsePriceTo
     if(!OBJ)maybeCreateTaskFromNote(cl.name, v, nt);
   };
   document.querySelectorAll('.ccnote-save-btn[data-cid]').forEach(b=>{b.onclick=()=>addNote(b.dataset.cid)});
+  document.querySelectorAll('[data-notes-completed-toggle]').forEach(button=>{button.onclick=()=>{const client=list.find(item=>item.id===button.dataset.notesCompletedToggle);if(!client)return;client.notesCompletedOpen=!client.notesCompletedOpen;renderFolderView()}});
+  document.querySelectorAll('[data-note-complete]').forEach(button=>{button.onclick=event=>{event.stopPropagation();const [cid,nid]=button.dataset.noteComplete.split(':');const client=list.find(item=>item.id===cid),note=(client?.notes||[]).find(item=>item.id===nid);if(!note||note.taskId)return;note.done=!note.done;note.doneTs=note.done?Date.now():null;save();renderFolderView();toast(note.done?'Заметка перенесена в завершённые':'Заметка возвращена в актуальные')}});
   document.querySelectorAll('[data-note-edit]').forEach(b=>{
     b.onclick=()=>{
       const [cid,nid]=b.dataset.noteEdit.split(':');
