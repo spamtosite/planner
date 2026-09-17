@@ -1827,10 +1827,11 @@ const CITY_TZ=Object.fromEntries([
   [12,'петропавловск-камчатский,елизово,вилючинск,анадырь,билибино,пеvek,певек']
 ].flatMap(([offset,cities])=>cities.split(',').map(city=>[city.trim(),offset])));
 function lookupCityTz(city){
-  const s=String(city||'').toLowerCase().trim();
-  if(!s)return null;
-  for(const k in CITY_TZ){if(s.includes(k))return CITY_TZ[k]}
-  return null;
+  const normalized=String(city||'').toLowerCase().trim();
+  if(!normalized)return null;
+  if(Object.prototype.hasOwnProperty.call(CITY_TZ,normalized))return CITY_TZ[normalized];
+  const matchedCity=Object.keys(CITY_TZ).filter(name=>normalized.includes(name)).sort((a,b)=>b.length-a.length)[0];
+  return matchedCity===undefined?null:CITY_TZ[matchedCity];
 }
 function parseTzOffset(tz){
   if(tz===undefined||tz===null||tz==='')return null;
