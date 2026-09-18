@@ -786,6 +786,9 @@ details.fold .foldbody div,details.fold .foldbody p{margin:0;padding:0;line-heig
 /* First-call communication type. */
 .ccnoteitem-firstcall{border-left-color:#0ea5e9;background:#f0f9ff}.ccnote-badge-firstcall{background:#e0f2fe;color:#0369a1}
 
+/* Prevent narrow task-body columns; long details wrap only after receiving their calculated width. */
+.taskblock .taskbody{min-width:0}.taskblock .taskresult,.taskblock .tasknotebody,.taskblock .subresult{overflow-wrap:anywhere;word-break:normal;white-space:pre-wrap}
+
 </style></head>
 <body><div class="app"><aside class="sidebar"><div class="sidebar-resizer" id="sidebarResizer" title="Потяните, чтобы изменить ширину"></div>
 <div class="brand">Мой ежедневник</div>
@@ -4636,5 +4639,35 @@ function repaintClientCardAfterNote(){
 }
 document.addEventListener('click',event=>{if(event.target.closest('.ccnote-save-btn,[data-note-del],[data-notesave]'))repaintClientCardAfterNote()},true);
 document.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.shiftKey&&event.target.closest('.rich-editor'))repaintClientCardAfterNote()},true);
+
+/* Canonical task-card sizing: text areas get usable width, controls stay outside it. */
+function taskDetailContentWidth(t){
+  const noteLines=visibleText(taskDisplayNote(t)||'').split('\n').filter(Boolean);
+  const noteWidth=noteLines.reduce((max,line)=>Math.max(max,textWidth(line,'10.5px system-ui, sans-serif')),0);
+  const resultWidth=t.done&&t.resultText?textWidth(visibleText(t.resultText),'700 10.5px system-ui, sans-serif'):0;
+  const subResultWidth=(t.subtasks||[]).reduce((max,subtask)=>Math.max(max,subtask.resultNote?textWidth(visibleText(subtask.resultNote),'10.5px system-ui, sans-serif'):0),0);
+  return Math.max(noteWidth,resultWidth,subResultWidth);
+}
+function naturalTaskWidth(t){
+  if(__widthOverrides[t.id])return __widthOverrides[t.id];
+  const timeline=document.querySelector('.timeline');
+  const timelineWidth=timeline?.clientWidth||$('content')?.clientWidth||window.innerWidth;
+  const detailLimit=Math.max(180,Math.floor((timelineWidth-75)/3));
+  const controlWidth=94;
+  const titleWidth=textWidth(visibleText(t.title),'600 13px system-ui, sans-serif')+142;
+  const timeWidth=timeLabel(t)?textWidth(visibleText(timeLabel(t)),'700 10.5px system-ui, sans-serif')+16:0;
+  const objectWidth=t.object?textWidth(visibleText(t.object),'600 10.5px system-ui, sans-serif')+16:0;
+  const clientWidth=t.clientName?textWidth(visibleText(t.clientName),'700 10.5px system-ui, sans-serif')+40:0;
+  const subtaskWidth=(t.subtasks||[]).reduce((max,subtask)=>Math.max(max,textWidth(visibleText(subtask.title),'11px system-ui, sans-serif')+SUB_ROW_CHROME),0);
+  const detailWidth=taskDetailContentWidth(t)?Math.min(detailLimit,Math.max(180,taskDetailContentWidth(t)+24))+controlWidth:0;
+  return Math.max(MIN_BLOCK_WIDTH,Math.ceil(Math.max(titleWidth,timeWidth,objectWidth,clientWidth,subtaskWidth,detailWidth)));
+}
+function refreshTaskCardLayout(){
+  if(state.view!=='day')return;
+  delete window.__realHeights;
+  __widthOverrides={};
+  render();
+}
+requestAnimationFrame(refreshTaskCardLayout);
 
 </script></body></html>
